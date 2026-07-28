@@ -56,10 +56,24 @@
 
 如果目标只是“完全自定义 Codex 的外观”，优先做 `app-server` 客户端。如果目标只是让 ChatGPT 网页更好用，继续把 GPTskins 保持为页面增强扩展，不承担本地执行和账号自动化。
 
+## 一次网页提问的网络与渲染过程
+
+需要区分四层：
+
+1. 浏览器通常通过 HTTPS 发送应用数据；底层可能是 HTTP/1.1 或 HTTP/2 over TCP，也可能是 HTTP/3 over QUIC/UDP，并非永远是“HTTP + TCP”。
+2. 提问通常产生一次逻辑请求，并保持一条流式响应。流内可以包含响应创建、文本增量、工具状态、完成或错误等结构化事件。
+3. 模型生成的是 token，不是固定的“一个词”。一个事件可能带一个或多个 token，多个事件也可能被装进同一个 TCP/QUIC 数据包，因此 token、事件和网络包之间没有一一对应关系。
+4. 页面 JavaScript 收到文本增量后，在本机把 Markdown 或结构化内容解析成 HTML 并更新 DOM。普通回答流不需要逐次返回 HTML、CSS 或 DOM；这些是前端利用已经加载的代码和样式生成的。
+
+载入 `chatgpt.com` 页面时，浏览器会另外获取初始 HTML、JavaScript、CSS、字体和图片。发送消息后的主要响应通常是数据流，而不是再次下载整张网页。实际 ChatGPT 网页使用的是未公开内部协议，具体字段和传输方式可能变化；公开可确认的是 OpenAI Responses API 使用 Server-Sent Events 发送 `response.created`、文本 delta、完成和错误等流式事件。
+
+屏幕每次增加几个字只代表一次本地渲染更新，不代表发起了一次新提问。传输层仍可能发送 TCP ACK，网页也可能另行发送遥测、标题或会话同步请求，但它们与“每个词重新请求一次模型”不是一回事。
+
 ## 官方资料
 
 - Codex App Server：https://learn.chatgpt.com/docs/app-server
 - Codex 沙箱与权限：https://learn.chatgpt.com/docs/sandboxing
 - Responses API：https://developers.openai.com/api/docs/guides/migrate-to-responses
+- Responses API 流式事件：https://developers.openai.com/api/reference/resources/responses/streaming-events
 - OpenAI 使用条款：https://openai.com/policies/terms-of-use/
 - ChatGPT 与 API 分开计费：https://help.openai.com/en/articles/8156019
