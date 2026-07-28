@@ -1570,11 +1570,17 @@ html.dark[data-gptskins-theme] main button.btn-primary :is(div, span, svg) {
     style.textContent = `
 html[data-gptskins-font] {
   --gptskins-font-family: ${font.stack};
+  --gptskins-code-font-family: ${font.codeStack || font.stack};
 }
 
 html[data-gptskins-font] body,
-html[data-gptskins-font] body * {
+html[data-gptskins-font] body *:not(:is(.katex, .katex *, math, math *, [role="math"], [role="math"] *)) {
   font-family: var(--gptskins-font-family) !important;
+}
+
+html[data-gptskins-font] body :is(pre, code, kbd, samp, [data-gptskins-code-body], .cm-editor, .cm-scroller, .cm-content),
+html[data-gptskins-font] body :is(pre, code, kbd, samp, [data-gptskins-code-body], .cm-editor, .cm-scroller, .cm-content) * {
+  font-family: var(--gptskins-code-font-family) !important;
 }
 `;
   }

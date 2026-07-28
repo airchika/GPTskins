@@ -4,7 +4,7 @@ const assert = require("node:assert/strict");
 
 require("../shared/themes.js");
 
-const { themes } = globalThis.GPTskinsThemes;
+const { themes, fonts } = globalThis.GPTskinsThemes;
 
 function luminance(hex) {
   const channels = [1, 3, 5]
@@ -19,11 +19,17 @@ function contrast(first, second) {
 }
 
 assert.equal(new Set(themes.map((theme) => theme.id)).size, themes.length, "theme ids must be unique");
+assert.equal(new Set(fonts.map((font) => font.id)).size, fonts.length, "font ids must be unique");
 
 for (const theme of themes.filter((item) => item.id !== "default")) {
   assert.match(theme.colors.accent, /^#[0-9a-f]{6}$/i, `${theme.id} needs a hex accent`);
   assert.match(theme.colors.accentText, /^#[0-9a-f]{6}$/i, `${theme.id} needs a hex accent label`);
   assert.ok(contrast(theme.colors.accent, theme.colors.accentText) >= 4.5, `${theme.id} accent label contrast is below 4.5:1`);
 }
+
+const sarasaMonoSc = fonts.find((font) => font.id === "sarasa-mono-sc");
+assert.ok(sarasaMonoSc, "Sarasa Mono SC font preset must exist");
+assert.match(sarasaMonoSc.stack, /Sarasa Mono SC/, "Sarasa preset must use Sarasa Mono SC for body text");
+assert.match(sarasaMonoSc.codeStack, /JetBrains Mono/, "Sarasa preset must use JetBrains Mono for code");
 
 console.log(`Checked ${themes.length - 1} GPTskins theme palettes.`);

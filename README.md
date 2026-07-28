@@ -22,7 +22,7 @@ Switch ChatGPT into popular editor-inspired themes like Catppuccin Latte, GitHub
 - Popup-only style picker with Theme and Font panels.
 - Adds 34 custom themes while preserving ChatGPT's Default look.
 - Built-in themes: Default, OG, Absolutely, Ayu, Ayu Light, Catppuccin, Catppuccin Latte, Codex, Dracula, Everforest, Forest, Everforest Light, Gruvbox, Gruvbox Light, GitHub Dark, Linear, Lobster, Material, Matrix, Monokai, Night Owl, Nord, One, Oscurange, Raycast, Rose Pine, Rose, Rose Pine Dawn, Sentry, Solarized, Solar, Temple, Tokyo Night, Tokyo Day, and Xcode Dark.
-- Built-in fonts: Default, Verdana, Georgia, and Mono.
+- Built-in fonts: Default, Verdana, Georgia, Mono, and Sarasa Mono SC (with JetBrains Mono for code).
 - Saved selection with `chrome.storage.sync`.
 - Automatic theme and font loading on `chatgpt.com` and `chat.openai.com`.
 - No backend, login, external API, or build step.
@@ -70,6 +70,7 @@ Switch ChatGPT into popular editor-inspired themes like Catppuccin Latte, GitHub
 - Verdana
 - Georgia
 - Mono
+- Sarasa Mono SC (JetBrains Mono for code)
 
 ## Load in Chrome or Edge
 

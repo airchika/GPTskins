@@ -774,6 +774,13 @@
       name: "Mono",
       description: "Terminal-style text.",
       stack: 'ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace'
+    },
+    {
+      id: "sarasa-mono-sc",
+      name: "Sarasa Mono SC",
+      description: "Sarasa text, JetBrains code.",
+      stack: '"Sarasa Mono SC", "Microsoft YaHei UI", "Microsoft YaHei", ui-monospace, monospace',
+      codeStack: '"JetBrains Mono", "Cascadia Mono", Consolas, "Liberation Mono", Menlo, monospace'
     }
   ];
 
