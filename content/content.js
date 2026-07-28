@@ -203,8 +203,8 @@ html[data-gptskins-theme] #page-header [class*="pointer-events-none"] > .translu
 }
 
 html[data-gptskins-theme] #conversation-header-actions {
-  background: var(--gptskins-surfaceStrong) !important;
-  background-color: var(--gptskins-surfaceStrong) !important;
+  background: var(--gptskins-background) !important;
+  background-color: var(--gptskins-background) !important;
   background-image: none !important;
   color: var(--gptskins-text) !important;
 }
