@@ -777,9 +777,10 @@
     },
     {
       id: "sarasa-mono-sc",
-      name: "Sarasa Mono SC",
-      description: "Sarasa text, JetBrains code.",
-      stack: '"Sarasa Mono SC", "Microsoft YaHei UI", "Microsoft YaHei", ui-monospace, monospace',
+      name: "Sarasa SC",
+      description: "UI, mono text, JetBrains code.",
+      stack: '"Sarasa UI SC", "Microsoft YaHei UI", "Microsoft YaHei", ui-sans-serif, sans-serif',
+      textStack: '"Sarasa Mono SC", "Microsoft YaHei UI", "Microsoft YaHei", ui-monospace, monospace',
       codeStack: '"JetBrains Mono", "Cascadia Mono", Consolas, "Liberation Mono", Menlo, monospace'
     }
   ];

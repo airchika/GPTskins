@@ -27,9 +27,10 @@ for (const theme of themes.filter((item) => item.id !== "default")) {
   assert.ok(contrast(theme.colors.accent, theme.colors.accentText) >= 4.5, `${theme.id} accent label contrast is below 4.5:1`);
 }
 
-const sarasaMonoSc = fonts.find((font) => font.id === "sarasa-mono-sc");
-assert.ok(sarasaMonoSc, "Sarasa Mono SC font preset must exist");
-assert.match(sarasaMonoSc.stack, /Sarasa Mono SC/, "Sarasa preset must use Sarasa Mono SC for body text");
-assert.match(sarasaMonoSc.codeStack, /JetBrains Mono/, "Sarasa preset must use JetBrains Mono for code");
+const sarasaSc = fonts.find((font) => font.id === "sarasa-mono-sc");
+assert.ok(sarasaSc, "Sarasa SC font preset must exist");
+assert.match(sarasaSc.stack, /Sarasa UI SC/, "Sarasa preset must use Sarasa UI SC for interface text");
+assert.match(sarasaSc.textStack, /Sarasa Mono SC/, "Sarasa preset must use Sarasa Mono SC for message text");
+assert.match(sarasaSc.codeStack, /JetBrains Mono/, "Sarasa preset must use JetBrains Mono for code");
 
 console.log(`Checked ${themes.length - 1} GPTskins theme palettes.`);
