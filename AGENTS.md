@@ -14,6 +14,7 @@
 
 ## Known Surfaces
 - Default is a pass-through theme. Its popup swatches should stay simple black/white, but do not make Default inject CSS unless Dylan explicitly asks.
+- The top-right conversation action bar is `#conversation-header-actions`; its `translucent-surface` background can stay black when the page-header wrappers change, so theme that stable id directly instead of relying on a direct-child selector.
 - Code blocks are nested inside `pre`; the visible frame may be a parent wrapper. Use `syncSurfaceTags()` and the `data-gptskins-code-frame`, `data-gptskins-code-block`, `data-gptskins-code-header`, and `data-gptskins-code-body` attributes instead of piling on more generic code selectors.
 - Never let headings/paragraphs/hr become `data-gptskins-code-header`. Theme switches can leave stale tags, so `syncSurfaceTags()` must strip that attribute from `h1`-`h6`, `p`, and `hr`.
 - Code body/draft snippets need horizontal scrolling. Do not leave every code wrapper on `overflow: hidden`; ensure `data-gptskins-code-body` keeps `overflow-x: auto`.

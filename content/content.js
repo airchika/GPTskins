@@ -202,6 +202,13 @@ html[data-gptskins-theme] #page-header [class*="pointer-events-none"] > .translu
   --main-surface-primary: var(--gptskins-background) !important;
 }
 
+html[data-gptskins-theme] #conversation-header-actions {
+  background: var(--gptskins-surfaceStrong) !important;
+  background-color: var(--gptskins-surfaceStrong) !important;
+  background-image: none !important;
+  color: var(--gptskins-text) !important;
+}
+
 html[data-gptskins-theme] [class*="thread-bottom-container"]:has(:is(form[class*="composer"], [data-testid="composer"], [class*="group/composer"], [class*="composer"])) {
   background: linear-gradient(
     to bottom,
