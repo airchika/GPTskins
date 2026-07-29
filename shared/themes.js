@@ -782,6 +782,14 @@
       stack: '"Sarasa UI SC", "Microsoft YaHei UI", "Microsoft YaHei", ui-sans-serif, sans-serif',
       textStack: '"Noto Sans SC", "Microsoft YaHei UI", "Microsoft YaHei", ui-sans-serif, sans-serif',
       codeStack: '"JetBrains Mono", "Cascadia Mono", Consolas, "Liberation Mono", Menlo, monospace'
+    },
+    {
+      id: "sarasa-mono-sc-text",
+      name: "Sarasa Mono SC",
+      description: "Sarasa UI, Sarasa Mono text, JetBrains code.",
+      stack: '"Sarasa UI SC", "Microsoft YaHei UI", "Microsoft YaHei", ui-sans-serif, sans-serif',
+      textStack: '"Sarasa Mono SC", "Microsoft YaHei UI", "Microsoft YaHei", ui-monospace, monospace',
+      codeStack: '"JetBrains Mono", "Cascadia Mono", Consolas, "Liberation Mono", Menlo, monospace'
     }
   ];
 
