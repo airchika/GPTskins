@@ -1580,7 +1580,30 @@ html[data-gptskins-font] body *:not(:is(.katex, .katex *, math, math *, [role="m
 }
 
 html[data-gptskins-font] body [data-message-author-role],
-html[data-gptskins-font] body [data-message-author-role] *:not(:is(.katex, .katex *, math, math *, [role="math"], [role="math"] *)) {
+html[data-gptskins-font] body [data-message-author-role] *:not(:is(
+  .katex,
+  .katex *,
+  math,
+  math *,
+  [role="math"],
+  [role="math"] *,
+  pre,
+  pre *,
+  code,
+  code *,
+  kbd,
+  kbd *,
+  samp,
+  samp *,
+  [data-gptskins-code-body],
+  [data-gptskins-code-body] *,
+  .cm-editor,
+  .cm-editor *,
+  .cm-scroller,
+  .cm-scroller *,
+  .cm-content,
+  .cm-content *
+)) {
   font-family: var(--gptskins-text-font-family) !important;
 }
 
