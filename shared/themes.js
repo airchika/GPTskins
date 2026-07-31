@@ -749,6 +749,11 @@
     midnight: "night-owl",
     "one-dark": "one"
   };
+  const storageKey = "gptskins.theme";
+  const themeStorageKeys = {
+    dark: "gptskins.theme.dark",
+    light: "gptskins.theme.light"
+  };
   const darkThemeIds = new Set(themes.filter((theme) => theme.dark).map((theme) => theme.id));
   const fonts = [
     {
@@ -798,17 +803,51 @@
     return themes.find((theme) => theme.id === themeId) || themes[0];
   }
 
+  function getThemeForMode(id, mode) {
+    const theme = getTheme(id);
+    if (theme.id === "default") {
+      return theme;
+    }
+
+    const expectedDark = mode === "dark";
+    return Boolean(theme.dark) === expectedDark ? theme : themes[0];
+  }
+
+  function resolveThemeSelections(settings = {}) {
+    const legacyTheme = getTheme(settings[storageKey] || "default");
+    const selections = {
+      dark: getThemeForMode(settings[themeStorageKeys.dark], "dark").id,
+      light: getThemeForMode(settings[themeStorageKeys.light], "light").id
+    };
+
+    if (!Object.prototype.hasOwnProperty.call(settings, themeStorageKeys.dark) && legacyTheme.dark) {
+      selections.dark = legacyTheme.id;
+    }
+    if (
+      !Object.prototype.hasOwnProperty.call(settings, themeStorageKeys.light) &&
+      legacyTheme.id !== "default" &&
+      !legacyTheme.dark
+    ) {
+      selections.light = legacyTheme.id;
+    }
+
+    return selections;
+  }
+
   function getFont(id) {
     return fonts.find((font) => font.id === id) || fonts[0];
   }
 
   globalThis.GPTskinsThemes = {
-    storageKey: "gptskins.theme",
+    storageKey,
+    themeStorageKeys,
     fontStorageKey: "gptskins.font",
     themes,
     fonts,
     darkThemeIds,
     getTheme,
+    getThemeForMode,
+    resolveThemeSelections,
     getFont
   };
 })();

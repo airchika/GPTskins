@@ -22,9 +22,9 @@ Switch ChatGPT into popular editor-inspired themes like Catppuccin Latte, GitHub
 - Popup-only style picker with Theme and Font panels.
 - Adds 34 custom themes while preserving ChatGPT's Default look.
 - Built-in themes: Default, OG, Absolutely, Ayu, Ayu Light, Catppuccin, Catppuccin Latte, Codex, Dracula, Everforest, Forest, Everforest Light, Gruvbox, Gruvbox Light, GitHub Dark, Linear, Lobster, Material, Matrix, Monokai, Night Owl, Nord, One, Oscurange, Raycast, Rose Pine, Rose, Rose Pine Dawn, Sentry, Solarized, Solar, Temple, Tokyo Night, Tokyo Day, and Xcode Dark.
-- Built-in fonts: Default, Verdana, Georgia, Mono, and Sarasa SC (Sarasa UI for the interface, Sarasa Mono for messages, and JetBrains Mono for code).
-- Saved selection with `chrome.storage.sync`.
-- Automatic theme and font loading on `chatgpt.com` and `chat.openai.com`.
+- Built-in fonts: Default, Verdana, Georgia, Mono, Sarasa SC (Sarasa UI interface, Noto Sans messages, JetBrains Mono code), and Sarasa Mono SC (Sarasa UI interface, Sarasa Mono messages, JetBrains Mono code).
+- Separate dark and light theme selections saved with `chrome.storage.sync`.
+- Automatic system color-scheme switching plus theme and font loading on `chatgpt.com` and `chat.openai.com`.
 - No backend, login, external API, or build step.
 
 ## Available Themes
@@ -70,7 +70,8 @@ Switch ChatGPT into popular editor-inspired themes like Catppuccin Latte, GitHub
 - Verdana
 - Georgia
 - Mono
-- Sarasa SC (Sarasa UI interface, Sarasa Mono messages, JetBrains Mono code)
+- Sarasa SC (Sarasa UI interface, Noto Sans messages, JetBrains Mono code)
+- Sarasa Mono SC (Sarasa UI interface, Sarasa Mono messages, JetBrains Mono code)
 
 ## Load in Chrome or Edge
 

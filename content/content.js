@@ -5,6 +5,7 @@
   const themeStyleId = "gptskins-style";
   const fontStyleId = "gptskins-font-style";
   const root = document.documentElement;
+  const systemThemeMedia = window.matchMedia("(prefers-color-scheme: dark)");
   const codeSurfaceTags = [
     "data-gptskins-code-frame",
     "data-gptskins-code-block",
@@ -34,7 +35,7 @@
     "/download"
   ]);
   const themeBypassPrefixPaths = ["/features", "/use-cases", "/codex", "/business", "/plans"];
-  let selectedThemeId = "default";
+  let selectedThemeIds = { dark: "default", light: "default" };
   let selectedFontId = "default";
   let routeThemeTimer = 0;
   let routeThemeObserverStarted = false;
@@ -1659,9 +1660,25 @@ html[data-gptskins-font] body :is(pre, code, kbd, samp, [data-gptskins-code-body
     });
   }
 
+  function getSystemThemeMode() {
+    return systemThemeMedia.matches ? "dark" : "light";
+  }
+
+  function applySelectedTheme() {
+    applyTheme(selectedThemeIds[getSystemThemeMode()]);
+  }
+
+  function setThemeSelection(mode, themeId) {
+    if (mode !== "dark" && mode !== "light") {
+      return;
+    }
+
+    selectedThemeIds[mode] = themeApi.getThemeForMode(themeId, mode).id;
+    applySelectedTheme();
+  }
+
   function applyTheme(themeId) {
     const theme = themeApi.getTheme(themeId || "default");
-    selectedThemeId = theme.id;
     const restoreScroll = captureScrollPositions();
     if (shouldBypassThemeForUrl()) {
       removeTheme();
@@ -1705,7 +1722,7 @@ html[data-gptskins-font] body :is(pre, code, kbd, samp, [data-gptskins-code-body
   function scheduleRouteThemeSync() {
     clearTimeout(routeThemeTimer);
     routeThemeTimer = setTimeout(() => {
-      applyTheme(selectedThemeId);
+      applySelectedTheme();
       applyFont(selectedFontId);
     }, 80);
   }
@@ -2165,15 +2182,38 @@ html[data-gptskins-font] body :is(pre, code, kbd, samp, [data-gptskins-code-body
   }
 
   function loadStoredSettings() {
-    chrome.storage.sync.get([themeApi.storageKey, themeApi.fontStorageKey], (result) => {
-      applyTheme(result[themeApi.storageKey] || "default");
-      applyFont(result[themeApi.fontStorageKey] || "default");
-    });
+    chrome.storage.sync.get(
+      [themeApi.storageKey, themeApi.themeStorageKeys.dark, themeApi.themeStorageKeys.light, themeApi.fontStorageKey],
+      (result) => {
+        selectedThemeIds = themeApi.resolveThemeSelections(result);
+        selectedFontId = themeApi.getFont(result[themeApi.fontStorageKey] || "default").id;
+
+        const migratedSettings = {};
+        for (const mode of ["dark", "light"]) {
+          const storageKey = themeApi.themeStorageKeys[mode];
+          if (result[storageKey] !== selectedThemeIds[mode]) {
+            migratedSettings[storageKey] = selectedThemeIds[mode];
+          }
+        }
+        if (Object.keys(migratedSettings).length) {
+          chrome.storage.sync.set(migratedSettings);
+        }
+
+        applySelectedTheme();
+        applyFont(selectedFontId);
+      }
+    );
   }
 
   chrome.runtime.onMessage.addListener((message) => {
     if (message && message.type === "GPTSKINS_APPLY_THEME") {
-      applyTheme(message.themeId);
+      if (message.themeMode) {
+        setThemeSelection(message.themeMode, message.themeId);
+      } else {
+        const theme = themeApi.getTheme(message.themeId);
+        const mode = theme.dark ? "dark" : "light";
+        setThemeSelection(mode, theme.id);
+      }
     }
     if (message && message.type === "GPTSKINS_APPLY_FONT") {
       applyFont(message.fontId);
@@ -2181,13 +2221,29 @@ html[data-gptskins-font] body :is(pre, code, kbd, samp, [data-gptskins-code-body
   });
 
   chrome.storage.onChanged.addListener((changes, areaName) => {
-    if (areaName === "sync" && changes[themeApi.storageKey]) {
-      applyTheme(changes[themeApi.storageKey].newValue);
+    if (areaName === "sync") {
+      let themeChanged = false;
+      for (const mode of ["dark", "light"]) {
+        const storageKey = themeApi.themeStorageKeys[mode];
+        if (changes[storageKey]) {
+          selectedThemeIds[mode] = themeApi.getThemeForMode(changes[storageKey].newValue, mode).id;
+          themeChanged = true;
+        }
+      }
+      if (themeChanged) {
+        applySelectedTheme();
+      }
     }
     if (areaName === "sync" && changes[themeApi.fontStorageKey]) {
       applyFont(changes[themeApi.fontStorageKey].newValue);
     }
   });
+
+  if (typeof systemThemeMedia.addEventListener === "function") {
+    systemThemeMedia.addEventListener("change", applySelectedTheme);
+  } else {
+    systemThemeMedia.addListener(applySelectedTheme);
+  }
 
   startRouteThemeObserver();
 

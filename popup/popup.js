@@ -8,17 +8,22 @@
   const status = document.getElementById("status");
   const styleButtons = Array.from(document.querySelectorAll("[data-style-mode]"));
   const filterButtons = Array.from(document.querySelectorAll("[data-theme-mode]"));
-  let selectedThemeId = "default";
+  const systemThemeMedia = window.matchMedia("(prefers-color-scheme: dark)");
+  let selectedThemeIds = { dark: "default", light: "default" };
   let selectedFontId = "default";
   let styleMode = "theme";
-  let themeMode = "dark";
+  let themeMode = systemThemeMedia.matches ? "dark" : "light";
+
+  function getSystemThemeMode() {
+    return systemThemeMedia.matches ? "dark" : "light";
+  }
 
   function renderThemeButton(theme) {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "theme-button";
     button.dataset.themeId = theme.id;
-    button.setAttribute("aria-pressed", String(theme.id === selectedThemeId));
+    button.setAttribute("aria-pressed", String(theme.id === selectedThemeIds[themeMode]));
 
     const swatches = document.createElement("span");
     swatches.className = "swatches";
@@ -72,7 +77,7 @@
 
   function updatePressedStates() {
     document.querySelectorAll(".theme-button").forEach((button) => {
-      button.setAttribute("aria-pressed", String(button.dataset.themeId === selectedThemeId));
+      button.setAttribute("aria-pressed", String(button.dataset.themeId === selectedThemeIds[themeMode]));
     });
     document.querySelectorAll(".font-button").forEach((button) => {
       button.setAttribute("aria-pressed", String(button.dataset.fontId === selectedFontId));
@@ -105,15 +110,24 @@
   }
 
   function selectTheme(themeId) {
-    selectedThemeId = themeApi.getTheme(themeId).id;
+    const selectedMode = themeMode;
+    const selectedThemeId = themeApi.getThemeForMode(themeId, selectedMode).id;
+    selectedThemeIds[selectedMode] = selectedThemeId;
     updatePressedStates();
 
-    chrome.storage.sync.set({ [themeApi.storageKey]: selectedThemeId }, () => {
+    chrome.storage.sync.set({ [themeApi.themeStorageKeys[selectedMode]]: selectedThemeId }, () => {
       const saveFailed = Boolean(chrome.runtime.lastError);
+      const modeName = selectedMode === "dark" ? "Dark" : "Light";
+      const activeMode = getSystemThemeMode();
+      const isActiveMode = selectedMode === activeMode;
       sendToActiveTab(
-        { type: "GPTSKINS_APPLY_THEME", themeId: selectedThemeId },
-        saveFailed ? "Theme applied, but couldn't save it." : "Theme applied.",
-        saveFailed ? "Couldn't save theme. Try again." : "Saved. Open ChatGPT to see this theme."
+        { type: "GPTSKINS_APPLY_THEME", themeMode: selectedMode, themeId: selectedThemeId },
+        saveFailed
+          ? `${modeName} theme ${isActiveMode ? "applied" : "selected"}, but couldn't save it.`
+          : isActiveMode
+            ? `${modeName} theme applied.`
+            : `${modeName} theme saved. ${activeMode === "dark" ? "Dark" : "Light"} mode is active.`,
+        saveFailed ? "Couldn't save theme. Try again." : `${modeName} theme saved.`
       );
     });
   }
@@ -133,7 +147,7 @@
   }
 
   function isVisibleTheme(theme) {
-    return themeMode === (theme.dark || theme.id === "default" ? "dark" : "light");
+    return theme.id === "default" || themeMode === (theme.dark ? "dark" : "light");
   }
 
   function renderThemes() {
@@ -150,7 +164,8 @@
     styleMode = mode;
     themePanel.hidden = styleMode !== "theme";
     fontList.hidden = styleMode !== "font";
-    status.textContent = styleMode === "theme" ? "Pick a theme for ChatGPT." : "Pick a font for ChatGPT.";
+    status.textContent =
+      styleMode === "theme" ? "Dark and light themes follow your system setting." : "Pick a font for ChatGPT.";
     updatePressedStates();
   }
 
@@ -165,12 +180,25 @@
     });
   });
 
-  chrome.storage.sync.get([themeApi.storageKey, themeApi.fontStorageKey], (result) => {
-    selectedThemeId = themeApi.getTheme(result[themeApi.storageKey] || "default").id;
-    selectedFontId = themeApi.getFont(result[themeApi.fontStorageKey] || "default").id;
-    themeMode = selectedThemeId !== "default" && !themeApi.darkThemeIds.has(selectedThemeId) ? "light" : "dark";
-    renderThemes();
-    renderFonts();
-    showPanel("theme");
-  });
+  chrome.storage.sync.get(
+    [themeApi.storageKey, themeApi.themeStorageKeys.dark, themeApi.themeStorageKeys.light, themeApi.fontStorageKey],
+    (result) => {
+      selectedThemeIds = themeApi.resolveThemeSelections(result);
+      selectedFontId = themeApi.getFont(result[themeApi.fontStorageKey] || "default").id;
+      const migratedSettings = {};
+      for (const mode of ["dark", "light"]) {
+        const storageKey = themeApi.themeStorageKeys[mode];
+        if (result[storageKey] !== selectedThemeIds[mode]) {
+          migratedSettings[storageKey] = selectedThemeIds[mode];
+        }
+      }
+      if (Object.keys(migratedSettings).length) {
+        chrome.storage.sync.set(migratedSettings);
+      }
+      themeMode = getSystemThemeMode();
+      renderThemes();
+      renderFonts();
+      showPanel("theme");
+    }
+  );
 })();
