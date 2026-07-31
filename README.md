@@ -79,7 +79,7 @@ Switch ChatGPT into popular editor-inspired themes like Catppuccin Latte, GitHub
 The message queue is an independent module and is disabled by default. Enable it from the **Queue** tab in the extension popup. While ChatGPT is responding, type the next message in the official composer and press **Enter** to queue it. **Shift+Enter** still inserts a line break.
 
 - Stores up to 10 pending prompts in `chrome.storage.local` on the current device.
-- Shows Codex-style queued message cards directly above the official composer, with Edit and Remove actions.
+- Shows a compact count button at the composer's right edge; click it to open a narrow Codex-style queue panel with Edit and Remove actions.
 - Sends only one prompt after the current response finishes.
 - Never calls ChatGPT private APIs or reads assistant response text.
 - Leaves normal idle-state Enter behavior entirely to ChatGPT.

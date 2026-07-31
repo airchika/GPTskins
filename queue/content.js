@@ -19,6 +19,7 @@
   let recoveryTimer = 0;
   let statusTimer = 0;
   let runnerActive = false;
+  let panelExpanded = false;
   let lastRoute = location.href;
 
   function storageGet(area, keys) {
@@ -115,7 +116,32 @@
       return;
     }
     const status = root.querySelector("[data-gptskins-queue-status]");
-    root.hidden = state.items.length === 0 && !status.textContent;
+    const shouldHide = state.items.length === 0 && !status.textContent;
+    if (shouldHide) {
+      panelExpanded = false;
+    }
+    root.hidden = shouldHide;
+    updatePanelState();
+  }
+
+  function updatePanelState() {
+    if (!root) {
+      return;
+    }
+    const toggle = root.querySelector("[data-gptskins-queue-toggle]");
+    const badge = root.querySelector("[data-gptskins-queue-count]");
+    const panel = root.querySelector("[data-gptskins-queue-panel]");
+    const count = state.items.length;
+    const needsAttention = state.paused || state.items.some((item) => item.status === "review");
+    badge.textContent = String(count);
+    badge.hidden = count === 0;
+    toggle.dataset.attention = String(needsAttention);
+    toggle.setAttribute("aria-expanded", String(panelExpanded));
+    toggle.setAttribute(
+      "aria-label",
+      panelExpanded ? "Collapse queued messages" : `Show ${count} queued message${count === 1 ? "" : "s"}`
+    );
+    panel.hidden = !panelExpanded;
   }
 
   function setStatus(message, tone = "muted", timeout = 5000) {
@@ -127,6 +153,9 @@
     clearTimeout(statusTimer);
     status.textContent = message;
     status.dataset.tone = tone;
+    if (message) {
+      panelExpanded = true;
+    }
     updateRootVisibility();
     if (message && timeout > 0) {
       statusTimer = window.setTimeout(() => {
@@ -512,6 +541,12 @@
   }
 
   function onComposerKeydown(event) {
+    if (event.key === "Escape" && panelExpanded) {
+      panelExpanded = false;
+      updatePanelState();
+      return;
+    }
+
     const composer = getComposer();
     const targetIsComposer = Boolean(
       composer && (event.target === composer.editor || composer.editor.contains(event.target))
@@ -548,18 +583,28 @@
     container.setAttribute("data-gptskins-queue-root", "true");
     container.setAttribute("aria-label", "Queued messages");
     container.innerHTML = `
-      <div class="gptskins-queue-list" data-gptskins-queue-list role="list"></div>
-      <div class="gptskins-queue-paused" data-gptskins-queue-paused hidden>
-        <span>Queue paused</span>
-        <button type="button" data-gptskins-queue-resume>Resume</button>
+      <div class="gptskins-queue-panel" data-gptskins-queue-panel hidden>
+        <div class="gptskins-queue-list" data-gptskins-queue-list role="list"></div>
+        <div class="gptskins-queue-paused" data-gptskins-queue-paused hidden>
+          <span>Queue paused</span>
+          <button type="button" data-gptskins-queue-resume>Resume</button>
+        </div>
+        <p class="gptskins-queue-status" data-gptskins-queue-status data-tone="muted" role="status" aria-live="polite"></p>
       </div>
-      <p class="gptskins-queue-status" data-gptskins-queue-status data-tone="muted" role="status" aria-live="polite"></p>
+      <button type="button" class="gptskins-queue-toggle" data-gptskins-queue-toggle aria-expanded="false">
+        <span class="gptskins-queue-toggle-icon" aria-hidden="true">≡</span>
+        <span class="gptskins-queue-count" data-gptskins-queue-count hidden>0</span>
+      </button>
     `;
     container.addEventListener("click", (event) => {
       const actionButton = event.target.closest("button[data-queue-action]");
       if (actionButton) {
         changeItem(actionButton.dataset.queueAction, actionButton.dataset.queueItemId);
       }
+    });
+    container.querySelector("[data-gptskins-queue-toggle]").addEventListener("click", () => {
+      panelExpanded = !panelExpanded;
+      updatePanelState();
     });
     container.querySelector("[data-gptskins-queue-resume]").addEventListener("click", async () => {
       state.paused = false;
@@ -569,6 +614,13 @@
       scheduleRunner();
     });
     return container;
+  }
+
+  function onDocumentClick(event) {
+    if (panelExpanded && root && !root.contains(event.target)) {
+      panelExpanded = false;
+      updatePanelState();
+    }
   }
 
   async function syncConversation({ recover = false } = {}) {
@@ -582,6 +634,7 @@
     currentConversationKey = nextConversationKey;
     currentStateStorageKey = queueApi.getStateStorageKey(currentConversationKey);
     if (conversationChanged) {
+      panelExpanded = false;
       setStatus("");
     }
     await loadConversationState({ recover });
@@ -602,6 +655,7 @@
     document.body.appendChild(root);
     ensureUiAttached();
     document.addEventListener("keydown", onComposerKeydown, true);
+    document.addEventListener("click", onDocumentClick, true);
     await syncConversation({ recover: true });
 
     pageObserver = new MutationObserver(() => {
@@ -629,6 +683,7 @@
     clearTimeout(statusTimer);
     clearInterval(routeTimer);
     document.removeEventListener("keydown", onComposerKeydown, true);
+    document.removeEventListener("click", onDocumentClick, true);
     if (pageObserver) {
       pageObserver.disconnect();
       pageObserver = null;

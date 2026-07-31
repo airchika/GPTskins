@@ -81,9 +81,11 @@ assert.doesNotMatch(
 );
 assert.doesNotMatch(
   queueSource,
-  /data-gptskins-queue-toggle|data-gptskins-queue-input/,
-  "queue must not render a separate launcher or composer"
+  /data-gptskins-queue-input/,
+  "queue must not render a separate composer"
 );
+assert.match(queueSource, /data-gptskins-queue-toggle/);
+assert.match(queueSource, /data-gptskins-queue-panel/);
 assert.match(queueSource, /document\.addEventListener\("keydown", onComposerKeydown, true\)/);
 assert.match(queueSource, /shouldQueueComposerSubmit/);
 
