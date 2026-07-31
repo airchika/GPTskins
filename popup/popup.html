@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>GPTskins</title>
     <link rel="stylesheet" href="popup.css">
+    <link rel="stylesheet" href="../queue/popup.css">
   </head>
   <body>
     <main class="popup-shell">
@@ -19,6 +20,7 @@
       <div class="style-filter" role="group" aria-label="Style type">
         <button type="button" class="filter-button" data-style-mode="theme" aria-pressed="true" aria-controls="theme-panel">Theme</button>
         <button type="button" class="filter-button" data-style-mode="font" aria-pressed="false" aria-controls="font-panel">Font</button>
+        <button type="button" class="filter-button" data-style-mode="queue" aria-pressed="false" aria-controls="queue-panel">Queue</button>
       </div>
 
       <section class="theme-panel" id="theme-panel" aria-label="Themes">
@@ -31,10 +33,27 @@
 
       <section class="font-list" id="font-panel" aria-label="Fonts" hidden></section>
 
+      <section class="queue-settings" id="queue-panel" aria-label="Message queue" hidden>
+        <div class="queue-settings-card">
+          <div>
+            <strong>Message queue</strong>
+            <span>Send your queued follow-ups one at a time after each response.</span>
+          </div>
+          <label class="queue-switch">
+            <input type="checkbox" data-gptskins-queue-enabled>
+            <span aria-hidden="true"></span>
+            <span class="sr-only">Enable message queue</span>
+          </label>
+        </div>
+        <p>Queued prompts stay on this device. The queue pauses instead of bypassing errors, limits, or page checks.</p>
+      </section>
+
       <p class="status" id="status" role="status" aria-live="polite"></p>
     </main>
 
     <script src="../shared/themes.js"></script>
+    <script src="../queue/shared.js"></script>
     <script src="popup.js"></script>
+    <script src="../queue/popup.js"></script>
   </body>
 </html>

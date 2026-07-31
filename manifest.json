@@ -38,6 +38,20 @@
         "content/content.js"
       ],
       "run_at": "document_start"
+    },
+    {
+      "matches": [
+        "https://chatgpt.com/*",
+        "https://chat.openai.com/*"
+      ],
+      "css": [
+        "queue/content.css"
+      ],
+      "js": [
+        "queue/shared.js",
+        "queue/content.js"
+      ],
+      "run_at": "document_idle"
     }
   ]
 }
