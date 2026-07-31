@@ -1,24 +1,25 @@
 #gptskins-queue-root {
-  --gptskins-queue-background: var(--gptskins-surface, #ffffff);
   --gptskins-queue-surface: var(--gptskins-surfaceStrong, #f4f4f4);
   --gptskins-queue-text: var(--gptskins-text, #202123);
   --gptskins-queue-muted: var(--gptskins-mutedText, #6b6b6b);
   --gptskins-queue-border: var(--gptskins-border, #d9d9d9);
   --gptskins-queue-accent: var(--gptskins-accent, #10a37f);
-  position: fixed;
-  right: 24px;
-  bottom: 88px;
-  z-index: 2147483000;
+  width: 100%;
+  flex: 0 0 auto;
+  padding: 0 0 10px;
   color: var(--gptskins-queue-text);
-  font: 13px/1.4 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font: 13px/1.45 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 html.dark #gptskins-queue-root {
-  --gptskins-queue-background: var(--gptskins-surface, #212121);
   --gptskins-queue-surface: var(--gptskins-surfaceStrong, #303030);
   --gptskins-queue-text: var(--gptskins-text, #f7f7f7);
   --gptskins-queue-muted: var(--gptskins-mutedText, #b4b4b4);
   --gptskins-queue-border: var(--gptskins-border, #4a4a4a);
+}
+
+#gptskins-queue-root[hidden] {
+  display: none;
 }
 
 #gptskins-queue-root *,
@@ -27,240 +28,115 @@ html.dark #gptskins-queue-root {
   box-sizing: border-box;
 }
 
-#gptskins-queue-root button,
-#gptskins-queue-root textarea {
-  font: inherit;
-}
-
-#gptskins-queue-root button {
-  color: inherit;
-}
-
-.gptskins-queue-toggle {
-  display: block;
-  min-width: 76px;
-  min-height: 38px;
-  margin-left: auto;
-  padding: 8px 13px;
-  cursor: pointer;
-  color: var(--gptskins-queue-text);
-  background: var(--gptskins-queue-background);
-  border: 1px solid var(--gptskins-queue-border);
-  border-radius: 999px;
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18);
-  font-weight: 700;
-}
-
-.gptskins-queue-toggle:hover,
-.gptskins-queue-toggle:focus-visible {
-  border-color: var(--gptskins-queue-accent);
-  outline: none;
-}
-
-.gptskins-queue-panel {
-  display: flex;
-  width: min(360px, calc(100vw - 32px));
-  max-height: min(620px, calc(100vh - 150px));
-  flex-direction: column;
-  gap: 10px;
-  margin-bottom: 10px;
-  padding: 14px;
-  overflow: hidden;
-  background: var(--gptskins-queue-background);
-  border: 1px solid var(--gptskins-queue-border);
-  border-radius: 16px;
-  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.24);
-}
-
-.gptskins-queue-panel[hidden] {
-  display: none;
-}
-
-.gptskins-queue-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.gptskins-queue-header strong,
-.gptskins-queue-header span {
-  display: block;
-}
-
-.gptskins-queue-header strong {
-  font-size: 15px;
-}
-
-.gptskins-queue-header span {
-  margin-top: 2px;
-  color: var(--gptskins-queue-muted);
-  font-size: 11px;
-}
-
-.gptskins-queue-header button,
-.gptskins-queue-item-actions button {
-  cursor: pointer;
-  background: transparent;
-  border: 0;
-  border-radius: 6px;
-}
-
-.gptskins-queue-header button {
-  width: 28px;
-  height: 28px;
-  font-size: 20px;
-  line-height: 1;
-}
-
-.gptskins-queue-header button:hover,
-.gptskins-queue-header button:focus-visible,
-.gptskins-queue-item-actions button:hover,
-.gptskins-queue-item-actions button:focus-visible {
-  background: var(--gptskins-queue-surface);
-  outline: none;
-}
-
 .gptskins-queue-list {
   display: grid;
-  gap: 7px;
-  max-height: 240px;
-  overflow-y: auto;
-}
-
-.gptskins-queue-empty {
-  margin: 4px 0;
-  color: var(--gptskins-queue-muted);
-  text-align: center;
-}
-
-.gptskins-queue-item {
-  display: grid;
-  grid-template-columns: 24px minmax(0, 1fr) auto;
-  align-items: center;
   gap: 8px;
-  padding: 8px;
-  background: var(--gptskins-queue-surface);
-  border: 1px solid transparent;
-  border-radius: 10px;
+  max-height: min(280px, 35vh);
+  overflow-y: auto;
+  scrollbar-width: thin;
 }
 
-.gptskins-queue-item[data-status="review"] {
+.gptskins-queue-card {
+  width: min(100%, 34rem);
+  margin-left: auto;
+  padding: 10px 12px 7px;
+  background: color-mix(in srgb, var(--gptskins-queue-surface) 92%, transparent);
+  border: 1px solid var(--gptskins-queue-border);
+  border-radius: 17px 17px 5px 17px;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 8%);
+}
+
+.gptskins-queue-card[data-status="review"] {
   border-color: #d98c20;
 }
 
-.gptskins-queue-number {
-  display: grid;
-  width: 22px;
-  height: 22px;
-  place-items: center;
-  color: var(--gptskins-queue-muted);
-  border: 1px solid var(--gptskins-queue-border);
-  border-radius: 999px;
-  font-size: 11px;
-}
-
-.gptskins-queue-copy,
-.gptskins-queue-text,
-.gptskins-queue-item-status {
-  display: block;
-  min-width: 0;
+.gptskins-queue-card[data-status="submitting"] {
+  opacity: 0.72;
 }
 
 .gptskins-queue-text {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  max-height: 7.25em;
+  overflow: auto;
+  overflow-wrap: anywhere;
+  font-family: var(--gptskins-text-font-family, inherit) !important;
+  white-space: pre-wrap;
 }
 
-.gptskins-queue-item-status {
-  margin-top: 2px;
-  color: #d98c20;
-  font-size: 10px;
-}
-
-.gptskins-queue-item-actions {
+.gptskins-queue-meta {
   display: flex;
+  min-height: 24px;
   align-items: center;
-  gap: 3px;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 5px;
 }
 
-.gptskins-queue-item-actions button {
-  min-width: 26px;
-  min-height: 26px;
-  padding: 4px 6px;
-}
-
-.gptskins-queue-input-label,
-.gptskins-queue-input-label span {
-  display: block;
-}
-
-.gptskins-queue-input-label span {
-  margin-bottom: 5px;
+.gptskins-queue-label {
   color: var(--gptskins-queue-muted);
   font-size: 11px;
-  font-weight: 700;
 }
 
-.gptskins-queue-input-label textarea {
-  width: 100%;
-  min-height: 76px;
-  padding: 9px 10px;
-  resize: vertical;
-  color: var(--gptskins-queue-text);
-  background: var(--gptskins-queue-surface);
-  border: 1px solid var(--gptskins-queue-border);
-  border-radius: 10px;
-  outline: none;
+.gptskins-queue-card[data-status="review"] .gptskins-queue-label {
+  color: #d98c20;
 }
 
-.gptskins-queue-input-label textarea:focus {
-  border-color: var(--gptskins-queue-accent);
+.gptskins-queue-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
 }
 
-.gptskins-queue-add,
-.gptskins-queue-controls button {
-  min-height: 34px;
-  padding: 7px 10px;
+.gptskins-queue-actions button,
+.gptskins-queue-paused button {
+  min-height: 26px;
+  padding: 3px 7px;
   cursor: pointer;
-  border: 1px solid var(--gptskins-queue-border);
-  border-radius: 9px;
+  color: var(--gptskins-queue-muted) !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 7px;
+  font: inherit;
+  font-size: 11px;
 }
 
-.gptskins-queue-add {
-  color: var(--gptskins-accentText, #ffffff) !important;
-  background: var(--gptskins-queue-accent);
-  border-color: var(--gptskins-queue-accent);
-  font-weight: 700;
-}
-
-.gptskins-queue-controls {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-}
-
-.gptskins-queue-controls button {
-  background: var(--gptskins-queue-surface);
-}
-
-.gptskins-queue-controls button:hover,
-.gptskins-queue-controls button:focus-visible {
-  border-color: var(--gptskins-queue-accent);
+.gptskins-queue-actions button:hover,
+.gptskins-queue-actions button:focus-visible,
+.gptskins-queue-paused button:hover,
+.gptskins-queue-paused button:focus-visible {
+  color: var(--gptskins-queue-text) !important;
+  background: color-mix(in srgb, var(--gptskins-queue-border) 42%, transparent) !important;
   outline: none;
 }
 
-.gptskins-queue-controls button:disabled {
-  cursor: default;
-  opacity: 0.45;
+.gptskins-queue-paused {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  padding: 4px 4px 0;
+  color: var(--gptskins-queue-muted);
+  font-size: 11px;
+}
+
+.gptskins-queue-paused[hidden] {
+  display: none;
+}
+
+.gptskins-queue-paused button {
+  color: var(--gptskins-queue-accent) !important;
+  font-weight: 700;
 }
 
 .gptskins-queue-status {
-  min-height: 18px;
-  margin: 0;
+  min-height: 0;
+  margin: 4px 6px 0;
   color: var(--gptskins-queue-muted);
   font-size: 11px;
+  text-align: right;
+}
+
+.gptskins-queue-status:empty {
+  display: none;
 }
 
 .gptskins-queue-status[data-tone="warning"] {
@@ -269,11 +145,4 @@ html.dark #gptskins-queue-root {
 
 .gptskins-queue-status[data-tone="success"] {
   color: var(--gptskins-queue-accent);
-}
-
-@media (max-width: 720px) {
-  #gptskins-queue-root {
-    right: 12px;
-    bottom: 76px;
-  }
 }

@@ -39,6 +39,34 @@ const freshSubmission = queueApi.recoverState(
 assert.equal(freshSubmission.paused, false, "fresh submissions must not be treated as interrupted");
 assert.equal(freshSubmission.items[0].status, "submitting");
 
+const enterState = {
+  enabled: true,
+  targetIsComposer: true,
+  key: "Enter",
+  shiftKey: false,
+  ctrlKey: false,
+  metaKey: false,
+  altKey: false,
+  isComposing: false,
+  keyCode: 13,
+  isGenerating: true,
+  runnerActive: false,
+  itemCount: 0
+};
+assert.equal(queueApi.shouldQueueComposerSubmit(enterState), true, "Enter during generation must queue");
+assert.equal(
+  queueApi.shouldQueueComposerSubmit({ ...enterState, isGenerating: false }),
+  false,
+  "idle Enter with an empty queue must stay native"
+);
+assert.equal(
+  queueApi.shouldQueueComposerSubmit({ ...enterState, isGenerating: false, itemCount: 1 }),
+  true,
+  "new drafts must stay behind existing queued messages"
+);
+assert.equal(queueApi.shouldQueueComposerSubmit({ ...enterState, shiftKey: true }), false, "Shift+Enter must stay native");
+assert.equal(queueApi.shouldQueueComposerSubmit({ ...enterState, isComposing: true }), false, "IME Enter must stay native");
+
 const manifest = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "manifest.json"), "utf8"));
 const queueContentScript = manifest.content_scripts.find((entry) => entry.js && entry.js.includes("queue/content.js"));
 assert.ok(queueContentScript, "queue must be registered as a separate content-script module");
@@ -51,5 +79,12 @@ assert.doesNotMatch(
   /data-message-author-role=["']assistant["']/,
   "queue must not inspect assistant response text"
 );
+assert.doesNotMatch(
+  queueSource,
+  /data-gptskins-queue-toggle|data-gptskins-queue-input/,
+  "queue must not render a separate launcher or composer"
+);
+assert.match(queueSource, /document\.addEventListener\("keydown", onComposerKeydown, true\)/);
+assert.match(queueSource, /shouldQueueComposerSubmit/);
 
 console.log("Checked GPTskins queue contracts.");

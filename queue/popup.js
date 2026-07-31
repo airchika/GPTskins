@@ -26,7 +26,7 @@
         return;
       }
       status.textContent = enabled
-        ? "Queue enabled. Refresh ChatGPT if the button does not appear."
+        ? "Queue enabled. Press Enter while ChatGPT is responding."
         : "Queue disabled. Saved messages remain on this device.";
     });
   });

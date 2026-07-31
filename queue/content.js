@@ -17,6 +17,7 @@
   let routeTimer = 0;
   let runnerTimer = 0;
   let recoveryTimer = 0;
+  let statusTimer = 0;
   let runnerActive = false;
   let lastRoute = location.href;
 
@@ -97,87 +98,103 @@
     );
   }
 
-  function setStatus(message, tone = "muted") {
+  function ensureUiAttached() {
+    if (!root) {
+      return null;
+    }
+    const composer = getComposer();
+    const host = composer && composer.form.parentElement;
+    if (host && root.parentElement !== host) {
+      host.insertBefore(root, composer.form);
+    }
+    return composer;
+  }
+
+  function updateRootVisibility() {
     if (!root) {
       return;
     }
     const status = root.querySelector("[data-gptskins-queue-status]");
-    status.textContent = message;
-    status.dataset.tone = tone;
+    root.hidden = state.items.length === 0 && !status.textContent;
   }
 
-  function updateToggleLabel() {
+  function setStatus(message, tone = "muted", timeout = 5000) {
     if (!root) {
       return;
     }
-    const count = state.items.length;
-    const label = root.querySelector("[data-gptskins-queue-toggle-label]");
-    label.textContent = count ? `Queue ${count}` : "Queue";
+    ensureUiAttached();
+    const status = root.querySelector("[data-gptskins-queue-status]");
+    clearTimeout(statusTimer);
+    status.textContent = message;
+    status.dataset.tone = tone;
+    updateRootVisibility();
+    if (message && timeout > 0) {
+      statusTimer = window.setTimeout(() => {
+        if (status.textContent === message) {
+          status.textContent = "";
+          updateRootVisibility();
+        }
+      }, timeout);
+    }
   }
 
   function renderItems() {
     if (!root) {
       return;
     }
-
+    ensureUiAttached();
     const list = root.querySelector("[data-gptskins-queue-list]");
     list.replaceChildren();
-    if (!state.items.length) {
-      const empty = document.createElement("p");
-      empty.className = "gptskins-queue-empty";
-      empty.textContent = "No queued messages.";
-      list.appendChild(empty);
-    } else {
-      state.items.forEach((item, index) => {
-        const row = document.createElement("div");
-        row.className = "gptskins-queue-item";
-        row.dataset.status = item.status;
 
-        const number = document.createElement("span");
-        number.className = "gptskins-queue-number";
-        number.textContent = String(index + 1);
+    state.items.forEach((item, index) => {
+      const card = document.createElement("article");
+      card.className = "gptskins-queue-card";
+      card.dataset.status = item.status;
+      card.setAttribute("role", "listitem");
 
-        const copy = document.createElement("div");
-        copy.className = "gptskins-queue-copy";
-        const text = document.createElement("span");
-        text.className = "gptskins-queue-text";
-        text.textContent = item.text;
-        copy.appendChild(text);
-        if (item.status !== "pending") {
-          const itemStatus = document.createElement("span");
-          itemStatus.className = "gptskins-queue-item-status";
-          itemStatus.textContent = item.status === "review" ? "Needs review" : "Submitting";
-          copy.appendChild(itemStatus);
-        }
+      const text = document.createElement("div");
+      text.className = "gptskins-queue-text";
+      text.textContent = item.text;
 
-        const actions = document.createElement("div");
-        actions.className = "gptskins-queue-item-actions";
-        if (item.status === "review") {
-          const retry = document.createElement("button");
-          retry.type = "button";
-          retry.dataset.queueAction = "retry";
-          retry.dataset.queueItemId = item.id;
-          retry.textContent = "Retry";
-          actions.appendChild(retry);
-        }
-        const remove = document.createElement("button");
-        remove.type = "button";
-        remove.dataset.queueAction = "remove";
-        remove.dataset.queueItemId = item.id;
-        remove.setAttribute("aria-label", "Remove queued message");
-        remove.textContent = "×";
-        actions.appendChild(remove);
+      const meta = document.createElement("div");
+      meta.className = "gptskins-queue-meta";
+      const label = document.createElement("span");
+      label.className = "gptskins-queue-label";
+      if (item.status === "review") {
+        label.textContent = "Needs review";
+      } else if (item.status === "submitting") {
+        label.textContent = "Sending";
+      } else {
+        label.textContent = state.paused ? "Queued · paused" : `Queued ${index + 1} of ${state.items.length}`;
+      }
 
-        row.append(number, copy, actions);
-        list.appendChild(row);
-      });
-    }
+      const actions = document.createElement("span");
+      actions.className = "gptskins-queue-actions";
+      if (item.status === "review") {
+        actions.appendChild(createActionButton("retry", item.id, "Retry"));
+      }
+      if (item.status !== "submitting") {
+        actions.appendChild(createActionButton("edit", item.id, "Edit"));
+        actions.appendChild(createActionButton("remove", item.id, "Remove"));
+      }
 
-    const pauseButton = root.querySelector("[data-gptskins-queue-pause]");
-    pauseButton.textContent = state.paused ? "Resume" : "Pause";
-    pauseButton.setAttribute("aria-pressed", String(state.paused));
-    root.querySelector("[data-gptskins-queue-clear]").disabled = state.items.length === 0;
-    updateToggleLabel();
+      meta.append(label, actions);
+      card.append(text, meta);
+      list.appendChild(card);
+    });
+
+    const pausedRow = root.querySelector("[data-gptskins-queue-paused]");
+    pausedRow.hidden = !state.paused || state.items.some((item) => item.status === "review");
+    updateRootVisibility();
+  }
+
+  function createActionButton(action, itemId, label) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.dataset.queueAction = action;
+    button.dataset.queueItemId = itemId;
+    button.textContent = label;
+    return button;
   }
 
   async function saveState() {
@@ -205,9 +222,11 @@
     renderItems();
     if (recoveredSubmission) {
       await saveState();
-      setStatus("A previous submission needs review before retrying.", "warning");
+      setStatus("A previous submission needs review before retrying.", "warning", 0);
     } else if (recover && state.items.some((item) => item.status === "review")) {
-      setStatus("A queued message needs review before retrying.", "warning");
+      setStatus("A queued message needs review before retrying.", "warning", 0);
+    } else if (recover) {
+      setStatus("");
     }
   }
 
@@ -229,16 +248,61 @@
     };
   }
 
-  async function addPrompt() {
-    if (!root || !currentConversationKey) {
+  function readComposerText(editor) {
+    return (editor.innerText || editor.textContent || "").replace(/\u00a0/g, " ").trim();
+  }
+
+  function dispatchComposerInput(editor, inputType, data) {
+    editor.dispatchEvent(
+      new InputEvent("input", {
+        bubbles: true,
+        composed: true,
+        inputType,
+        data
+      })
+    );
+  }
+
+  function clearComposerText(editor) {
+    editor.focus();
+    editor.replaceChildren();
+    dispatchComposerInput(editor, "deleteContentBackward", null);
+    return readComposerText(editor) === "";
+  }
+
+  function replaceComposerText(editor, text) {
+    if (readComposerText(editor)) {
+      return false;
+    }
+
+    const fragment = document.createDocumentFragment();
+    text.split("\n").forEach((line) => {
+      const paragraph = document.createElement("p");
+      if (line) {
+        paragraph.textContent = line;
+      } else {
+        paragraph.appendChild(document.createElement("br"));
+      }
+      fragment.appendChild(paragraph);
+    });
+    editor.focus();
+    editor.replaceChildren(fragment);
+    dispatchComposerInput(editor, "insertText", text);
+    return true;
+  }
+
+  async function queueComposerDraft(editor) {
+    if (!currentConversationKey) {
       setStatus("Send the first message before using the queue.", "warning");
       return;
     }
 
-    const input = root.querySelector("[data-gptskins-queue-input]");
-    const text = queueApi.normalizePrompt(input.value);
-    if (!text) {
-      setStatus("Enter a message first.", "warning");
+    const rawText = readComposerText(editor);
+    if (!rawText) {
+      return;
+    }
+    if (rawText.length > queueApi.maxPromptLength) {
+      setStatus(`Queued messages are limited to ${queueApi.maxPromptLength} characters.`, "warning");
       return;
     }
     if (state.items.length >= queueApi.maxItems) {
@@ -246,11 +310,22 @@
       return;
     }
 
-    state.items.push(createItem(text));
-    input.value = "";
-    await saveState();
+    const item = createItem(rawText);
+    state.items.push(item);
+    if (!(await saveState())) {
+      state.items = state.items.filter((candidate) => candidate.id !== item.id);
+      setStatus("Couldn't save the queued message. Your draft was kept.", "warning");
+      return;
+    }
+    if (readComposerText(editor) !== rawText || !clearComposerText(editor)) {
+      state.items = state.items.filter((candidate) => candidate.id !== item.id);
+      await saveState();
+      renderItems();
+      setStatus("The composer changed, so the message was not queued.", "warning");
+      return;
+    }
+
     renderItems();
-    setStatus(state.paused ? "Message added. Resume when ready." : "Message added to the queue.");
     scheduleRunner();
   }
 
@@ -273,26 +348,6 @@
     });
   }
 
-  function replaceComposerText(editor, text) {
-    if (editor.textContent.trim()) {
-      return false;
-    }
-
-    editor.focus();
-    const paragraph = document.createElement("p");
-    paragraph.textContent = text;
-    editor.replaceChildren(paragraph);
-    editor.dispatchEvent(
-      new InputEvent("input", {
-        bubbles: true,
-        composed: true,
-        inputType: "insertText",
-        data: text
-      })
-    );
-    return true;
-  }
-
   async function markForReview(itemId, message) {
     const item = state.items.find((candidate) => candidate.id === itemId);
     if (item) {
@@ -302,7 +357,7 @@
     state.paused = true;
     await saveState();
     renderItems();
-    setStatus(message, "warning");
+    setStatus(message, "warning", 0);
   }
 
   async function submitNextMessage(item) {
@@ -311,8 +366,8 @@
       setStatus("Waiting for the ChatGPT composer.");
       return false;
     }
-    if (composer.editor.textContent.trim()) {
-      setStatus("Waiting for the current draft to be sent or cleared.");
+    if (readComposerText(composer.editor)) {
+      setStatus("Press Enter to add the current draft behind the queue.");
       return false;
     }
 
@@ -364,7 +419,9 @@
     state.items = state.items.filter((candidate) => candidate.id !== item.id);
     await saveState();
     renderItems();
-    setStatus(state.items.length ? "Sent. Waiting for ChatGPT before the next message." : "Queue complete.", "success");
+    if (!state.items.length) {
+      setStatus("Queue complete.", "success");
+    }
     return true;
   }
 
@@ -376,11 +433,10 @@
       state.paused = true;
       await saveState();
       renderItems();
-      setStatus("Queue paused because the page needs your attention.", "warning");
+      setStatus("Queue paused because the page needs your attention.", "warning", 0);
       return;
     }
     if (findStopButton()) {
-      setStatus("Waiting for ChatGPT to finish.");
       return;
     }
 
@@ -411,112 +467,129 @@
   }
 
   async function changeItem(action, itemId) {
-    const item = state.items.find((candidate) => candidate.id === itemId);
-    if (!item) {
+    const index = state.items.findIndex((candidate) => candidate.id === itemId);
+    if (index < 0) {
       return;
     }
-    if (action === "remove") {
-      state.items = state.items.filter((candidate) => candidate.id !== itemId);
+    const item = state.items[index];
+
+    if (action === "edit") {
+      const composer = getComposer();
+      if (!composer || readComposerText(composer.editor)) {
+        setStatus("Clear the current draft before editing a queued message.", "warning");
+        return;
+      }
+      state.items.splice(index, 1);
+      if (!(await saveState()) || !replaceComposerText(composer.editor, item.text)) {
+        state.items.splice(index, 0, item);
+        await saveState();
+        renderItems();
+        setStatus("Couldn't move that message back into the composer.", "warning");
+        return;
+      }
+      if (!state.items.some((candidate) => candidate.status === "review")) {
+        state.paused = false;
+        await saveState();
+      }
+    } else if (action === "remove") {
+      state.items.splice(index, 1);
+      if (!state.items.some((candidate) => candidate.status === "review")) {
+        state.paused = false;
+      }
+      await saveState();
     } else if (action === "retry") {
       item.status = "pending";
       item.statusAt = 0;
       state.paused = false;
+      await saveState();
     }
-    await saveState();
+
+    if (!state.items.some((candidate) => candidate.status === "review")) {
+      setStatus("");
+    }
     renderItems();
     scheduleRunner();
+  }
+
+  function onComposerKeydown(event) {
+    const composer = getComposer();
+    const targetIsComposer = Boolean(
+      composer && (event.target === composer.editor || composer.editor.contains(event.target))
+    );
+    if (
+      !queueApi.shouldQueueComposerSubmit({
+        enabled,
+        targetIsComposer,
+        key: event.key,
+        shiftKey: event.shiftKey,
+        ctrlKey: event.ctrlKey,
+        metaKey: event.metaKey,
+        altKey: event.altKey,
+        isComposing: event.isComposing,
+        keyCode: event.keyCode,
+        isGenerating: Boolean(findStopButton()),
+        runnerActive,
+        itemCount: state.items.length
+      })
+    ) {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+    queueComposerDraft(composer.editor);
   }
 
   function buildUi() {
     const container = document.createElement("section");
     container.id = rootId;
+    container.hidden = true;
     container.setAttribute("data-gptskins-queue-root", "true");
+    container.setAttribute("aria-label", "Queued messages");
     container.innerHTML = `
-      <button type="button" class="gptskins-queue-toggle" data-gptskins-queue-toggle aria-expanded="false">
-        <span data-gptskins-queue-toggle-label>Queue</span>
-      </button>
-      <div class="gptskins-queue-panel" data-gptskins-queue-panel hidden>
-        <header class="gptskins-queue-header">
-          <div>
-            <strong>Message queue</strong>
-            <span>Runs one message after each response.</span>
-          </div>
-          <button type="button" data-gptskins-queue-close aria-label="Close message queue">×</button>
-        </header>
-        <div class="gptskins-queue-list" data-gptskins-queue-list></div>
-        <label class="gptskins-queue-input-label">
-          <span>Next message</span>
-          <textarea data-gptskins-queue-input rows="3" maxlength="${queueApi.maxPromptLength}" placeholder="Write a follow-up to send later"></textarea>
-        </label>
-        <button type="button" class="gptskins-queue-add" data-gptskins-queue-add>Add to queue</button>
-        <div class="gptskins-queue-controls">
-          <button type="button" data-gptskins-queue-pause aria-pressed="false">Pause</button>
-          <button type="button" data-gptskins-queue-clear>Clear</button>
-        </div>
-        <p class="gptskins-queue-status" data-gptskins-queue-status data-tone="muted" role="status" aria-live="polite"></p>
+      <div class="gptskins-queue-list" data-gptskins-queue-list role="list"></div>
+      <div class="gptskins-queue-paused" data-gptskins-queue-paused hidden>
+        <span>Queue paused</span>
+        <button type="button" data-gptskins-queue-resume>Resume</button>
       </div>
+      <p class="gptskins-queue-status" data-gptskins-queue-status data-tone="muted" role="status" aria-live="polite"></p>
     `;
-
-    const toggle = container.querySelector("[data-gptskins-queue-toggle]");
-    const panel = container.querySelector("[data-gptskins-queue-panel]");
-    const close = container.querySelector("[data-gptskins-queue-close]");
-    toggle.addEventListener("click", () => {
-      panel.hidden = !panel.hidden;
-      toggle.setAttribute("aria-expanded", String(!panel.hidden));
-    });
-    close.addEventListener("click", () => {
-      panel.hidden = true;
-      toggle.setAttribute("aria-expanded", "false");
-    });
-    container.querySelector("[data-gptskins-queue-add]").addEventListener("click", addPrompt);
-    container.querySelector("[data-gptskins-queue-input]").addEventListener("keydown", (event) => {
-      if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
-        event.preventDefault();
-        addPrompt();
+    container.addEventListener("click", (event) => {
+      const actionButton = event.target.closest("button[data-queue-action]");
+      if (actionButton) {
+        changeItem(actionButton.dataset.queueAction, actionButton.dataset.queueItemId);
       }
     });
-    container.querySelector("[data-gptskins-queue-pause]").addEventListener("click", async () => {
-      state.paused = !state.paused;
+    container.querySelector("[data-gptskins-queue-resume]").addEventListener("click", async () => {
+      state.paused = false;
       await saveState();
+      setStatus("");
       renderItems();
-      setStatus(state.paused ? "Queue paused." : "Queue resumed.");
       scheduleRunner();
     });
-    container.querySelector("[data-gptskins-queue-clear]").addEventListener("click", async () => {
-      state.items = [];
-      await saveState();
-      renderItems();
-      setStatus("Queue cleared.");
-    });
-    container.querySelector("[data-gptskins-queue-list]").addEventListener("click", (event) => {
-      const button = event.target.closest("button[data-queue-action]");
-      if (button) {
-        changeItem(button.dataset.queueAction, button.dataset.queueItemId);
-      }
-    });
-
     return container;
   }
 
   async function syncConversation({ recover = false } = {}) {
     const nextConversationKey = queueApi.getConversationKey(location.href);
     if (nextConversationKey === currentConversationKey && !recover) {
+      ensureUiAttached();
       return;
     }
 
+    const conversationChanged = nextConversationKey !== currentConversationKey;
     currentConversationKey = nextConversationKey;
     currentStateStorageKey = queueApi.getStateStorageKey(currentConversationKey);
+    if (conversationChanged) {
+      setStatus("");
+    }
     await loadConversationState({ recover });
     clearTimeout(recoveryTimer);
     const submittingItem = state.items.find((item) => item.status === "submitting");
     if (submittingItem) {
       const wait = Math.max(0, queueApi.submissionReviewDelay - (Date.now() - submittingItem.statusAt) + 50);
       recoveryTimer = window.setTimeout(() => syncConversation({ recover: true }), wait);
-    }
-    if (!currentConversationKey) {
-      setStatus("Send the first message before using the queue.");
-    } else if (!state.items.length) {
-      setStatus("Queue is ready for this conversation.");
     }
     scheduleRunner();
   }
@@ -527,10 +600,14 @@
     }
     root = buildUi();
     document.body.appendChild(root);
-    renderItems();
+    ensureUiAttached();
+    document.addEventListener("keydown", onComposerKeydown, true);
     await syncConversation({ recover: true });
 
-    pageObserver = new MutationObserver(() => scheduleRunner());
+    pageObserver = new MutationObserver(() => {
+      ensureUiAttached();
+      scheduleRunner();
+    });
     pageObserver.observe(document.documentElement, {
       subtree: true,
       childList: true,
@@ -549,7 +626,9 @@
   function unmount() {
     clearTimeout(runnerTimer);
     clearTimeout(recoveryTimer);
+    clearTimeout(statusTimer);
     clearInterval(routeTimer);
+    document.removeEventListener("keydown", onComposerKeydown, true);
     if (pageObserver) {
       pageObserver.disconnect();
       pageObserver = null;

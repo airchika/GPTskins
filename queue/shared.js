@@ -87,6 +87,22 @@
     return state;
   }
 
+  function shouldQueueComposerSubmit(eventState) {
+    return Boolean(
+      eventState &&
+        eventState.enabled &&
+        eventState.targetIsComposer &&
+        eventState.key === "Enter" &&
+        !eventState.shiftKey &&
+        !eventState.ctrlKey &&
+        !eventState.metaKey &&
+        !eventState.altKey &&
+        !eventState.isComposing &&
+        eventState.keyCode !== 229 &&
+        (eventState.isGenerating || eventState.runnerActive || eventState.itemCount > 0)
+    );
+  }
+
   globalThis.GPTskinsQueue = {
     enabledStorageKey,
     stateStoragePrefix,
@@ -97,6 +113,7 @@
     getConversationKey,
     getStateStorageKey,
     normalizeState,
-    recoverState
+    recoverState,
+    shouldQueueComposerSubmit
   };
 })();
