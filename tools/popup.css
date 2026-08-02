@@ -1,9 +1,9 @@
-.queue-settings {
+.tools-settings {
   display: grid;
-  gap: 12px;
+  gap: 10px;
 }
 
-.queue-settings-card {
+.tool-settings-card {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -14,26 +14,26 @@
   border-radius: 10px;
 }
 
-.queue-settings-card strong,
-.queue-settings-card span {
+.tool-settings-card strong,
+.tool-settings-card span {
   display: block;
 }
 
-.queue-settings-card strong {
+.tool-settings-card strong {
   margin-bottom: 3px;
 }
 
-.queue-settings-card > div > span,
-.queue-settings > p {
+.tool-settings-card > div > span,
+.tools-settings > p {
   color: var(--muted);
   font-size: 12px;
 }
 
-.queue-settings > p {
+.tools-settings > p {
   margin: 0;
 }
 
-.queue-switch {
+.tool-switch {
   position: relative;
   flex: 0 0 auto;
   width: 42px;
@@ -41,12 +41,12 @@
   cursor: pointer;
 }
 
-.queue-switch input {
+.tool-switch input {
   position: absolute;
   opacity: 0;
 }
 
-.queue-switch > span[aria-hidden="true"] {
+.tool-switch > span[aria-hidden="true"] {
   display: block;
   width: 42px;
   height: 24px;
@@ -56,7 +56,7 @@
   transition: background 120ms ease, border-color 120ms ease;
 }
 
-.queue-switch > span[aria-hidden="true"]::after {
+.tool-switch > span[aria-hidden="true"]::after {
   content: "";
   position: absolute;
   top: 4px;
@@ -68,17 +68,17 @@
   transition: transform 120ms ease, background 120ms ease;
 }
 
-.queue-switch input:checked + span {
+.tool-switch input:checked + span {
   background: var(--accent);
   border-color: var(--accent);
 }
 
-.queue-switch input:checked + span::after {
+.tool-switch input:checked + span::after {
   background: #10131a;
   transform: translateX(18px);
 }
 
-.queue-switch input:focus-visible + span {
+.tool-switch input:focus-visible + span {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }

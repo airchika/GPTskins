@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>GPTskins tools browser fixture</title>
+    <link rel="stylesheet" href="../../tools/content.css">
+    <style>
+      body {
+        margin: 0;
+        color: #f7f7f8;
+        background: #10131a;
+        font: 14px/1.5 system-ui, sans-serif;
+      }
+
+      #thread-scroll {
+        width: 720px;
+        height: 320px;
+        margin: 24px auto;
+        overflow-y: auto;
+        border: 1px solid #394052;
+      }
+
+      main {
+        min-height: 1500px;
+      }
+
+      section[data-testid^="conversation-turn-"] {
+        min-height: 520px;
+        padding: 24px;
+        border-bottom: 1px solid #2d3545;
+      }
+
+      .math-inline,
+      .katex-display {
+        display: inline-block;
+        padding: 4px 8px;
+        background: #202633;
+      }
+
+      .katex-display {
+        display: block;
+        margin: 12px 0;
+      }
+
+      form {
+        padding: 20px;
+      }
+    </style>
+    <script>
+      globalThis.__gptskinsFixtureClipboard = "";
+      globalThis.chrome = globalThis.chrome || {};
+      globalThis.chrome.storage = {
+        sync: {
+          get(defaults, callback) {
+            callback(defaults);
+          },
+          set(_values, callback) {
+            callback?.();
+          }
+        },
+        onChanged: {
+          addListener() {}
+        }
+      };
+      Object.defineProperty(navigator, "clipboard", {
+        configurable: true,
+        value: {
+          async writeText(value) {
+            globalThis.__gptskinsFixtureClipboard = value;
+            document.documentElement.dataset.fixtureClipboard = value;
+          }
+        }
+      });
+      globalThis.__gptskinsOriginalScrollApis = {
+        scrollTo: window.scrollTo,
+        scrollBy: window.scrollBy,
+        scrollIntoView: Element.prototype.scrollIntoView
+      };
+    </script>
+  </head>
+  <body>
+    <div id="thread-scroll">
+      <main>
+        <section data-testid="conversation-turn-1">
+          <div data-message-author-role="assistant" id="assistant-message">
+            <p id="mixed-selection">
+              Before
+              <span class="math-inline" data-math="$x^2 + y^2$" id="inline-formula">
+                <span class="katex"><span class="katex-html">x² + y²</span></span>
+              </span>
+              after.
+            </p>
+            <div class="katex-display" id="display-formula">
+              <span class="katex">
+                <math display="block">
+                  <semantics>
+                    <mrow><mi>I</mi></mrow>
+                    <annotation encoding="application/x-tex">\int_0^1 x\,dx</annotation>
+                  </semantics>
+                </math>
+              </span>
+            </div>
+            <span class="katex" id="source-free-formula"><span class="katex-html">native only</span></span>
+            <p id="ordinary-text">Ordinary text remains native.</p>
+          </div>
+          <button type="button" aria-label="Copy response" id="native-copy">Copy</button>
+        </section>
+        <section data-testid="conversation-turn-2">
+          <div data-message-author-role="user">Existing user turn</div>
+        </section>
+        <form data-type="unified-composer" id="composer-form">
+          <div id="prompt-textarea" contenteditable="true">fixture prompt</div>
+          <button type="submit">Send</button>
+        </form>
+      </main>
+    </div>
+    <div id="fixture-controls">
+      <button type="button" id="run-mixed-copy">Run mixed copy</button>
+      <button type="button" id="run-ordinary-copy">Run ordinary copy</button>
+      <button type="button" id="run-native-copy">Run native response copy</button>
+      <button type="button" id="run-scroll-tests">Run scroll tests</button>
+    </div>
+    <script src="../../tools/shared.js"></script>
+    <script src="../../tools/content.js"></script>
+    <script>
+      function runFixtureCopy(selectionTarget, clickNativeButton = false) {
+        const selection = window.getSelection();
+        const range = document.createRange();
+        range.selectNodeContents(selectionTarget);
+        selection.removeAllRanges();
+        selection.addRange(range);
+        if (clickNativeButton) {
+          document.getElementById("native-copy").click();
+        }
+        const data = {};
+        const event = new Event("copy", { bubbles: true, cancelable: true });
+        Object.defineProperty(event, "clipboardData", {
+          value: {
+            setData(type, value) {
+              data[type] = value;
+            }
+          }
+        });
+        selectionTarget.dispatchEvent(event);
+        selection.removeAllRanges();
+        return { defaultPrevented: event.defaultPrevented, data };
+      }
+
+      document.getElementById("run-mixed-copy").addEventListener("click", () => {
+        document.documentElement.dataset.mixedCopy = JSON.stringify(runFixtureCopy(document.getElementById("assistant-message")));
+      });
+      document.getElementById("run-ordinary-copy").addEventListener("click", () => {
+        document.documentElement.dataset.ordinaryCopy = JSON.stringify(runFixtureCopy(document.getElementById("ordinary-text")));
+      });
+      document.getElementById("run-native-copy").addEventListener("click", () => {
+        document.documentElement.dataset.nativeCopy = JSON.stringify(runFixtureCopy(document.getElementById("assistant-message"), true));
+      });
+      document.getElementById("run-scroll-tests").addEventListener("click", async () => {
+        const wait = (delay) => new Promise((resolve) => setTimeout(resolve, delay));
+        const scroller = document.getElementById("thread-scroll");
+        const form = document.getElementById("composer-form");
+
+        scroller.scrollTop = 120;
+        form.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+        scroller.scrollTop = scroller.scrollHeight;
+        scroller.dispatchEvent(new Event("scroll"));
+        await wait(120);
+        const guardedTop = scroller.scrollTop;
+
+        const nextTurn = document.createElement("section");
+        nextTurn.dataset.testid = "conversation-turn-3";
+        nextTurn.innerHTML = '<div data-message-author-role="user">New user turn</div>';
+        scroller.querySelector("main").appendChild(nextTurn);
+        await wait(320);
+        scroller.scrollTop = 260;
+        scroller.dispatchEvent(new Event("scroll"));
+        await wait(80);
+        const afterStableTop = scroller.scrollTop;
+
+        scroller.scrollTop = scroller.scrollHeight - scroller.clientHeight;
+        form.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+        scroller.scrollTop = 210;
+        scroller.dispatchEvent(new Event("scroll"));
+        await wait(80);
+        const bottomNativeTop = scroller.scrollTop;
+
+        scroller.scrollTop = 90;
+        form.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+        document.dispatchEvent(new WheelEvent("wheel", { bubbles: true, deltaY: 100 }));
+        scroller.scrollTop = scroller.scrollHeight;
+        scroller.dispatchEvent(new Event("scroll"));
+        await wait(80);
+        const wheelCanceledTop = scroller.scrollTop;
+        const maxScrollTop = scroller.scrollHeight - scroller.clientHeight;
+
+        document.documentElement.dataset.scrollTests = JSON.stringify({
+          guardedTop,
+          afterStableTop,
+          bottomNativeTop,
+          wheelCanceledTop,
+          maxScrollTop,
+          globalApisUnchanged:
+            window.scrollTo === globalThis.__gptskinsOriginalScrollApis.scrollTo &&
+            window.scrollBy === globalThis.__gptskinsOriginalScrollApis.scrollBy &&
+            Element.prototype.scrollIntoView === globalThis.__gptskinsOriginalScrollApis.scrollIntoView
+        });
+      });
+    </script>
+  </body>
+</html>

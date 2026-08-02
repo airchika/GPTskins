@@ -1,6 +1,6 @@
 # GPTskins
 
-GPTskins is a completely free, open source, and dependency-free Manifest V3 browser extension that adds 34 custom themes and simple font switching to ChatGPT.
+GPTskins is a completely free, open source, and dependency-free Manifest V3 browser extension that adds 34 custom themes, simple font switching, and lightweight local tools to ChatGPT.
 
 Switch ChatGPT into popular editor-inspired themes like Catppuccin Latte, GitHub Dark, Tokyo Day, and Xcode Dark, or choose a different local font style.
 
@@ -19,13 +19,15 @@ Switch ChatGPT into popular editor-inspired themes like Catppuccin Latte, GitHub
 
 ## Features
 
-- Popup settings for themes, fonts, and the optional message queue.
+- Popup settings for themes, fonts, and three independent tools.
 - Adds 34 custom themes while preserving ChatGPT's Default look.
 - Built-in themes: Default, OG, Absolutely, Ayu, Ayu Light, Catppuccin, Catppuccin Latte, Codex, Dracula, Everforest, Forest, Everforest Light, Gruvbox, Gruvbox Light, GitHub Dark, Linear, Lobster, Material, Matrix, Monokai, Night Owl, Nord, One, Oscurange, Raycast, Rose Pine, Rose, Rose Pine Dawn, Sentry, Solarized, Solar, Temple, Tokyo Night, Tokyo Day, and Xcode Dark.
 - Built-in fonts: Default, Verdana, Georgia, Mono, Sarasa SC (Sarasa UI interface, Noto Sans messages, JetBrains Mono code), and Sarasa Mono SC (Sarasa UI interface, Sarasa Mono messages, JetBrains Mono code).
 - Separate dark and light theme selections saved with `chrome.storage.sync`.
 - Automatic system color-scheme switching plus theme and font loading on `chatgpt.com` and `chat.openai.com`.
 - Optional message queue that submits user-written follow-ups serially through the visible ChatGPT composer.
+- Reading-position protection that preserves an older visible turn only when a submission would otherwise jump more than 150px to the bottom.
+- LaTeX quick copy with TeX, `$…$`, and `$$…$$` choices plus formula-aware mixed-selection copying.
 - No backend, login, external API, or build step.
 
 ## Available Themes
@@ -76,7 +78,7 @@ Switch ChatGPT into popular editor-inspired themes like Catppuccin Latte, GitHub
 
 ## Message Queue
 
-The message queue is an independent module and is disabled by default. Enable it from the **Queue** tab in the extension popup. While ChatGPT is responding, type the next message in the official composer and press **Enter** to queue it. **Shift+Enter** still inserts a line break.
+The message queue is an independent module and is disabled by default. Enable it from the **Tools** tab in the extension popup. While ChatGPT is responding, type the next message in the official composer and press **Enter** to queue it. **Shift+Enter** still inserts a line break.
 
 - Stores up to 10 pending prompts in `chrome.storage.local` on the current device.
 - Shows a compact count button at the composer's right edge; click it to open a narrow Codex-style queue panel with Edit and Remove actions.
@@ -86,6 +88,17 @@ The message queue is an independent module and is disabled by default. Enable it
 - Keeps later drafts behind existing queued messages so they cannot jump the queue.
 - Pauses on interrupted or unconfirmed submissions so you can review them before retrying.
 - Does not bypass errors, usage limits, CAPTCHA, or other page checks.
+
+## Reading Position and LaTeX Copy
+
+Both tools are enabled by default and can be switched independently from the **Tools** tab.
+
+- **Keep reading position** activates only when a real composer form submission happens while the thread is more than 150px from the bottom. It keeps the currently visible turn anchored for at most two seconds, but cancels immediately when you use the wheel, touch scrolling, paging keys, the scrollbar, or ChatGPT's scroll-to-bottom control. Sending at the bottom remains fully native.
+- **LaTeX quick copy** shows one small reusable toolbar when you click a formula in an assistant response without an active text selection. Choose raw `TeX`, inline `$…$`, or display `$$…$$` without changing ChatGPT's formula DOM.
+- Copying a mixed selection containing assistant formulas writes both plain text and HTML, replacing inline and display formulas with the corresponding delimiters while preserving the rest of the selection. Ordinary text selections and ChatGPT's own whole-response copy button remain native.
+- Formula source metadata is read locally from `data-math` or the KaTeX `application/x-tex` annotation. GPTskins does not read the clipboard, call a network service, import fonts, or patch global scrolling methods.
+
+If GPT Voyager is installed, disable its **Formula Copy** and **Prevent Auto Scroll** features to avoid duplicate event handling.
 
 ## Load in Chrome or Edge
 
@@ -100,7 +113,7 @@ The message queue is an independent module and is disabled by default. Enable it
 3. Enable **Developer mode**.
 4. Choose **Load unpacked**.
 5. Select the folder you cloned or unzipped.
-6. Open ChatGPT, click the GPTskins toolbar icon, and choose a theme, font, or optional queue setting.
+6. Open ChatGPT, click the GPTskins toolbar icon, and choose a theme, font, or tool setting.
 
 ## Project Layout
 
@@ -108,5 +121,6 @@ The message queue is an independent module and is disabled by default. Enable it
 - `shared/themes.js` contains the built-in theme and font definitions.
 - `content/content.js` applies the selected theme and font on ChatGPT pages.
 - `queue/` contains the optional message queue as a separate content-script module.
+- `tools/` contains reading-position protection, LaTeX copy, and the shared Tools popup controls.
 - `popup/` contains the extension popup UI.
 - `icons/` contains generated extension icons.

@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "GPTskins",
-  "description": "Apply polished built-in themes to the ChatGPT website.",
-  "version": "1.0.0",
+  "description": "Apply polished themes and lightweight local tools to ChatGPT.",
+  "version": "1.1.0",
   "icons": {
     "16": "icons/icon-16.png",
     "32": "icons/icon-32.png",
@@ -50,6 +50,20 @@
       "js": [
         "queue/shared.js",
         "queue/content.js"
+      ],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://chatgpt.com/*",
+        "https://chat.openai.com/*"
+      ],
+      "css": [
+        "tools/content.css"
+      ],
+      "js": [
+        "tools/shared.js",
+        "tools/content.js"
       ],
       "run_at": "document_idle"
     }

@@ -5,7 +5,7 @@
   const list = document.getElementById("theme-list");
   const fontList = document.getElementById("font-panel");
   const themePanel = document.getElementById("theme-panel");
-  const queuePanel = document.getElementById("queue-panel");
+  const toolsPanel = document.getElementById("tools-panel");
   const status = document.getElementById("status");
   const styleButtons = Array.from(document.querySelectorAll("[data-style-mode]"));
   const filterButtons = Array.from(document.querySelectorAll("[data-theme-mode]"));
@@ -165,13 +165,13 @@
     styleMode = mode;
     themePanel.hidden = styleMode !== "theme";
     fontList.hidden = styleMode !== "font";
-    queuePanel.hidden = styleMode !== "queue";
+    toolsPanel.hidden = styleMode !== "tools";
     if (styleMode === "theme") {
       status.textContent = "Dark and light themes follow your system setting.";
     } else if (styleMode === "font") {
       status.textContent = "Pick a font for ChatGPT.";
     } else {
-      status.textContent = "The queue is off by default.";
+      status.textContent = "Enable only the tools you want.";
     }
     updatePressedStates();
   }
