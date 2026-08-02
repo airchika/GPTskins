@@ -2280,6 +2280,14 @@ ${rules.join("\n")}
         candidates.add(closestPre);
       }
     }
+
+    Array.from(candidates).forEach((pre) => {
+      const codeMirrorRoot = pre.closest(".cm-editor, .cm-scroller");
+      const outerPre = codeMirrorRoot?.closest("[data-message-author-role] pre");
+      if (outerPre && outerPre !== pre) {
+        candidates.add(outerPre);
+      }
+    });
     return candidates;
   }
 
