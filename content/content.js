@@ -1592,20 +1592,8 @@ html.dark[data-gptskins-theme] main button.btn-primary :is(div, span, svg) {
     const interfaceFont = themeApi.getFontOption("interface", selections.interface);
     const textFont = themeApi.getFontOption("text", selections.text);
     const codeFamilies = themeApi.getCodeFontFamilies(selections);
-    const localFontFaces = themeApi.getLocalFontFaces(selections);
     const variables = [];
     const rules = [];
-    localFontFaces.forEach((face) => {
-      const sources = face.sources.map((source) => `local(${JSON.stringify(source)})`).join(", ");
-      rules.push(`
-@font-face {
-  font-family: ${JSON.stringify(face.family)};
-  src: ${sources};
-  font-style: ${face.style};
-  font-weight: ${face.weight};
-  font-display: swap;
-}`);
-    });
     if (interfaceFont.family) {
       variables.push(
         `--gptskins-interface-font-family: ${interfaceFont.family}, "Microsoft YaHei UI", "Microsoft YaHei", ui-sans-serif, system-ui, sans-serif;`

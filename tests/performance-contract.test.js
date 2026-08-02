@@ -25,8 +25,6 @@ assert.match(
   "font CSS updates must be idempotent across all four font roles"
 );
 assert.match(contentSource, /if \(codeFamilies\.length\)/, "GPT Default code slots must not inject a replacement code stack");
-assert.match(contentSource, /themeApi\.getLocalFontFaces\(selections\)/, "local font aliases must only follow selected fonts");
-assert.match(contentSource, /local\(\$\{JSON\.stringify\(source\)\}\)/, "local font aliases must resolve installed face names");
 assert.match(contentSource, /new MutationObserver\(handlePageMutations\)/, "page changes must use the incremental mutation handler");
 
 const mutationSource = functionSource("handlePageMutations", "syncPageMarker");

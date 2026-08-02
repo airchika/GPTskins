@@ -18,8 +18,7 @@ const {
   getFontOption,
   resolveFontSelections,
   getFontSelectionSignature,
-  getCodeFontFamilies,
-  getLocalFontFaces
+  getCodeFontFamilies
 } = globalThis.GPTskinsThemes;
 
 function luminance(hex) {
@@ -99,28 +98,9 @@ assert.equal(getFontSelectionSignature(defaultFonts), "default|default|default|d
 assert.deepEqual(getCodeFontFamilies(defaultFonts), [], "default code slots must not insert a custom family");
 assert.deepEqual(
   getCodeFontFamilies({ codePrimary: "google-sans-code", codeSecondary: "sarasa-mono-sc" }),
-  ['"GPTskins Google Sans Code"', '"Sarasa Mono SC"'],
+  ['"Google Sans Code"', '"Sarasa Mono SC"'],
   "code families must preserve slot order"
 );
-assert.deepEqual(
-  getLocalFontFaces({ codePrimary: "google-sans-code", codeSecondary: "google-sans-code" }),
-  [
-    {
-      family: "GPTskins Google Sans Code",
-      style: "normal",
-      weight: "300 800",
-      sources: ["Google Sans Code Regular", "GoogleSansCode-Regular"]
-    },
-    {
-      family: "GPTskins Google Sans Code",
-      style: "italic",
-      weight: "300 800",
-      sources: ["Google Sans Code Italic", "GoogleSansCode-Italic"]
-    }
-  ],
-  "Google Sans Code local faces must use full and PostScript names without duplicating both code slots"
-);
-assert.deepEqual(getLocalFontFaces(defaultFonts), [], "default fonts must not inject local font faces");
 assert.deepEqual(
   getCodeFontFamilies({ codePrimary: "fira-code", codeSecondary: "fira-code" }),
   ['"Fira Code"'],
