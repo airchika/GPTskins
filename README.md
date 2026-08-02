@@ -1,6 +1,6 @@
 # GPTskins
 
-GPTskins is a completely free, open source, and dependency-free Manifest V3 browser extension that adds 34 custom themes, simple font switching, and lightweight local tools to ChatGPT.
+GPTskins is a completely free, open source, and dependency-free Manifest V3 browser extension that adds 34 custom themes, independent font controls, and lightweight local tools to ChatGPT.
 
 Switch ChatGPT into popular editor-inspired themes like Catppuccin Latte, GitHub Dark, Tokyo Day, and Xcode Dark, or choose a different local font style.
 
@@ -22,7 +22,7 @@ Switch ChatGPT into popular editor-inspired themes like Catppuccin Latte, GitHub
 - Popup settings for themes, fonts, and three independent tools.
 - Adds 34 custom themes while preserving ChatGPT's Default look.
 - Built-in themes: Default, OG, Absolutely, Ayu, Ayu Light, Catppuccin, Catppuccin Latte, Codex, Dracula, Everforest, Forest, Everforest Light, Gruvbox, Gruvbox Light, GitHub Dark, Linear, Lobster, Material, Matrix, Monokai, Night Owl, Nord, One, Oscurange, Raycast, Rose Pine, Rose, Rose Pine Dawn, Sentry, Solarized, Solar, Temple, Tokyo Night, Tokyo Day, and Xcode Dark.
-- Built-in fonts: Default, Verdana, Georgia, Mono, Sarasa SC (Sarasa UI interface, Noto Sans messages, JetBrains Mono code), and Sarasa Mono SC (Sarasa UI interface, Sarasa Mono messages, JetBrains Mono code).
+- Four independent font controls for the interface, body text, and two ordered code-font slots. Every control can preserve ChatGPT's Default font.
 - Separate dark and light theme selections saved with `chrome.storage.sync`.
 - Automatic system color-scheme switching plus theme and font loading on `chatgpt.com` and `chat.openai.com`.
 - Optional message queue that submits user-written follow-ups serially through the visible ChatGPT composer.
@@ -69,12 +69,11 @@ Switch ChatGPT into popular editor-inspired themes like Catppuccin Latte, GitHub
 
 ## Available Fonts
 
-- Default
-- Verdana
-- Georgia
-- Mono
-- Sarasa SC (Sarasa UI interface, Noto Sans messages, JetBrains Mono code)
-- Sarasa Mono SC (Sarasa UI interface, Sarasa Mono messages, JetBrains Mono code)
+- **Interface:** GPT Default or Sarasa UI SC.
+- **Body:** GPT Default, Noto Sans SC, Noto Serif SC, or Sarasa Gothic SC.
+- **Code font 1 and 2:** GPT Default, JetBrains Mono, Sarasa Mono SC, Fira Code, or Google Sans Code.
+
+GPTskins uses installed local fonts and does not download or bundle font files. The two code choices form one ordered font stack, followed by the native system monospace fallbacks.
 
 ## Message Queue
 

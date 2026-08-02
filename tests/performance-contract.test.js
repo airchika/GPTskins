@@ -19,7 +19,12 @@ assert.doesNotMatch(contentSource, /querySelectorAll\(["']body \*["']\)/, "norma
 assert.doesNotMatch(contentSource, /document\.body\.innerText/, "plan detection must not read the complete page text");
 assert.doesNotMatch(contentSource, /body \*:not\(/, "font theming must not match every page descendant");
 assert.match(contentSource, /style\.dataset\.gptskinsThemeId === theme\.id/, "theme CSS updates must be idempotent");
-assert.match(contentSource, /style\.dataset\.gptskinsFontId === font\.id/, "font CSS updates must be idempotent");
+assert.match(
+  contentSource,
+  /style\.dataset\.gptskinsFontSignature === signature/,
+  "font CSS updates must be idempotent across all four font roles"
+);
+assert.match(contentSource, /if \(codeFamilies\.length\)/, "GPT Default code slots must not inject a replacement code stack");
 assert.match(contentSource, /new MutationObserver\(handlePageMutations\)/, "page changes must use the incremental mutation handler");
 
 const mutationSource = functionSource("handlePageMutations", "syncPageMarker");

@@ -7,10 +7,18 @@ require("../shared/themes.js");
 const {
   storageKey,
   themeStorageKeys,
+  legacyFontStorageKey,
+  fontStorageKeys,
   themes,
-  fonts,
+  fontOptions,
+  fontRoles,
   getThemeForMode,
-  resolveThemeSelections
+  resolveThemeSelections,
+  getFontOptions,
+  getFontOption,
+  resolveFontSelections,
+  getFontSelectionSignature,
+  getCodeFontFamilies
 } = globalThis.GPTskinsThemes;
 
 function luminance(hex) {
@@ -26,8 +34,11 @@ function contrast(first, second) {
 }
 
 assert.equal(new Set(themes.map((theme) => theme.id)).size, themes.length, "theme ids must be unique");
-assert.equal(new Set(fonts.map((font) => font.id)).size, fonts.length, "font ids must be unique");
 assert.notEqual(themeStorageKeys.dark, themeStorageKeys.light, "dark and light themes need separate storage keys");
+assert.equal(new Set(Object.values(fontStorageKeys)).size, fontRoles.length, "font roles need separate storage keys");
+Object.entries(fontOptions).forEach(([group, options]) => {
+  assert.equal(new Set(options.map((font) => font.id)).size, options.length, `${group} font ids must be unique`);
+});
 
 for (const theme of themes.filter((item) => item.id !== "default")) {
   assert.match(theme.colors.accent, /^#[0-9a-f]{6}$/i, `${theme.id} needs a hex accent`);
@@ -54,16 +65,61 @@ assert.deepEqual(
   "legacy light selection must migrate without changing the dark selection"
 );
 
-const sarasaSc = fonts.find((font) => font.id === "sarasa-mono-sc");
-assert.ok(sarasaSc, "Sarasa SC font preset must exist");
-assert.match(sarasaSc.stack, /Sarasa UI SC/, "Sarasa preset must use Sarasa UI SC for interface text");
-assert.match(sarasaSc.textStack, /Noto Sans SC/, "Sarasa preset must use Noto Sans SC for message text");
-assert.match(sarasaSc.codeStack, /JetBrains Mono/, "Sarasa preset must use JetBrains Mono for code");
+assert.deepEqual(
+  fontRoles.map((role) => role.id),
+  ["interface", "text", "codePrimary", "codeSecondary"],
+  "font settings must expose four ordered roles"
+);
+assert.deepEqual(
+  getFontOptions("interface").map((font) => font.id),
+  ["default", "sarasa-ui-sc"],
+  "interface fonts must stay intentionally narrow"
+);
+assert.deepEqual(
+  getFontOptions("text").map((font) => font.id),
+  ["default", "noto-sans-sc", "noto-serif-sc", "sarasa-gothic-sc"],
+  "body fonts must match the curated CJK list"
+);
+assert.deepEqual(
+  getFontOptions("codePrimary").map((font) => font.id),
+  ["default", "jetbrains-mono", "sarasa-mono-sc", "fira-code", "google-sans-code"],
+  "the first code slot must expose the curated code list"
+);
+assert.deepEqual(getFontOptions("codeSecondary"), getFontOptions("codePrimary"), "both code slots must share one option list");
+assert.equal(getFontOption("text", "verdana").id, "default", "removed legacy font options must fall back to GPT Default");
 
-const sarasaMonoSc = fonts.find((font) => font.id === "sarasa-mono-sc-text");
-assert.ok(sarasaMonoSc, "Sarasa Mono SC font preset must exist");
-assert.match(sarasaMonoSc.stack, /Sarasa UI SC/, "Sarasa Mono preset must use Sarasa UI SC for interface text");
-assert.match(sarasaMonoSc.textStack, /Sarasa Mono SC/, "Sarasa Mono preset must use Sarasa Mono SC for message text");
-assert.match(sarasaMonoSc.codeStack, /JetBrains Mono/, "Sarasa Mono preset must use JetBrains Mono for code");
+const defaultFonts = resolveFontSelections();
+assert.deepEqual(
+  defaultFonts,
+  { interface: "default", text: "default", codePrimary: "default", codeSecondary: "default" },
+  "all font roles must default to ChatGPT's native fonts"
+);
+assert.equal(getFontSelectionSignature(defaultFonts), "default|default|default|default");
+assert.deepEqual(getCodeFontFamilies(defaultFonts), [], "default code slots must not insert a custom family");
+assert.deepEqual(
+  getCodeFontFamilies({ codePrimary: "google-sans-code", codeSecondary: "sarasa-mono-sc" }),
+  ['"Google Sans Code"', '"Sarasa Mono SC"'],
+  "code families must preserve slot order"
+);
+assert.deepEqual(
+  getCodeFontFamilies({ codePrimary: "fira-code", codeSecondary: "fira-code" }),
+  ['"Fira Code"'],
+  "duplicate code selections must be inserted once"
+);
+assert.deepEqual(
+  resolveFontSelections({ [legacyFontStorageKey]: "sarasa-mono-sc" }),
+  {
+    interface: "sarasa-ui-sc",
+    text: "noto-sans-sc",
+    codePrimary: "jetbrains-mono",
+    codeSecondary: "sarasa-mono-sc"
+  },
+  "the old Sarasa combination must migrate into four independent roles"
+);
+assert.deepEqual(
+  resolveFontSelections({ [fontStorageKeys.text]: "noto-serif-sc", [legacyFontStorageKey]: "sarasa-mono-sc" }),
+  { interface: "default", text: "noto-serif-sc", codePrimary: "default", codeSecondary: "default" },
+  "new font settings must take precedence over the legacy combined preset"
+);
 
 console.log(`Checked ${themes.length - 1} GPTskins theme palettes.`);

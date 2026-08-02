@@ -36,7 +36,12 @@
   ]);
   const themeBypassPrefixPaths = ["/features", "/use-cases", "/codex", "/business", "/plans"];
   let selectedThemeIds = { dark: "default", light: "default" };
-  let selectedFontId = "default";
+  let selectedFonts = {
+    interface: "default",
+    text: "default",
+    codePrimary: "default",
+    codeSecondary: "default"
+  };
   let routeThemeTimer = 0;
   let routeThemeObserverStarted = false;
   let lastThemeRoute = location.href;
@@ -1565,7 +1570,13 @@ html.dark[data-gptskins-theme] main button.btn-primary :is(div, span, svg) {
     style.dataset.gptskinsThemeId = theme.id;
   }
 
-  function ensureFontStyle(font) {
+  function normalizeFontSelections(selections = {}) {
+    return Object.fromEntries(
+      themeApi.fontRoles.map((role) => [role.id, themeApi.getFontOption(role.id, selections[role.id]).id])
+    );
+  }
+
+  function ensureFontStyle(selections) {
     let style = document.getElementById(fontStyleId);
     if (!style) {
       style = document.createElement("style");
@@ -1573,24 +1584,36 @@ html.dark[data-gptskins-theme] main button.btn-primary :is(div, span, svg) {
       document.documentElement.appendChild(style);
     }
 
-    if (style.dataset.gptskinsFontId === font.id) {
+    const signature = themeApi.getFontSelectionSignature(selections);
+    if (style.dataset.gptskinsFontSignature === signature) {
       return;
     }
 
-    style.textContent = `
-html[data-gptskins-font] {
-  --gptskins-font-family: ${font.stack};
-  --gptskins-text-font-family: ${font.textStack || font.stack};
-  --gptskins-code-font-family: ${font.codeStack || font.stack};
-}
-
-html[data-gptskins-font] body,
-html[data-gptskins-font] body :is(button, input, textarea, select),
+    const interfaceFont = themeApi.getFontOption("interface", selections.interface);
+    const textFont = themeApi.getFontOption("text", selections.text);
+    const codeFamilies = themeApi.getCodeFontFamilies(selections);
+    const variables = [];
+    const rules = [];
+    if (interfaceFont.family) {
+      variables.push(
+        `--gptskins-interface-font-family: ${interfaceFont.family}, "Microsoft YaHei UI", "Microsoft YaHei", ui-sans-serif, system-ui, sans-serif;`
+      );
+      rules.push(`
+html[data-gptskins-font] body :is(button, input, textarea, select, label),
+html[data-gptskins-font] body :is(nav, aside, header, [role="menu"], [role="listbox"], [data-testid="history-panel"], [data-testid="left-sidebar"], [data-testid="composer"]),
+html[data-gptskins-font] body [role="dialog"] :is(button, input, textarea, select, label, h1, h2, h3, [role="tab"]),
 html[data-gptskins-font] body #prompt-textarea,
 html[data-gptskins-font] body .ProseMirror {
-  font-family: var(--gptskins-font-family) !important;
-}
-
+  font-family: var(--gptskins-interface-font-family) !important;
+}`);
+    }
+    if (textFont.family) {
+      const textFallback =
+        textFont.id === "noto-serif-sc"
+          ? '"Songti SC", SimSun, serif'
+          : '"Microsoft YaHei UI", "Microsoft YaHei", ui-sans-serif, system-ui, sans-serif';
+      variables.push(`--gptskins-text-font-family: ${textFont.family}, ${textFallback};`);
+      rules.push(`
 html[data-gptskins-font] body [data-message-author-role],
 html[data-gptskins-font] body [data-message-author-role] :is(.markdown, .markdown *):not(:is(
   .katex,
@@ -1617,14 +1640,34 @@ html[data-gptskins-font] body [data-message-author-role] :is(.markdown, .markdow
   .cm-content *
 )) {
   font-family: var(--gptskins-text-font-family) !important;
-}
-
+}`);
+    }
+    if (codeFamilies.length) {
+      const codeStack = [
+        ...codeFamilies,
+        "ui-monospace",
+        "SFMono-Regular",
+        "Menlo",
+        "Monaco",
+        "Consolas",
+        '"Liberation Mono"',
+        "monospace"
+      ].join(", ");
+      variables.push(`--gptskins-code-font-family: ${codeStack};`);
+      rules.push(`
 html[data-gptskins-font] body :is(pre, code, kbd, samp, [data-gptskins-code-body], .cm-editor, .cm-scroller, .cm-content),
 html[data-gptskins-font] body :is(pre, code, kbd, samp, [data-gptskins-code-body], .cm-editor, .cm-scroller, .cm-content) * {
   font-family: var(--gptskins-code-font-family) !important;
+}`);
+    }
+
+    style.textContent = `
+html[data-gptskins-font] {
+  ${variables.join("\n  ")}
 }
+${rules.join("\n")}
 `;
-    style.dataset.gptskinsFontId = font.id;
+    style.dataset.gptskinsFontSignature = signature;
   }
 
   function markThemeSwitching() {
@@ -1722,10 +1765,10 @@ html[data-gptskins-font] body :is(pre, code, kbd, samp, [data-gptskins-code-body
     restoreScrollPosition(restoreScroll);
   }
 
-  function applyFont(fontId) {
-    const font = themeApi.getFont(fontId || "default");
-    selectedFontId = font.id;
-    if (shouldBypassThemeForUrl() || font.id === "default") {
+  function applyFonts(selections) {
+    selectedFonts = normalizeFontSelections(selections);
+    const allDefault = Object.values(selectedFonts).every((fontId) => fontId === "default");
+    if (shouldBypassThemeForUrl() || allDefault) {
       if (root.hasAttribute("data-gptskins-font") || document.getElementById(fontStyleId)) {
         removeFont();
       }
@@ -1733,19 +1776,20 @@ html[data-gptskins-font] body :is(pre, code, kbd, samp, [data-gptskins-code-body
     }
 
     const existingStyle = document.getElementById(fontStyleId);
-    if (root.getAttribute("data-gptskins-font") === font.id && existingStyle?.dataset.gptskinsFontId === font.id) {
+    const signature = themeApi.getFontSelectionSignature(selectedFonts);
+    if (root.hasAttribute("data-gptskins-font") && existingStyle?.dataset.gptskinsFontSignature === signature) {
       return;
     }
 
-    ensureFontStyle(font);
-    root.setAttribute("data-gptskins-font", font.id);
+    ensureFontStyle(selectedFonts);
+    root.setAttribute("data-gptskins-font", "true");
   }
 
   function scheduleRouteThemeSync() {
     clearTimeout(routeThemeTimer);
     routeThemeTimer = setTimeout(() => {
       applySelectedTheme({ forceSurfaceSync: true });
-      applyFont(selectedFontId);
+      applyFonts(selectedFonts);
     }, 80);
   }
 
@@ -2528,11 +2572,18 @@ html[data-gptskins-font] body :is(pre, code, kbd, samp, [data-gptskins-code-body
   }
 
   function loadStoredSettings() {
+    const fontStorageKeys = Object.values(themeApi.fontStorageKeys);
     chrome.storage.sync.get(
-      [themeApi.storageKey, themeApi.themeStorageKeys.dark, themeApi.themeStorageKeys.light, themeApi.fontStorageKey],
+      [
+        themeApi.storageKey,
+        themeApi.themeStorageKeys.dark,
+        themeApi.themeStorageKeys.light,
+        themeApi.legacyFontStorageKey,
+        ...fontStorageKeys
+      ],
       (result) => {
         selectedThemeIds = themeApi.resolveThemeSelections(result);
-        selectedFontId = themeApi.getFont(result[themeApi.fontStorageKey] || "default").id;
+        selectedFonts = themeApi.resolveFontSelections(result);
 
         const migratedSettings = {};
         for (const mode of ["dark", "light"]) {
@@ -2541,12 +2592,18 @@ html[data-gptskins-font] body :is(pre, code, kbd, samp, [data-gptskins-code-body
             migratedSettings[storageKey] = selectedThemeIds[mode];
           }
         }
+        themeApi.fontRoles.forEach((role) => {
+          const storageKey = themeApi.fontStorageKeys[role.id];
+          if (result[storageKey] !== selectedFonts[role.id]) {
+            migratedSettings[storageKey] = selectedFonts[role.id];
+          }
+        });
         if (Object.keys(migratedSettings).length) {
           chrome.storage.sync.set(migratedSettings);
         }
 
         applySelectedTheme();
-        applyFont(selectedFontId);
+        applyFonts(selectedFonts);
       }
     );
   }
@@ -2561,8 +2618,8 @@ html[data-gptskins-font] body :is(pre, code, kbd, samp, [data-gptskins-code-body
         setThemeSelection(mode, theme.id);
       }
     }
-    if (message && message.type === "GPTSKINS_APPLY_FONT") {
-      applyFont(message.fontId);
+    if (message && message.type === "GPTSKINS_APPLY_FONTS") {
+      applyFonts(message.fonts);
     }
   });
 
@@ -2579,9 +2636,17 @@ html[data-gptskins-font] body :is(pre, code, kbd, samp, [data-gptskins-code-body
       if (themeChanged) {
         applySelectedTheme();
       }
-    }
-    if (areaName === "sync" && changes[themeApi.fontStorageKey]) {
-      applyFont(changes[themeApi.fontStorageKey].newValue);
+      let fontChanged = false;
+      themeApi.fontRoles.forEach((role) => {
+        const storageKey = themeApi.fontStorageKeys[role.id];
+        if (changes[storageKey]) {
+          selectedFonts[role.id] = themeApi.getFontOption(role.id, changes[storageKey].newValue).id;
+          fontChanged = true;
+        }
+      });
+      if (fontChanged) {
+        applyFonts(selectedFonts);
+      }
     }
   });
 

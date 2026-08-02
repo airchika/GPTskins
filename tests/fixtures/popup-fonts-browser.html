@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>GPTskins font popup browser fixture</title>
+    <link rel="stylesheet" href="../../popup/popup.css">
+    <script>
+      globalThis.chrome = {
+        storage: {
+          sync: {
+            get(_keys, callback) {
+              callback({});
+            },
+            set(_values, callback) {
+              callback?.();
+            }
+          }
+        },
+        tabs: {
+          query(_query, callback) {
+            callback([]);
+          }
+        },
+        runtime: {
+          lastError: null
+        }
+      };
+    </script>
+  </head>
+  <body>
+    <main class="popup-shell">
+      <header class="popup-header">
+        <div>
+          <p class="eyebrow">GPTskins</p>
+          <h1>Choose a style</h1>
+        </div>
+        <img src="../../icons/icon-48.png" alt="" width="40" height="40">
+      </header>
+
+      <div class="style-filter" role="group" aria-label="Style type">
+        <button type="button" class="filter-button" data-style-mode="theme" aria-pressed="true" aria-controls="theme-panel">Theme</button>
+        <button type="button" class="filter-button" data-style-mode="font" aria-pressed="false" aria-controls="font-panel">Font</button>
+        <button type="button" class="filter-button" data-style-mode="tools" aria-pressed="false" aria-controls="tools-panel">Tools</button>
+      </div>
+
+      <section class="theme-panel" id="theme-panel" aria-label="Themes">
+        <div class="theme-filter" role="group" aria-label="Theme type">
+          <button type="button" class="filter-button" data-theme-mode="dark" aria-pressed="true">Dark</button>
+          <button type="button" class="filter-button" data-theme-mode="light" aria-pressed="false">Light</button>
+        </div>
+        <div class="theme-list" id="theme-list"></div>
+      </section>
+
+      <section class="font-list" id="font-panel" aria-label="Fonts" hidden></section>
+      <section id="tools-panel" hidden></section>
+      <p class="status" id="status" role="status" aria-live="polite"></p>
+    </main>
+
+    <script src="../../shared/themes.js"></script>
+    <script src="../../popup/popup.js"></script>
+  </body>
+</html>

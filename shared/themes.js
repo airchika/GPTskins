@@ -755,47 +755,74 @@
     light: "gptskins.theme.light"
   };
   const darkThemeIds = new Set(themes.filter((theme) => theme.dark).map((theme) => theme.id));
-  const fonts = [
-    {
-      id: "default",
-      name: "Default",
-      description: "Native ChatGPT font.",
-      stack: ""
-    },
-    {
-      id: "verdana",
-      name: "Verdana",
-      description: "Wide and readable.",
-      stack: 'Verdana, Geneva, ui-sans-serif, system-ui, sans-serif'
-    },
-    {
-      id: "georgia",
-      name: "Georgia",
-      description: "Polished serif text.",
-      stack: 'Georgia, Cambria, "Times New Roman", Times, serif'
-    },
-    {
-      id: "mono",
-      name: "Mono",
-      description: "Terminal-style text.",
-      stack: 'ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace'
-    },
-    {
-      id: "sarasa-mono-sc",
-      name: "Sarasa SC",
-      description: "Sarasa UI, Noto text, JetBrains code.",
-      stack: '"Sarasa UI SC", "Microsoft YaHei UI", "Microsoft YaHei", ui-sans-serif, sans-serif',
-      textStack: '"Noto Sans SC", "Microsoft YaHei UI", "Microsoft YaHei", ui-sans-serif, sans-serif',
-      codeStack: '"JetBrains Mono", "Cascadia Mono", Consolas, "Liberation Mono", Menlo, monospace'
-    },
-    {
-      id: "sarasa-mono-sc-text",
-      name: "Sarasa Mono SC",
-      description: "Sarasa UI, Sarasa Mono text, JetBrains code.",
-      stack: '"Sarasa UI SC", "Microsoft YaHei UI", "Microsoft YaHei", ui-sans-serif, sans-serif',
-      textStack: '"Sarasa Mono SC", "Microsoft YaHei UI", "Microsoft YaHei", ui-monospace, monospace',
-      codeStack: '"JetBrains Mono", "Cascadia Mono", Consolas, "Liberation Mono", Menlo, monospace'
-    }
+  const legacyFontStorageKey = "gptskins.font";
+  const fontStorageKeys = {
+    interface: "gptskins.font.interface",
+    text: "gptskins.font.text",
+    codePrimary: "gptskins.font.code1",
+    codeSecondary: "gptskins.font.code2"
+  };
+  const defaultFontOption = {
+    id: "default",
+    name: "GPT Default",
+    family: ""
+  };
+  const fontOptions = {
+    interface: [
+      defaultFontOption,
+      {
+        id: "sarasa-ui-sc",
+        name: "Sarasa UI SC",
+        family: '"Sarasa UI SC"'
+      }
+    ],
+    text: [
+      defaultFontOption,
+      {
+        id: "noto-sans-sc",
+        name: "Noto Sans SC",
+        family: '"Noto Sans SC"'
+      },
+      {
+        id: "noto-serif-sc",
+        name: "Noto Serif SC",
+        family: '"Noto Serif SC"'
+      },
+      {
+        id: "sarasa-gothic-sc",
+        name: "Sarasa Gothic SC",
+        family: '"Sarasa Gothic SC"'
+      }
+    ],
+    code: [
+      defaultFontOption,
+      {
+        id: "jetbrains-mono",
+        name: "JetBrains Mono",
+        family: '"JetBrains Mono"'
+      },
+      {
+        id: "sarasa-mono-sc",
+        name: "Sarasa Mono SC",
+        family: '"Sarasa Mono SC"'
+      },
+      {
+        id: "fira-code",
+        name: "Fira Code",
+        family: '"Fira Code"'
+      },
+      {
+        id: "google-sans-code",
+        name: "Google Sans Code",
+        family: '"Google Sans Code"'
+      }
+    ]
+  };
+  const fontRoles = [
+    { id: "interface", name: "Interface font", options: "interface" },
+    { id: "text", name: "Body font", options: "text" },
+    { id: "codePrimary", name: "Code font 1", options: "code" },
+    { id: "codeSecondary", name: "Code font 2", options: "code" }
   ];
 
   function getTheme(id) {
@@ -834,20 +861,66 @@
     return selections;
   }
 
-  function getFont(id) {
-    return fonts.find((font) => font.id === id) || fonts[0];
+  function getFontRole(roleId) {
+    return fontRoles.find((role) => role.id === roleId) || null;
+  }
+
+  function getFontOptions(roleId) {
+    const role = getFontRole(roleId);
+    return role ? fontOptions[role.options] : [defaultFontOption];
+  }
+
+  function getFontOption(roleId, optionId) {
+    const options = getFontOptions(roleId);
+    return options.find((option) => option.id === optionId) || options[0];
+  }
+
+  function resolveFontSelections(settings = {}) {
+    const selections = {};
+    fontRoles.forEach((role) => {
+      selections[role.id] = getFontOption(role.id, settings[fontStorageKeys[role.id]]).id;
+    });
+
+    const hasNewFontSettings = fontRoles.some((role) => Object.prototype.hasOwnProperty.call(settings, fontStorageKeys[role.id]));
+    const legacyFontId = settings[legacyFontStorageKey];
+    if (!hasNewFontSettings && (legacyFontId === "sarasa-mono-sc" || legacyFontId === "sarasa-mono-sc-text")) {
+      selections.interface = "sarasa-ui-sc";
+      selections.text = "noto-sans-sc";
+      selections.codePrimary = "jetbrains-mono";
+      selections.codeSecondary = "sarasa-mono-sc";
+    }
+    return selections;
+  }
+
+  function getFontSelectionSignature(selections = {}) {
+    return fontRoles.map((role) => getFontOption(role.id, selections[role.id]).id).join("|");
+  }
+
+  function getCodeFontFamilies(selections = {}) {
+    const families = [
+      getFontOption("codePrimary", selections.codePrimary).family,
+      getFontOption("codeSecondary", selections.codeSecondary).family
+    ].filter(Boolean);
+    return [...new Set(families)];
   }
 
   globalThis.GPTskinsThemes = {
     storageKey,
     themeStorageKeys,
-    fontStorageKey: "gptskins.font",
+    legacyFontStorageKey,
+    fontStorageKeys,
     themes,
-    fonts,
+    fontOptions,
+    fontRoles,
     darkThemeIds,
     getTheme,
     getThemeForMode,
     resolveThemeSelections,
-    getFont
+    getFontRole,
+    getFontOptions,
+    getFontOption,
+    resolveFontSelections,
+    getFontSelectionSignature,
+    getCodeFontFamilies
   };
 })();

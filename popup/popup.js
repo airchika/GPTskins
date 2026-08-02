@@ -11,7 +11,7 @@
   const filterButtons = Array.from(document.querySelectorAll("[data-theme-mode]"));
   const systemThemeMedia = window.matchMedia("(prefers-color-scheme: dark)");
   let selectedThemeIds = { dark: "default", light: "default" };
-  let selectedFontId = "default";
+  let selectedFonts = themeApi.resolveFontSelections();
   let styleMode = "theme";
   let themeMode = systemThemeMedia.matches ? "dark" : "light";
 
@@ -55,33 +55,37 @@
     return button;
   }
 
-  function renderFontButton(font) {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "font-button";
-    button.dataset.fontId = font.id;
-    button.setAttribute("aria-pressed", String(font.id === selectedFontId));
+  function renderFontControl(role) {
+    const setting = document.createElement("label");
+    setting.className = "font-setting";
 
     const name = document.createElement("span");
-    name.className = "font-name";
-    name.textContent = font.name;
+    name.className = "font-setting-label";
+    name.textContent = role.name;
 
-    const description = document.createElement("span");
-    description.className = "font-description";
-    description.textContent = font.description;
+    const select = document.createElement("select");
+    select.className = "font-select";
+    select.dataset.fontRole = role.id;
+    select.setAttribute("aria-label", role.name);
+    themeApi.getFontOptions(role.id).forEach((font) => {
+      const option = document.createElement("option");
+      option.value = font.id;
+      option.textContent = font.name;
+      option.selected = font.id === selectedFonts[role.id];
+      select.appendChild(option);
+    });
+    select.addEventListener("change", () => selectFont(role.id, select.value));
 
-    button.append(name, description);
-    button.addEventListener("click", () => selectFont(font.id));
-
-    return button;
+    setting.append(name, select);
+    return setting;
   }
 
   function updatePressedStates() {
     document.querySelectorAll(".theme-button").forEach((button) => {
       button.setAttribute("aria-pressed", String(button.dataset.themeId === selectedThemeIds[themeMode]));
     });
-    document.querySelectorAll(".font-button").forEach((button) => {
-      button.setAttribute("aria-pressed", String(button.dataset.fontId === selectedFontId));
+    document.querySelectorAll(".font-select").forEach((select) => {
+      select.value = selectedFonts[select.dataset.fontRole] || "default";
     });
     styleButtons.forEach((button) => {
       button.setAttribute("aria-pressed", String(button.dataset.styleMode === styleMode));
@@ -133,16 +137,20 @@
     });
   }
 
-  function selectFont(fontId) {
-    selectedFontId = themeApi.getFont(fontId).id;
+  function selectFont(roleId, fontId) {
+    const role = themeApi.getFontRole(roleId);
+    if (!role) {
+      return;
+    }
+    selectedFonts[roleId] = themeApi.getFontOption(roleId, fontId).id;
     updatePressedStates();
 
-    chrome.storage.sync.set({ [themeApi.fontStorageKey]: selectedFontId }, () => {
+    chrome.storage.sync.set({ [themeApi.fontStorageKeys[roleId]]: selectedFonts[roleId] }, () => {
       const saveFailed = Boolean(chrome.runtime.lastError);
       sendToActiveTab(
-        { type: "GPTSKINS_APPLY_FONT", fontId: selectedFontId },
-        saveFailed ? "Font applied, but couldn't save it." : "Font applied.",
-        saveFailed ? "Couldn't save font. Try again." : "Saved. Open ChatGPT to see this font."
+        { type: "GPTSKINS_APPLY_FONTS", fonts: { ...selectedFonts } },
+        saveFailed ? `${role.name} applied, but couldn't save it.` : `${role.name} applied.`,
+        saveFailed ? `Couldn't save ${role.name.toLowerCase()}. Try again.` : "Fonts saved. Open ChatGPT to see them."
       );
     });
   }
@@ -157,7 +165,7 @@
   }
 
   function renderFonts() {
-    fontList.replaceChildren(...themeApi.fonts.map(renderFontButton));
+    fontList.replaceChildren(...themeApi.fontRoles.map(renderFontControl));
     updatePressedStates();
   }
 
@@ -169,7 +177,7 @@
     if (styleMode === "theme") {
       status.textContent = "Dark and light themes follow your system setting.";
     } else if (styleMode === "font") {
-      status.textContent = "Pick a font for ChatGPT.";
+      status.textContent = "Choose fonts independently for the interface, body, and code.";
     } else {
       status.textContent = "Enable only the tools you want.";
     }
@@ -188,10 +196,16 @@
   });
 
   chrome.storage.sync.get(
-    [themeApi.storageKey, themeApi.themeStorageKeys.dark, themeApi.themeStorageKeys.light, themeApi.fontStorageKey],
+    [
+      themeApi.storageKey,
+      themeApi.themeStorageKeys.dark,
+      themeApi.themeStorageKeys.light,
+      themeApi.legacyFontStorageKey,
+      ...Object.values(themeApi.fontStorageKeys)
+    ],
     (result) => {
       selectedThemeIds = themeApi.resolveThemeSelections(result);
-      selectedFontId = themeApi.getFont(result[themeApi.fontStorageKey] || "default").id;
+      selectedFonts = themeApi.resolveFontSelections(result);
       const migratedSettings = {};
       for (const mode of ["dark", "light"]) {
         const storageKey = themeApi.themeStorageKeys[mode];
@@ -199,6 +213,12 @@
           migratedSettings[storageKey] = selectedThemeIds[mode];
         }
       }
+      themeApi.fontRoles.forEach((role) => {
+        const storageKey = themeApi.fontStorageKeys[role.id];
+        if (result[storageKey] !== selectedFonts[role.id]) {
+          migratedSettings[storageKey] = selectedFonts[role.id];
+        }
+      });
       if (Object.keys(migratedSettings).length) {
         chrome.storage.sync.set(migratedSettings);
       }
