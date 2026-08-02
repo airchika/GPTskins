@@ -33,7 +33,7 @@ assert.match(mutationSource, /collectRelevantSurfaceRoot/);
 assert.match(mutationSource, /includeDescendants: false/, "mutation targets must not rescan an unchanged ancestor subtree");
 assert.doesNotMatch(mutationSource, /clearTags|syncSurfaceTags|querySelectorAll/, "mutation collection must not perform a full retag pass");
 
-const codeCandidateSource = functionSource("getCodeCandidates", "tagPlanLayers");
+const codeCandidateSource = functionSource("getCodeCandidates", "codeSurfaceNeedsReconcile");
 assert.match(codeCandidateSource, /pre\.closest\("\.cm-editor, \.cm-scroller"\)/, "CodeMirror changes must identify their local editor");
 assert.match(
   codeCandidateSource,
@@ -44,6 +44,16 @@ assert.doesNotMatch(
   codeCandidateSource,
   /document\.querySelectorAll|queryWithin\(document/,
   "CodeMirror promotion must not rescan every historical code block"
+);
+
+const deferredCodeSource = functionSource("reconcileDeferredCodeSurfaces", "scheduleDeferredCodeSurfaceReconcile");
+assert.match(deferredCodeSource, /codeSurfaceNeedsReconcile/, "deferred code reconciliation must skip complete cards");
+assert.match(deferredCodeSource, /getCodeCandidates\(document\)/, "deferred reconciliation must stay code-surface only");
+assert.doesNotMatch(deferredCodeSource, /body \*|clearTags|syncSurfaceTags/, "deferred code reconciliation must not perform a broad retag pass");
+assert.match(
+  contentSource,
+  /applySelectedTheme\(\{ forceSurfaceSync: true \}\);/,
+  "content-script initialization must reconcile surfaces even when an old style node remains"
 );
 
 const viewportSource = functionSource("scheduleViewportSync", "ensurePageMarkerEventListeners");

@@ -1863,6 +1863,7 @@ ${rules.join("\n")}
   let pendingPlanCheck = false;
   let overflowFrame = 0;
   let viewportFrame = 0;
+  let deferredCodeSurfaceTimer = 0;
 
   function queryWithin(scope, selector) {
     if (!scope || typeof scope.querySelectorAll !== "function") {
@@ -2291,6 +2292,37 @@ ${rules.join("\n")}
     return candidates;
   }
 
+  function codeSurfaceNeedsReconcile(pre) {
+    if (!pre.isConnected || pre.closest(".cm-editor, .cm-scroller") || !pre.querySelector(".cm-editor, .cm-scroller")) {
+      return false;
+    }
+
+    return (
+      !pre.hasAttribute("data-gptskins-code-frame") ||
+      !pre.querySelector("[data-gptskins-code-block]") ||
+      !pre.querySelector("[data-gptskins-code-header]") ||
+      !pre.querySelector("[data-gptskins-code-body]")
+    );
+  }
+
+  function reconcileDeferredCodeSurfaces() {
+    deferredCodeSurfaceTimer = 0;
+    if (!root.hasAttribute("data-gptskins-theme")) {
+      return;
+    }
+
+    getCodeCandidates(document).forEach((pre) => {
+      if (codeSurfaceNeedsReconcile(pre)) {
+        tagCodePre(pre);
+      }
+    });
+  }
+
+  function scheduleDeferredCodeSurfaceReconcile() {
+    clearTimeout(deferredCodeSurfaceTimer);
+    deferredCodeSurfaceTimer = setTimeout(reconcileDeferredCodeSurfaces, 600);
+  }
+
   function tagPlanLayers() {
     const planRoots = new Set();
     queryWithin(document, "h1, h2, h3, h4").forEach((heading) => {
@@ -2479,6 +2511,9 @@ ${rules.join("\n")}
       roots,
       syncPlan: full || checkPlan || wasPlanPage !== planPage
     });
+    if (full) {
+      scheduleDeferredCodeSurfaceReconcile();
+    }
   }
 
   function schedulePageMarker({ full = false, checkPlan = false, roots = [] } = {}) {
@@ -2552,6 +2587,8 @@ ${rules.join("\n")}
   function stopPageMarkerObserver() {
     clearTimeout(pageMarkerTimer);
     pageMarkerTimer = 0;
+    clearTimeout(deferredCodeSurfaceTimer);
+    deferredCodeSurfaceTimer = 0;
     pendingSurfaceRoots.clear();
     pendingOverflowBodies.clear();
     pendingFullSurfaceSync = false;
@@ -2610,7 +2647,7 @@ ${rules.join("\n")}
           chrome.storage.sync.set(migratedSettings);
         }
 
-        applySelectedTheme();
+        applySelectedTheme({ forceSurfaceSync: true });
         applyFonts(selectedFonts);
       }
     );
