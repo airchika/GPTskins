@@ -2183,7 +2183,7 @@ ${rules.join("\n")}
   }
 
   function clearCodeTagsForPre(pre) {
-    let cleanupScope = pre.closest("[data-gptskins-code-block], [data-gptskins-code-frame]") || pre.parentElement || pre;
+    let cleanupScope = pre.closest("[data-gptskins-code-block], [data-gptskins-code-frame]") || pre;
     if (cleanupScope.parentElement?.hasAttribute("data-gptskins-code-frame")) {
       cleanupScope = cleanupScope.parentElement;
     }

@@ -27,6 +27,14 @@ assert.match(
 assert.match(contentSource, /if \(codeFamilies\.length\)/, "GPT Default code slots must not inject a replacement code stack");
 assert.match(contentSource, /new MutationObserver\(handlePageMutations\)/, "page changes must use the incremental mutation handler");
 
+const codeCleanupSource = functionSource("clearCodeTagsForPre", "tagCodePre");
+assert.match(codeCleanupSource, /\|\| pre;/, "untagged code cleanup must stay within the current pre");
+assert.doesNotMatch(
+  codeCleanupSource,
+  /\|\| pre\.parentElement/,
+  "tagging one code card must not clear sibling cards in the same markdown response"
+);
+
 const mutationSource = functionSource("handlePageMutations", "syncPageMarker");
 assert.match(mutationSource, /record\.addedNodes/);
 assert.match(mutationSource, /collectRelevantSurfaceRoot/);
