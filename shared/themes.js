@@ -814,7 +814,21 @@
       {
         id: "google-sans-code",
         name: "Google Sans Code",
-        family: '"Google Sans Code"'
+        family: '"GPTskins Google Sans Code"',
+        localFaces: [
+          {
+            family: "GPTskins Google Sans Code",
+            style: "normal",
+            weight: "300 800",
+            sources: ["Google Sans Code Regular", "GoogleSansCode-Regular"]
+          },
+          {
+            family: "GPTskins Google Sans Code",
+            style: "italic",
+            weight: "300 800",
+            sources: ["Google Sans Code Italic", "GoogleSansCode-Italic"]
+          }
+        ]
       }
     ]
   };
@@ -904,6 +918,22 @@
     return [...new Set(families)];
   }
 
+  function getLocalFontFaces(selections = {}) {
+    const faces = [];
+    const seen = new Set();
+    fontRoles.forEach((role) => {
+      const option = getFontOption(role.id, selections[role.id]);
+      (option.localFaces || []).forEach((face) => {
+        const key = `${face.family}|${face.style}|${face.weight}|${face.sources.join("|")}`;
+        if (!seen.has(key)) {
+          seen.add(key);
+          faces.push(face);
+        }
+      });
+    });
+    return faces;
+  }
+
   globalThis.GPTskinsThemes = {
     storageKey,
     themeStorageKeys,
@@ -921,6 +951,7 @@
     getFontOption,
     resolveFontSelections,
     getFontSelectionSignature,
-    getCodeFontFamilies
+    getCodeFontFamilies,
+    getLocalFontFaces
   };
 })();
