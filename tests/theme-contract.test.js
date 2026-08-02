@@ -34,6 +34,21 @@ function contrast(first, second) {
 }
 
 assert.equal(new Set(themes.map((theme) => theme.id)).size, themes.length, "theme ids must be unique");
+assert.deepEqual(
+  themes.slice(0, 3).map((theme) => theme.id),
+  ["default", "xcode-dark", "codex-absolutely"],
+  "Default and the two favorite dark themes must stay at the front"
+);
+const codexAbsolutelyTheme = themes.find((theme) => theme.id === "codex-absolutely");
+assert.deepEqual(
+  [
+    codexAbsolutelyTheme.colors.background,
+    codexAbsolutelyTheme.colors.text,
+    codexAbsolutelyTheme.colors.accent
+  ],
+  ["#2d2d2b", "#f9f9f7", "#cc7d5e"],
+  "Codex Absolutely must preserve the imported surface, ink, and accent anchors"
+);
 assert.notEqual(themeStorageKeys.dark, themeStorageKeys.light, "dark and light themes need separate storage keys");
 assert.equal(new Set(Object.values(fontStorageKeys)).size, fontRoles.length, "font roles need separate storage keys");
 Object.entries(fontOptions).forEach(([group, options]) => {

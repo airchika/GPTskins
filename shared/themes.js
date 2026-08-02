@@ -48,6 +48,50 @@
       colors: {}
     },
     {
+      id: "xcode-dark",
+      name: "Xcode Dark",
+      description: "Mac editor dark.",
+      dark: true,
+      swatches: ["#1f1f24", "#2d2d34", "#4da3ff"],
+      colors: colors({
+        background: "#1f1f24",
+        surface: "#24242a",
+        surfaceStrong: "#2d2d34",
+        sidebar: "#19191e",
+        text: "#f5f5f7",
+        mutedText: "#aaaab3",
+        border: "#42424a",
+        accent: "#4da3ff",
+        accentText: "#061426",
+        userBubble: "#26364c",
+        composer: "#2a2a31"
+      })
+    },
+    {
+      id: "codex-absolutely",
+      name: "Codex Absolutely",
+      description: "Warm Codex graphite.",
+      dark: true,
+      swatches: ["#2d2d2b", "#f9f9f7", "#cc7d5e"],
+      colors: colors({
+        background: "#2d2d2b",
+        surface: "#353533",
+        surfaceStrong: "#444442",
+        sidebar: "#262625",
+        sidebarText: "#f9f9f7",
+        sidebarMuted: "#b9b9b7",
+        sidebarHover: "#393937",
+        text: "#f9f9f7",
+        mutedText: "#b9b9b7",
+        border: "#4a4a48",
+        accent: "#cc7d5e",
+        accentText: "#000000",
+        userBubble: "#2f1d16",
+        assistantBubble: "#353533",
+        composer: "#3d3d3b"
+      })
+    },
+    {
       id: "og",
       name: "OG",
       description: "Classic charcoal.",
@@ -720,26 +764,6 @@
         assistantBubble: "#f2f3f7",
         composer: "#eaebf0",
         shadow: "rgba(55, 96, 191, 0.14)"
-      })
-    },
-    {
-      id: "xcode-dark",
-      name: "Xcode Dark",
-      description: "Mac editor dark.",
-      dark: true,
-      swatches: ["#1f1f24", "#2d2d34", "#4da3ff"],
-      colors: colors({
-        background: "#1f1f24",
-        surface: "#24242a",
-        surfaceStrong: "#2d2d34",
-        sidebar: "#19191e",
-        text: "#f5f5f7",
-        mutedText: "#aaaab3",
-        border: "#42424a",
-        accent: "#4da3ff",
-        accentText: "#061426",
-        userBubble: "#26364c",
-        composer: "#2a2a31"
       })
     }
   ];
