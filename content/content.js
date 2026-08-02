@@ -99,6 +99,10 @@
       document.documentElement.appendChild(style);
     }
 
+    if (style.dataset.gptskinsThemeId === theme.id) {
+      return;
+    }
+
     style.textContent = `
 html[data-gptskins-theme] {
 ${cssVariables(theme)}
@@ -1558,6 +1562,7 @@ html.dark[data-gptskins-theme] main button.btn-primary :is(div, span, svg) {
   color: inherit !important;
 }
 `;
+    style.dataset.gptskinsThemeId = theme.id;
   }
 
   function ensureFontStyle(font) {
@@ -1568,6 +1573,10 @@ html.dark[data-gptskins-theme] main button.btn-primary :is(div, span, svg) {
       document.documentElement.appendChild(style);
     }
 
+    if (style.dataset.gptskinsFontId === font.id) {
+      return;
+    }
+
     style.textContent = `
 html[data-gptskins-font] {
   --gptskins-font-family: ${font.stack};
@@ -1576,12 +1585,14 @@ html[data-gptskins-font] {
 }
 
 html[data-gptskins-font] body,
-html[data-gptskins-font] body *:not(:is(.katex, .katex *, math, math *, [role="math"], [role="math"] *)) {
+html[data-gptskins-font] body :is(button, input, textarea, select),
+html[data-gptskins-font] body #prompt-textarea,
+html[data-gptskins-font] body .ProseMirror {
   font-family: var(--gptskins-font-family) !important;
 }
 
 html[data-gptskins-font] body [data-message-author-role],
-html[data-gptskins-font] body [data-message-author-role] *:not(:is(
+html[data-gptskins-font] body [data-message-author-role] :is(.markdown, .markdown *):not(:is(
   .katex,
   .katex *,
   math,
@@ -1613,6 +1624,7 @@ html[data-gptskins-font] body :is(pre, code, kbd, samp, [data-gptskins-code-body
   font-family: var(--gptskins-code-font-family) !important;
 }
 `;
+    style.dataset.gptskinsFontId = font.id;
   }
 
   function markThemeSwitching() {
@@ -1664,8 +1676,8 @@ html[data-gptskins-font] body :is(pre, code, kbd, samp, [data-gptskins-code-body
     return systemThemeMedia.matches ? "dark" : "light";
   }
 
-  function applySelectedTheme() {
-    applyTheme(selectedThemeIds[getSystemThemeMode()]);
+  function applySelectedTheme(options) {
+    applyTheme(selectedThemeIds[getSystemThemeMode()], options);
   }
 
   function setThemeSelection(mode, themeId) {
@@ -1677,33 +1689,36 @@ html[data-gptskins-font] body :is(pre, code, kbd, samp, [data-gptskins-code-body
     applySelectedTheme();
   }
 
-  function applyTheme(themeId) {
+  function applyTheme(themeId, { forceSurfaceSync = false } = {}) {
     const theme = themeApi.getTheme(themeId || "default");
+    const bypassed = shouldBypassThemeForUrl();
+    if (bypassed || theme.id === "default") {
+      if (root.hasAttribute("data-gptskins-theme") || document.getElementById(themeStyleId)) {
+        const restoreScroll = captureScrollPositions();
+        removeTheme();
+        restoreScrollPosition(restoreScroll);
+      }
+      return;
+    }
+
+    const existingStyle = document.getElementById(themeStyleId);
+    const alreadyApplied =
+      root.getAttribute("data-gptskins-theme") === theme.id && existingStyle?.dataset.gptskinsThemeId === theme.id;
+    if (alreadyApplied) {
+      startPageMarkerObserver();
+      if (forceSurfaceSync) {
+        schedulePageMarker({ full: true, checkPlan: true });
+      }
+      return;
+    }
+
+    const needsFullSurfaceSync = forceSurfaceSync || !root.hasAttribute("data-gptskins-theme") || !existingStyle;
     const restoreScroll = captureScrollPositions();
-    if (shouldBypassThemeForUrl()) {
-      removeTheme();
-      restoreScrollPosition(restoreScroll);
-      return;
-    }
-
-    if (theme.id === "default") {
-      removeTheme();
-      restoreScrollPosition(restoreScroll);
-      return;
-    }
-
     ensureThemeStyle(theme);
     markThemeSwitching();
-    const planPage = isPlanPage();
-    syncSurfaceTags(planPage, true);
-    if (planPage) {
-      root.setAttribute("data-gptskins-plan-page", "true");
-    } else {
-      root.removeAttribute("data-gptskins-plan-page");
-    }
     root.setAttribute("data-gptskins-theme", theme.id);
     startPageMarkerObserver();
-    schedulePageMarker();
+    syncPageMarker({ full: needsFullSurfaceSync, checkPlan: true });
     restoreScrollPosition(restoreScroll);
   }
 
@@ -1711,7 +1726,14 @@ html[data-gptskins-font] body :is(pre, code, kbd, samp, [data-gptskins-code-body
     const font = themeApi.getFont(fontId || "default");
     selectedFontId = font.id;
     if (shouldBypassThemeForUrl() || font.id === "default") {
-      removeFont();
+      if (root.hasAttribute("data-gptskins-font") || document.getElementById(fontStyleId)) {
+        removeFont();
+      }
+      return;
+    }
+
+    const existingStyle = document.getElementById(fontStyleId);
+    if (root.getAttribute("data-gptskins-font") === font.id && existingStyle?.dataset.gptskinsFontId === font.id) {
       return;
     }
 
@@ -1722,7 +1744,7 @@ html[data-gptskins-font] body :is(pre, code, kbd, samp, [data-gptskins-code-body
   function scheduleRouteThemeSync() {
     clearTimeout(routeThemeTimer);
     routeThemeTimer = setTimeout(() => {
-      applySelectedTheme();
+      applySelectedTheme({ forceSurfaceSync: true });
       applyFont(selectedFontId);
     }, 80);
   }
@@ -1761,109 +1783,80 @@ html[data-gptskins-font] body :is(pre, code, kbd, samp, [data-gptskins-code-body
     }, 500);
   }
 
+  const surfaceMutationSelector = [
+    "pre",
+    ".cm-editor",
+    ".cm-scroller",
+    "[data-testid*='code']",
+    "[class*='group/code']",
+    "nav",
+    "aside",
+    "[data-testid='history-panel']",
+    "[data-testid='left-sidebar']",
+    "[data-testid='composer']",
+    "form[class*='composer']",
+    "[class*='group/composer']",
+    "[role='listbox']",
+    "[class*='suggest']",
+    "[class*='autocomplete']",
+    "button",
+    "[role='button']"
+  ].join(", ");
+  const planControlTags = [
+    "data-gptskins-plan-toggle",
+    "data-gptskins-plan-toggle-option",
+    "data-gptskins-plan-active",
+    "data-gptskins-plan-cta",
+    "data-gptskins-plan-disabled"
+  ];
+  const pendingSurfaceRoots = new Set();
+  const pendingOverflowBodies = new Set();
   let pageMarkerTimer = 0;
   let pageMarkerObserver = null;
   let bodyReadyObserver = null;
   let pageMarkerEventListenersAdded = false;
+  let pendingFullSurfaceSync = false;
+  let pendingPlanCheck = false;
+  let overflowFrame = 0;
+  let viewportFrame = 0;
 
-  function isPlanPage() {
-    if (location.hash === "#pricing") {
-      return true;
+  function queryWithin(scope, selector) {
+    if (!scope || typeof scope.querySelectorAll !== "function") {
+      return [];
     }
 
-    const pageText = document.body ? document.body.innerText : "";
-    const hasPlanHeading = pageText.includes("Choose your plan");
-    const hasPlanAction =
-      pageText.includes("Switch to Plus") ||
-      pageText.includes("Upgrade to Pro") ||
-      pageText.includes("ChatGPT Enterprise") ||
-      pageText.includes("Manage my subscription");
-    const hasPlanToggle = Boolean(
-      document.querySelector('[aria-label*="Personal" i], [aria-label*="Business" i], [aria-label*="plan" i] [role="radio"]')
-    );
-
-    return hasPlanHeading && (hasPlanAction || hasPlanToggle);
-  }
-
-  function isFinancePage() {
-    return location.hostname === "chatgpt.com" && normalizePath(location.pathname) === "/finances";
-  }
-
-  function syncPageMarker() {
-    const planPage = isPlanPage();
-    if (root.hasAttribute("data-gptskins-theme") && planPage) {
-      root.setAttribute("data-gptskins-plan-page", "true");
-    } else {
-      root.removeAttribute("data-gptskins-plan-page");
-    }
-
-    if (root.hasAttribute("data-gptskins-theme") && isFinancePage()) {
-      root.setAttribute("data-gptskins-finance-page", "true");
-    } else {
-      root.removeAttribute("data-gptskins-finance-page");
-    }
-
-    syncSurfaceTags(planPage);
-  }
-
-  function schedulePageMarker() {
-    clearTimeout(pageMarkerTimer);
-    pageMarkerTimer = setTimeout(syncPageMarker, 0);
-  }
-
-  function ensurePageMarkerEventListeners() {
-    if (pageMarkerEventListenersAdded) {
-      return;
-    }
-
-    pageMarkerEventListenersAdded = true;
-    document.addEventListener("scroll", schedulePageMarker, { passive: true });
-    window.addEventListener("resize", schedulePageMarker, { passive: true });
-  }
-
-  function startPageMarkerObserver() {
-    ensurePageMarkerEventListeners();
-
-    if (pageMarkerObserver) {
-      return;
-    }
-
-    if (document.body) {
-      pageMarkerObserver = new MutationObserver(schedulePageMarker);
-      pageMarkerObserver.observe(document.body, { childList: true, subtree: true });
-      if (bodyReadyObserver) {
-        bodyReadyObserver.disconnect();
-        bodyReadyObserver = null;
-      }
-      schedulePageMarker();
-      return;
-    }
-
-    if (!bodyReadyObserver && document.documentElement) {
-      bodyReadyObserver = new MutationObserver(startPageMarkerObserver);
-      bodyReadyObserver.observe(document.documentElement, { childList: true, subtree: true });
-    }
-  }
-
-  function stopPageMarkerObserver() {
-    clearTimeout(pageMarkerTimer);
-    if (pageMarkerObserver) {
-      pageMarkerObserver.disconnect();
-      pageMarkerObserver = null;
-    }
-    if (bodyReadyObserver) {
-      bodyReadyObserver.disconnect();
-      bodyReadyObserver = null;
-    }
-    if (pageMarkerEventListenersAdded) {
-      document.removeEventListener("scroll", schedulePageMarker);
-      window.removeEventListener("resize", schedulePageMarker);
-      pageMarkerEventListenersAdded = false;
-    }
+    const matches = scope instanceof Element && scope.matches(selector) ? [scope] : [];
+    matches.push(...scope.querySelectorAll(selector));
+    return matches;
   }
 
   function normalizedText(item) {
     return (item.textContent || "").replace(/\s+/g, " ").trim();
+  }
+
+  function hasPlanSignals(scope = document) {
+    const headings = queryWithin(scope, "h1, h2, h3, h4");
+    const hasPlanHeading = headings.some((item) => normalizedText(item).includes("Choose your plan"));
+    if (!hasPlanHeading) {
+      return false;
+    }
+
+    const actions = queryWithin(scope, "button, a, [role='button'], [role='radio']");
+    const hasPlanAction = actions.some((item) =>
+      /(?:Switch to Plus|Upgrade to Pro|ChatGPT Enterprise|Manage my subscription)/.test(normalizedText(item))
+    );
+    const hasPlanToggle = Boolean(
+      document.querySelector('[aria-label*="Personal" i], [aria-label*="Business" i], [aria-label*="plan" i] [role="radio"]')
+    );
+    return hasPlanAction || hasPlanToggle;
+  }
+
+  function isPlanPage() {
+    return location.hash === "#pricing" || hasPlanSignals(document);
+  }
+
+  function isFinancePage() {
+    return location.hostname === "chatgpt.com" && normalizePath(location.pathname) === "/finances";
   }
 
   function clearTags(names) {
@@ -1872,8 +1865,51 @@ html[data-gptskins-font] body :is(pre, code, kbd, samp, [data-gptskins-code-body
     });
   }
 
+  function clearTagsWithin(scope, names) {
+    if (!scope) {
+      return;
+    }
+
+    const selector = names.map((name) => `[${name}]`).join(", ");
+    queryWithin(scope, selector).forEach((item) => {
+      names.forEach((name) => item.removeAttribute(name));
+    });
+  }
+
   function clearSurfaceTags() {
     clearTags([...codeSurfaceTags, "data-gptskins-plan-layer", ...dynamicSurfaceTags]);
+  }
+
+  function setTag(item, name, value = "true") {
+    if (item && item.getAttribute(name) !== value) {
+      item.setAttribute(name, value);
+    }
+  }
+
+  function scheduleOverflowChecks() {
+    if (overflowFrame) {
+      return;
+    }
+
+    overflowFrame = requestAnimationFrame(() => {
+      overflowFrame = 0;
+      const results = [];
+      pendingOverflowBodies.forEach((item) => {
+        if (!item.isConnected) {
+          return;
+        }
+        const scrollTargets = [item, ...item.querySelectorAll(".cm-scroller, .cm-content, pre, code")];
+        results.push([item, scrollTargets.some((target) => target.scrollWidth > target.clientWidth + 2)]);
+      });
+      pendingOverflowBodies.clear();
+      results.forEach(([item, hasHorizontalOverflow]) => {
+        if (hasHorizontalOverflow) {
+          setTag(item, "data-gptskins-code-scrollable");
+        } else {
+          item.removeAttribute("data-gptskins-code-scrollable");
+        }
+      });
+    });
   }
 
   function tagCodeBody(item) {
@@ -1881,18 +1917,14 @@ html[data-gptskins-font] body :is(pre, code, kbd, samp, [data-gptskins-code-body
       return;
     }
 
-    item.setAttribute("data-gptskins-code-body", "true");
-    const scrollTargets = [item, ...item.querySelectorAll(".cm-scroller, .cm-content, pre, code")];
-    const hasHorizontalOverflow = scrollTargets.some((target) => target.scrollWidth > target.clientWidth + 2);
-    if (hasHorizontalOverflow) {
-      item.setAttribute("data-gptskins-code-scrollable", "true");
-    } else {
-      item.removeAttribute("data-gptskins-code-scrollable");
-    }
+    setTag(item, "data-gptskins-code-body");
+    pendingOverflowBodies.add(item);
+    scheduleOverflowChecks();
   }
 
-  function tagSidebarActions() {
-    const sidebarActions = document.querySelectorAll(
+  function tagSidebarActions(scope = document) {
+    const sidebarActions = queryWithin(
+      scope,
       "nav a, nav button, aside a, aside button, [data-testid='history-panel'] a, [data-testid='history-panel'] button, [data-testid='left-sidebar'] a, [data-testid='left-sidebar'] button"
     );
 
@@ -1904,9 +1936,9 @@ html[data-gptskins-font] body :is(pre, code, kbd, samp, [data-gptskins-code-body
       const isSearchChats = item.matches("button") && lowerText.startsWith("search chats");
 
       if (isLibrary) {
-        item.setAttribute("data-gptskins-sidebar-action", "library");
+        setTag(item, "data-gptskins-sidebar-action", "library");
       } else if (isSearchChats) {
-        item.setAttribute("data-gptskins-sidebar-action", "search");
+        setTag(item, "data-gptskins-sidebar-action", "search");
       }
     });
   }
@@ -2002,16 +2034,36 @@ html[data-gptskins-font] body :is(pre, code, kbd, samp, [data-gptskins-code-body
     });
   }
 
-  function tagFloatingScrollButtons(composerRect) {
-    if (!composerRect) {
+  function tagFloatingScrollButtons(scope = document, { broad = false } = {}) {
+    const composer = document.querySelector("[data-testid='composer'], form[class*='composer'], [class*='group/composer']");
+    if (!composer) {
       return;
     }
 
-    document.querySelectorAll("button, [role='button'], :is(div, span)[class*='cursor-pointer']").forEach((item) => {
-      if (item.closest("[data-testid='composer'], form[class*='composer'], [class*='group/composer']")) {
+    const composerRect = composer.getBoundingClientRect();
+    const targetedSelector = [
+      "[data-gptskins-scroll-button]",
+      "button[aria-label*='scroll' i]",
+      "button[aria-label*='bottom' i]",
+      "button[data-testid*='scroll' i]",
+      "[role='button'][aria-label*='scroll' i]",
+      "[role='button'][aria-label*='bottom' i]"
+    ].join(", ");
+    const candidateSelector = broad
+      ? `${targetedSelector}, button, [role='button'], :is(div, span)[class*='cursor-pointer']`
+      : targetedSelector;
+    const candidates = new Set(queryWithin(scope, candidateSelector));
+    document.querySelectorAll("[data-gptskins-scroll-button]").forEach((item) => candidates.add(item));
+
+    candidates.forEach((item) => {
+      if (!item.isConnected) {
         return;
       }
-      if (item.closest("[data-sidebar-item], nav, aside, [data-testid='history-panel'], [data-testid='left-sidebar']")) {
+      if (
+        item.closest("[data-testid='composer'], form[class*='composer'], [class*='group/composer']") ||
+        item.closest("[data-sidebar-item], nav, aside, [data-testid='history-panel'], [data-testid='left-sidebar']")
+      ) {
+        item.removeAttribute("data-gptskins-scroll-button");
         return;
       }
 
@@ -2032,140 +2084,189 @@ html[data-gptskins-font] body :is(pre, code, kbd, samp, [data-gptskins-code-body
         rect.bottom >= composerRect.top - 180;
 
       if (isCompact && hasIcon && (hasScrollSignal || (isAboveComposer && isFloatingRoundIcon))) {
-        item.setAttribute("data-gptskins-scroll-button", "true");
+        setTag(item, "data-gptskins-scroll-button");
+      } else {
+        item.removeAttribute("data-gptskins-scroll-button");
       }
     });
   }
 
-  function syncSurfaceTags(isPlanPage, force = false) {
-    if (!force && !root.hasAttribute("data-gptskins-theme")) {
-      clearSurfaceTags();
-      return;
-    }
-
-    document.querySelectorAll(":is(h1, h2, h3, h4, h5, h6, p, hr)[data-gptskins-code-header]").forEach((item) => {
-      item.removeAttribute("data-gptskins-code-header");
-    });
-    clearTags([...codeSurfaceTags, ...dynamicSurfaceTags]);
-    tagSidebarActions();
+  function tagSuggestionLayers(scope = document) {
     const composer = document.querySelector("[data-testid='composer'], form[class*='composer'], [class*='group/composer']");
-    const composerRect = composer ? composer.getBoundingClientRect() : null;
-    tagFloatingScrollButtons(composerRect);
-    if (composerRect) {
-      document.querySelectorAll("body *").forEach((item) => {
-        if (item.closest("[data-message-author-role], pre, code")) {
-          return;
-        }
-
-        const rect = item.getBoundingClientRect();
-        if (rect.width < composerRect.width * 0.65 || rect.height < 45) {
-          return;
-        }
-
-        const nearComposer = rect.top >= composerRect.top - 8 && rect.top <= composerRect.bottom + 16;
-        const hasBlackBackground = getComputedStyle(item).backgroundColor === "rgb(0, 0, 0)";
-        if (nearComposer && hasBlackBackground) {
-          item.setAttribute("data-gptskins-suggestion-layer", "true");
-        }
-      });
-    }
-
-    document.querySelectorAll("[data-message-author-role] pre").forEach((pre) => {
-      if (pre.closest(".cm-editor, .cm-scroller")) {
-        return;
-      }
-
-      const embeddedBlock = pre.firstElementChild;
-      const embeddedClass = embeddedBlock ? embeddedBlock.getAttribute("class") || "" : "";
-      const preClass = pre.getAttribute("class") || "";
-      const nestedRoundedBlock =
-        /(?:^|\s)(overflow-visible!?|px-0!?)(?:\s|$)/.test(preClass) &&
-        pre.querySelector("[class*='border-token-border-light'][class*='rounded'], [class*='overflow-clip'][class*='rounded']");
-      if (nestedRoundedBlock) {
-        const paintedBlock =
-          nestedRoundedBlock.firstElementChild && /(bg-token-bg-elevated-secondary|overflow-clip|rounded)/.test(nestedRoundedBlock.firstElementChild.getAttribute("class") || "")
-            ? nestedRoundedBlock.firstElementChild
-            : nestedRoundedBlock;
-        const children = Array.from(paintedBlock.children);
-        const header = children.find((child) => /(^|\s)(select-none|sticky)(\s|$)/.test(child.getAttribute("class") || ""));
-        const body = children.find((child) => child !== header && (child.querySelector("pre, code, .cm-editor, .cm-scroller") || /(^|\s)(relative|overflow|pe-11|pt-3)(\s|$)/.test(child.getAttribute("class") || "")));
-
-        pre.setAttribute("data-gptskins-code-frame", "true");
-        nestedRoundedBlock.setAttribute("data-gptskins-code-block", "true");
-        if (header && !header.matches("h1, h2, h3, h4, h5, h6, p, hr")) {
-          header.setAttribute("data-gptskins-code-header", "true");
-        }
-        tagCodeBody(body);
-        return;
-      }
-
-      if (embeddedBlock && /(contain-inline-size|group\/code|rounded)/.test(embeddedClass)) {
-        pre.setAttribute("data-gptskins-code-frame", "true");
-        embeddedBlock.setAttribute("data-gptskins-code-block", "true");
-
-        const header = embeddedBlock.firstElementChild;
-        if (header && !header.matches("h1, h2, h3, h4, h5, h6, p, hr")) {
-          header.setAttribute("data-gptskins-code-header", "true");
-        }
-
-        const body = Array.from(embeddedBlock.children).find((child) => /(^|\s)(relative|overflow)/.test(child.getAttribute("class") || ""));
-        tagCodeBody(body);
-        return;
-      }
-
-      const isMessageMarkdownContainer = (item) => item && item.matches(".markdown, [class*='markdown-new-styling']");
-      let block =
-        pre.closest("[data-testid*='code'], [class*='group/code'], [class*='not-prose'], [class*='overflow-hidden'], [class*='contain-inline-size']") ||
-        (isMessageMarkdownContainer(pre.parentElement) ? null : pre.parentElement);
-
-      for (let candidate = pre.parentElement; candidate && !candidate.matches("[data-message-author-role]"); candidate = candidate.parentElement) {
-        const first = candidate.firstElementChild;
-        if (!isMessageMarkdownContainer(candidate) && first && !first.contains(pre) && (first.querySelector("button, svg") || first.textContent.trim().length < 120)) {
-          block = candidate;
-          break;
-        }
-      }
-
-      if (!block || block.matches("[data-message-author-role]")) {
-        return;
-      }
-
-      block.setAttribute("data-gptskins-code-block", "true");
-
-      const frame = block.parentElement;
-      const frameClass = frame ? frame.getAttribute("class") || "" : "";
-      if (frame && !frame.matches("[data-message-author-role]") && /(bg-|border|rounded|ring|shadow|overflow)/.test(frameClass)) {
-        frame.setAttribute("data-gptskins-code-frame", "true");
-      }
-
-      tagCodeBody(pre);
-
-      if (pre.parentElement && pre.parentElement !== block) {
-        pre.parentElement.setAttribute("data-gptskins-code-body-shell", "true");
-      }
-
-      const header = pre.previousElementSibling || block.firstElementChild;
-      if (header && header !== pre && !header.contains(pre) && !header.matches("h1, h2, h3, h4, h5, h6, p, hr")) {
-        header.setAttribute("data-gptskins-code-header", "true");
-      }
-    });
-
-    document.querySelectorAll("[data-gptskins-plan-layer]").forEach((item) => item.removeAttribute("data-gptskins-plan-layer"));
-    if (!isPlanPage) {
+    if (!composer) {
       return;
     }
 
-    tagPlanControls();
+    const selector = [
+      "[data-gptskins-suggestion-layer]",
+      "[role='listbox']",
+      "[class*='suggest']",
+      "[class*='autocomplete']",
+      "[data-testid*='suggest']",
+      "[data-testid*='autocomplete']",
+      ".top-full .bg-surface-primary"
+    ].join(", ");
+    const candidates = new Set(queryWithin(scope, selector));
+    document.querySelectorAll("[data-gptskins-suggestion-layer]").forEach((item) => candidates.add(item));
+    if (scope instanceof Element) {
+      for (let item = scope, depth = 0; item && depth < 6; item = item.parentElement, depth += 1) {
+        if (item.matches(selector)) {
+          candidates.add(item);
+        }
+      }
+    }
 
-    document.querySelectorAll("body *").forEach((item) => {
+    const composerRect = composer.getBoundingClientRect();
+    candidates.forEach((item) => {
+      if (!item.isConnected || item.closest("[data-message-author-role], pre, code")) {
+        item.removeAttribute("data-gptskins-suggestion-layer");
+        return;
+      }
+      const rect = item.getBoundingClientRect();
+      const nearComposer =
+        rect.width >= composerRect.width * 0.5 &&
+        rect.height >= 36 &&
+        rect.top >= composerRect.top - 16 &&
+        rect.top <= composerRect.bottom + 240;
+      const hasBlackBackground = getComputedStyle(item).backgroundColor === "rgb(0, 0, 0)";
+      if (nearComposer && (hasBlackBackground || item.hasAttribute("data-gptskins-suggestion-layer"))) {
+        setTag(item, "data-gptskins-suggestion-layer");
+      } else {
+        item.removeAttribute("data-gptskins-suggestion-layer");
+      }
+    });
+  }
+
+  function clearCodeTagsForPre(pre) {
+    let cleanupScope = pre.closest("[data-gptskins-code-block], [data-gptskins-code-frame]") || pre.parentElement || pre;
+    if (cleanupScope.parentElement?.hasAttribute("data-gptskins-code-frame")) {
+      cleanupScope = cleanupScope.parentElement;
+    }
+    clearTagsWithin(cleanupScope, codeSurfaceTags);
+  }
+
+  function tagCodePre(pre) {
+    if (!pre.isConnected || pre.closest(".cm-editor, .cm-scroller")) {
+      return;
+    }
+
+    clearCodeTagsForPre(pre);
+    const embeddedBlock = pre.firstElementChild;
+    const embeddedClass = embeddedBlock ? embeddedBlock.getAttribute("class") || "" : "";
+    const preClass = pre.getAttribute("class") || "";
+    const nestedRoundedBlock =
+      /(?:^|\s)(overflow-visible!?|px-0!?)(?:\s|$)/.test(preClass) &&
+      pre.querySelector("[class*='border-token-border-light'][class*='rounded'], [class*='overflow-clip'][class*='rounded']");
+    if (nestedRoundedBlock) {
+      const paintedBlock =
+        nestedRoundedBlock.firstElementChild && /(bg-token-bg-elevated-secondary|overflow-clip|rounded)/.test(nestedRoundedBlock.firstElementChild.getAttribute("class") || "")
+          ? nestedRoundedBlock.firstElementChild
+          : nestedRoundedBlock;
+      const children = Array.from(paintedBlock.children);
+      const header = children.find((child) => /(^|\s)(select-none|sticky)(\s|$)/.test(child.getAttribute("class") || ""));
+      const body = children.find(
+        (child) =>
+          child !== header &&
+          (child.querySelector("pre, code, .cm-editor, .cm-scroller") || /(^|\s)(relative|overflow|pe-11|pt-3)(\s|$)/.test(child.getAttribute("class") || ""))
+      );
+
+      setTag(pre, "data-gptskins-code-frame");
+      setTag(nestedRoundedBlock, "data-gptskins-code-block");
+      if (header && !header.matches("h1, h2, h3, h4, h5, h6, p, hr")) {
+        setTag(header, "data-gptskins-code-header");
+      }
+      tagCodeBody(body);
+      return;
+    }
+
+    if (embeddedBlock && /(contain-inline-size|group\/code|rounded)/.test(embeddedClass)) {
+      setTag(pre, "data-gptskins-code-frame");
+      setTag(embeddedBlock, "data-gptskins-code-block");
+
+      const header = embeddedBlock.firstElementChild;
+      if (header && !header.matches("h1, h2, h3, h4, h5, h6, p, hr")) {
+        setTag(header, "data-gptskins-code-header");
+      }
+
+      const body = Array.from(embeddedBlock.children).find((child) => /(^|\s)(relative|overflow)/.test(child.getAttribute("class") || ""));
+      tagCodeBody(body);
+      return;
+    }
+
+    const isMessageMarkdownContainer = (item) => item && item.matches(".markdown, [class*='markdown-new-styling']");
+    let block =
+      pre.closest("[data-testid*='code'], [class*='group/code'], [class*='not-prose'], [class*='overflow-hidden'], [class*='contain-inline-size']") ||
+      (isMessageMarkdownContainer(pre.parentElement) ? null : pre.parentElement);
+
+    for (let candidate = pre.parentElement; candidate && !candidate.matches("[data-message-author-role]"); candidate = candidate.parentElement) {
+      const first = candidate.firstElementChild;
+      if (!isMessageMarkdownContainer(candidate) && first && !first.contains(pre) && (first.querySelector("button, svg") || first.textContent.trim().length < 120)) {
+        block = candidate;
+        break;
+      }
+    }
+
+    if (!block || block.matches("[data-message-author-role]")) {
+      return;
+    }
+
+    setTag(block, "data-gptskins-code-block");
+    const frame = block.parentElement;
+    const frameClass = frame ? frame.getAttribute("class") || "" : "";
+    if (frame && !frame.matches("[data-message-author-role]") && /(bg-|border|rounded|ring|shadow|overflow)/.test(frameClass)) {
+      setTag(frame, "data-gptskins-code-frame");
+    }
+
+    tagCodeBody(pre);
+    if (pre.parentElement && pre.parentElement !== block) {
+      setTag(pre.parentElement, "data-gptskins-code-body-shell");
+    }
+
+    const header = pre.previousElementSibling || block.firstElementChild;
+    if (header && header !== pre && !header.contains(pre) && !header.matches("h1, h2, h3, h4, h5, h6, p, hr")) {
+      setTag(header, "data-gptskins-code-header");
+    }
+  }
+
+  function getCodeCandidates(scope) {
+    const candidates = new Set(queryWithin(scope, "[data-message-author-role] pre"));
+    if (scope instanceof Element) {
+      const closestPre = scope.closest("[data-message-author-role] pre");
+      if (closestPre) {
+        candidates.add(closestPre);
+      }
+    }
+    return candidates;
+  }
+
+  function tagPlanLayers() {
+    const planRoots = new Set();
+    queryWithin(document, "h1, h2, h3, h4").forEach((heading) => {
+      if (normalizedText(heading).includes("Choose your plan")) {
+        planRoots.add(heading.closest("[role='dialog'], [aria-modal='true'], main") || heading.parentElement || document.body);
+      }
+    });
+    if (!planRoots.size && location.hash === "#pricing") {
+      const fallbackRoot = document.querySelector("[role='dialog'], [aria-modal='true'], main") || document.body;
+      if (fallbackRoot) {
+        planRoots.add(fallbackRoot);
+      }
+    }
+
+    const candidates = new Set();
+    planRoots.forEach((planRoot) => {
+      if (planRoot) {
+        candidates.add(planRoot);
+        planRoot.querySelectorAll("*").forEach((item) => candidates.add(item));
+      }
+    });
+    candidates.forEach((item) => {
       const styles = getComputedStyle(item);
       const beforeStyles = getComputedStyle(item, "::before");
       const afterStyles = getComputedStyle(item, "::after");
       const rect = item.getBoundingClientRect();
       const hasBlackPaint = (style) =>
-        style.backgroundColor === "rgb(0, 0, 0)" ||
-        style.backgroundImage.includes("gradient") ||
-        style.boxShadow.includes("rgb(0, 0, 0)");
+        style.backgroundColor === "rgb(0, 0, 0)" || style.backgroundImage.includes("gradient") || style.boxShadow.includes("rgb(0, 0, 0)");
       const hasVisiblePseudo = (style) => style.content !== "none" && style.display !== "none";
       const isBlackLayer =
         (hasBlackPaint(styles) ||
@@ -2174,11 +2275,256 @@ html[data-gptskins-font] body :is(pre, code, kbd, samp, [data-gptskins-code-body
         rect.width > window.innerWidth * 0.5 &&
         rect.height > 20 &&
         rect.top > window.innerHeight * 0.45;
-
       if (isBlackLayer && !item.closest("button, a")) {
-        item.setAttribute("data-gptskins-plan-layer", "true");
+        setTag(item, "data-gptskins-plan-layer");
       }
     });
+  }
+
+  function nodeMatchesOrContains(scope, selector) {
+    return Boolean(scope && (scope.matches?.(selector) || scope.querySelector?.(selector)));
+  }
+
+  function syncSurfaceRoot(scope) {
+    if (!scope?.isConnected) {
+      return;
+    }
+
+    queryWithin(scope, ":is(h1, h2, h3, h4, h5, h6, p, hr)[data-gptskins-code-header]").forEach((item) => {
+      item.removeAttribute("data-gptskins-code-header");
+    });
+    if (nodeMatchesOrContains(scope, "pre, .cm-editor, .cm-scroller, [data-testid*='code'], [class*='group/code']")) {
+      getCodeCandidates(scope).forEach(tagCodePre);
+    }
+    if (nodeMatchesOrContains(scope, "nav, aside, [data-testid='history-panel'], [data-testid='left-sidebar']")) {
+      tagSidebarActions(scope);
+    }
+    if (
+      nodeMatchesOrContains(
+        scope,
+        "[data-testid='composer'], form[class*='composer'], [class*='group/composer'], [role='listbox'], [class*='suggest'], [class*='autocomplete'], button, [role='button']"
+      )
+    ) {
+      tagFloatingScrollButtons(scope, { broad: true });
+      tagSuggestionLayers(scope);
+    }
+  }
+
+  function syncSurfaceTags(planPage, { full = false, roots = [], syncPlan = false } = {}) {
+    if (!root.hasAttribute("data-gptskins-theme")) {
+      return;
+    }
+
+    if (full) {
+      document.querySelectorAll(":is(h1, h2, h3, h4, h5, h6, p, hr)[data-gptskins-code-header]").forEach((item) => {
+        item.removeAttribute("data-gptskins-code-header");
+      });
+      clearTags([...codeSurfaceTags, ...dynamicSurfaceTags]);
+      tagSidebarActions(document);
+      tagFloatingScrollButtons(document, { broad: true });
+      tagSuggestionLayers(document);
+      getCodeCandidates(document).forEach(tagCodePre);
+    } else {
+      roots.forEach(syncSurfaceRoot);
+    }
+
+    if (syncPlan) {
+      clearTags([...planControlTags, "data-gptskins-plan-layer"]);
+      if (planPage) {
+        tagPlanControls();
+        tagPlanLayers();
+      }
+    }
+  }
+
+  function addPendingSurfaceRoot(node) {
+    const item = node instanceof Element ? node : node?.parentElement;
+    if (!item?.isConnected) {
+      return;
+    }
+
+    for (const existing of pendingSurfaceRoots) {
+      if (existing.contains(item)) {
+        return;
+      }
+      if (item.contains(existing)) {
+        pendingSurfaceRoots.delete(existing);
+      }
+    }
+    pendingSurfaceRoots.add(item);
+  }
+
+  function collectRelevantSurfaceRoot(node, { includeDescendants = true } = {}) {
+    const item = node instanceof Element ? node : node?.parentElement;
+    if (!item?.isConnected) {
+      return;
+    }
+
+    const closest = item.closest(surfaceMutationSelector);
+    if (closest) {
+      addPendingSurfaceRoot(closest);
+    }
+    if (item.matches(surfaceMutationSelector) || (includeDescendants && item.querySelector(surfaceMutationSelector))) {
+      addPendingSurfaceRoot(item);
+    }
+  }
+
+  function containsPlanMarker(node) {
+    const item = node instanceof Element ? node : node?.parentElement;
+    if (!item) {
+      return false;
+    }
+    const candidates = queryWithin(item, "h1, h2, h3, h4, button, a, [role='button'], [role='radio']");
+    return candidates.some((candidate) =>
+      /(?:Choose your plan|Switch to Plus|Upgrade to Pro|ChatGPT Enterprise|Manage my subscription|^5x$|^20x$)/.test(normalizedText(candidate))
+    );
+  }
+
+  function handlePageMutations(records) {
+    let checkPlan = root.hasAttribute("data-gptskins-plan-page") || location.hash === "#pricing";
+    records.forEach((record) => {
+      collectRelevantSurfaceRoot(record.target, { includeDescendants: false });
+      record.addedNodes.forEach((node) => {
+        collectRelevantSurfaceRoot(node);
+        checkPlan ||= containsPlanMarker(node);
+      });
+      record.removedNodes.forEach((node) => {
+        checkPlan ||= containsPlanMarker(node);
+      });
+      if (
+        record.type === "attributes" &&
+        (checkPlan || record.target.matches("h1, h2, h3, h4, button, a, [role='button'], [role='radio']"))
+      ) {
+        checkPlan ||= containsPlanMarker(record.target);
+      }
+    });
+
+    if (pendingSurfaceRoots.size || checkPlan) {
+      schedulePageMarker({ checkPlan });
+    }
+  }
+
+  function syncPageMarker({ full = false, checkPlan = false, roots = [] } = {}) {
+    if (!root.hasAttribute("data-gptskins-theme")) {
+      return;
+    }
+
+    const wasPlanPage = root.hasAttribute("data-gptskins-plan-page");
+    const planPage = full || checkPlan || wasPlanPage ? isPlanPage() : false;
+    if (planPage) {
+      setTag(root, "data-gptskins-plan-page");
+    } else {
+      root.removeAttribute("data-gptskins-plan-page");
+    }
+    if (isFinancePage()) {
+      setTag(root, "data-gptskins-finance-page");
+    } else {
+      root.removeAttribute("data-gptskins-finance-page");
+    }
+
+    syncSurfaceTags(planPage, {
+      full,
+      roots,
+      syncPlan: full || checkPlan || wasPlanPage !== planPage
+    });
+  }
+
+  function schedulePageMarker({ full = false, checkPlan = false, roots = [] } = {}) {
+    pendingFullSurfaceSync ||= full;
+    pendingPlanCheck ||= checkPlan;
+    roots.forEach(addPendingSurfaceRoot);
+    clearTimeout(pageMarkerTimer);
+    pageMarkerTimer = setTimeout(() => {
+      pageMarkerTimer = 0;
+      const scheduledRoots = Array.from(pendingSurfaceRoots);
+      const scheduledFull = pendingFullSurfaceSync;
+      const scheduledPlanCheck = pendingPlanCheck;
+      pendingSurfaceRoots.clear();
+      pendingFullSurfaceSync = false;
+      pendingPlanCheck = false;
+      syncPageMarker({ full: scheduledFull, checkPlan: scheduledPlanCheck, roots: scheduledRoots });
+    }, full ? 0 : 60);
+  }
+
+  function scheduleViewportSync() {
+    if (viewportFrame || !root.hasAttribute("data-gptskins-theme")) {
+      return;
+    }
+    viewportFrame = requestAnimationFrame(() => {
+      viewportFrame = 0;
+      tagFloatingScrollButtons(document);
+    });
+  }
+
+  function ensurePageMarkerEventListeners() {
+    if (pageMarkerEventListenersAdded) {
+      return;
+    }
+
+    pageMarkerEventListenersAdded = true;
+    document.addEventListener("scroll", scheduleViewportSync, { passive: true, capture: true });
+    window.addEventListener("resize", scheduleViewportSync, { passive: true });
+  }
+
+  function startPageMarkerObserver() {
+    ensurePageMarkerEventListeners();
+    if (pageMarkerObserver) {
+      return;
+    }
+
+    if (document.body) {
+      const waitedForBody = Boolean(bodyReadyObserver);
+      pageMarkerObserver = new MutationObserver(handlePageMutations);
+      pageMarkerObserver.observe(document.body, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ["class", "data-testid", "aria-label", "aria-expanded", "aria-selected", "aria-checked", "data-state"]
+      });
+      if (bodyReadyObserver) {
+        bodyReadyObserver.disconnect();
+        bodyReadyObserver = null;
+      }
+      if (waitedForBody) {
+        schedulePageMarker({ full: true, checkPlan: true });
+      }
+      return;
+    }
+
+    if (!bodyReadyObserver && document.documentElement) {
+      bodyReadyObserver = new MutationObserver(startPageMarkerObserver);
+      bodyReadyObserver.observe(document.documentElement, { childList: true, subtree: true });
+    }
+  }
+
+  function stopPageMarkerObserver() {
+    clearTimeout(pageMarkerTimer);
+    pageMarkerTimer = 0;
+    pendingSurfaceRoots.clear();
+    pendingOverflowBodies.clear();
+    pendingFullSurfaceSync = false;
+    pendingPlanCheck = false;
+    if (overflowFrame) {
+      cancelAnimationFrame(overflowFrame);
+      overflowFrame = 0;
+    }
+    if (viewportFrame) {
+      cancelAnimationFrame(viewportFrame);
+      viewportFrame = 0;
+    }
+    if (pageMarkerObserver) {
+      pageMarkerObserver.disconnect();
+      pageMarkerObserver = null;
+    }
+    if (bodyReadyObserver) {
+      bodyReadyObserver.disconnect();
+      bodyReadyObserver = null;
+    }
+    if (pageMarkerEventListenersAdded) {
+      document.removeEventListener("scroll", scheduleViewportSync, true);
+      window.removeEventListener("resize", scheduleViewportSync);
+      pageMarkerEventListenersAdded = false;
+    }
   }
 
   function loadStoredSettings() {
