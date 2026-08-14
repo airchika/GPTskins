@@ -45,8 +45,14 @@
     return source;
   }
 
-  function resolveLatexSource(dataMath, annotation) {
-    return stripMathDelimiters(dataMath) || stripMathDelimiters(annotation);
+  function resolveLatexSource(...sources) {
+    for (const source of sources) {
+      const resolved = stripMathDelimiters(source);
+      if (resolved) {
+        return resolved;
+      }
+    }
+    return "";
   }
 
   function dedupeNestedFormulaCandidates(candidates, getParent, isFormula) {

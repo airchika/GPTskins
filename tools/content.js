@@ -9,7 +9,9 @@
   const assistantSelector = '[data-message-author-role="assistant"]';
   const composerSelector = '#prompt-textarea, [data-testid="composer"] [contenteditable="true"], form[data-type="unified-composer"] [contenteditable="true"]';
   const formulaSelector = [
+    "[data-math-source]",
     "[data-math]",
+    '[role="math"]',
     ".math-inline",
     ".math-block",
     "ms-katex",
@@ -64,18 +66,21 @@
     if (!element) {
       return "";
     }
+    const dataMathSourceOwner = element.matches?.("[data-math-source]") ? element : element.querySelector?.("[data-math-source]");
+    const dataMathSource = dataMathSourceOwner?.getAttribute("data-math-source");
     const dataMathOwner = element.matches?.("[data-math]") ? element : element.querySelector?.("[data-math]");
     const dataMath = dataMathOwner?.getAttribute("data-math");
     const annotation = element.matches?.('annotation[encoding="application/x-tex"]')
       ? element
       : element.querySelector?.('annotation[encoding="application/x-tex"]');
-    return toolsApi.resolveLatexSource(dataMath, annotation?.textContent);
+    return toolsApi.resolveLatexSource(dataMathSource, dataMath, annotation?.textContent);
   }
 
   function isDisplayFormula(element) {
     return Boolean(
       element?.matches?.(".math-block, .katex-display, math[display='block']") ||
-        element?.closest?.(".math-block, .katex-display, math[display='block']")
+        element?.closest?.(".math-block, .katex-display, math[display='block']") ||
+        element?.querySelector?.(".math-block, .katex-display, math[display='block']")
     );
   }
 
@@ -88,9 +93,12 @@
     if (!formula || !assistant) {
       return null;
     }
+    const currentMathRoot = formula.closest('[data-math-source], [role="math"]');
     const displayRoot = formula.closest(".math-block, .katex-display");
     const dataMathRoot = formula.closest("[data-math]");
-    if (displayRoot && assistant.contains(displayRoot)) {
+    if (currentMathRoot && assistant.contains(currentMathRoot)) {
+      formula = currentMathRoot;
+    } else if (displayRoot && assistant.contains(displayRoot)) {
       formula = displayRoot;
     } else if (dataMathRoot && assistant.contains(dataMathRoot)) {
       formula = dataMathRoot;

@@ -16,9 +16,14 @@ assert.equal(toolsApi.defaultLatexCopyEnabled, true);
 assert.equal(toolsApi.formatLatex("  x^2 + y^2  ", toolsApi.latexFormats.tex), "x^2 + y^2");
 assert.equal(toolsApi.formatLatex("$x$", toolsApi.latexFormats.inline), "$x$");
 assert.equal(toolsApi.formatLatex("\\[x + y\\]", toolsApi.latexFormats.display), "$$x + y$$");
-assert.equal(toolsApi.resolveLatexSource("x_data", "x_annotation"), "x_data", "data-math must win");
-assert.equal(toolsApi.resolveLatexSource("", "x_annotation"), "x_annotation", "TeX annotation must be the fallback");
-assert.equal(toolsApi.resolveLatexSource("", ""), "", "formulas without source metadata must stay native");
+assert.equal(
+  toolsApi.resolveLatexSource("x_current", "x_legacy", "x_annotation"),
+  "x_current",
+  "current data-math-source metadata must win"
+);
+assert.equal(toolsApi.resolveLatexSource("", "x_legacy", "x_annotation"), "x_legacy", "legacy data-math must remain supported");
+assert.equal(toolsApi.resolveLatexSource("", "", "x_annotation"), "x_annotation", "TeX annotation must be the fallback");
+assert.equal(toolsApi.resolveLatexSource("", "", ""), "", "formulas without source metadata must stay native");
 
 const outer = { id: "outer", parent: null, formula: true };
 const inner = { id: "inner", parent: outer, formula: true };
@@ -57,6 +62,8 @@ assert.match(contentSource, /setData\("text\/plain"/);
 assert.match(contentSource, /setData\("text\/html"/);
 assert.match(contentSource, /isNativeResponseCopyControl/, "ChatGPT's response copy control must stay native");
 assert.match(contentSource, /data-message-author-role=\\?"assistant\\?"/);
+assert.match(contentSource, /data-math-source/, "current ChatGPT formula source metadata must be supported");
+assert.match(contentSource, /\[role=\\?"math\\?"\]/, "current ChatGPT formula roots must be recognized");
 assert.match(contentSource, /annotation\[encoding=\\?"application\/x-tex\\?"\]/);
 assert.doesNotMatch(contentSource, /(?:Window|Element|HTMLElement)\.prototype/, "tools must not patch browser prototypes");
 assert.doesNotMatch(contentSource, /scrollIntoView\s*=|scrollTo\s*=|scrollBy\s*=/, "scroll protection must not replace global scrolling APIs");
