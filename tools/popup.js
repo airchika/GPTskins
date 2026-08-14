@@ -4,9 +4,10 @@
   const toolsApi = globalThis.GPTskinsTools;
   const scrollGuardToggle = document.querySelector("[data-gptskins-scroll-guard-enabled]");
   const latexCopyToggle = document.querySelector("[data-gptskins-latex-copy-enabled]");
+  const latexTexToggle = document.querySelector("[data-gptskins-latex-tex-enabled]");
   const toolsTab = document.querySelector('[data-style-mode="tools"]');
   const status = document.getElementById("status");
-  if (!toolsApi || !scrollGuardToggle || !latexCopyToggle) {
+  if (!toolsApi || !scrollGuardToggle || !latexCopyToggle || !latexTexToggle) {
     return;
   }
 
@@ -22,13 +23,20 @@
       storageKey: toolsApi.latexCopyEnabledStorageKey,
       enabledText: "LaTeX quick copy enabled.",
       disabledText: "LaTeX quick copy disabled."
+    },
+    {
+      toggle: latexTexToggle,
+      storageKey: toolsApi.latexTexEnabledStorageKey,
+      enabledText: "The tex choice is shown.",
+      disabledText: "The tex choice is hidden."
     }
   ];
 
   chrome.storage.sync.get(
     {
       [toolsApi.scrollGuardEnabledStorageKey]: toolsApi.defaultScrollGuardEnabled,
-      [toolsApi.latexCopyEnabledStorageKey]: toolsApi.defaultLatexCopyEnabled
+      [toolsApi.latexCopyEnabledStorageKey]: toolsApi.defaultLatexCopyEnabled,
+      [toolsApi.latexTexEnabledStorageKey]: toolsApi.defaultLatexTexEnabled
     },
     (result) => {
       toolSettings.forEach(({ toggle, storageKey }) => {

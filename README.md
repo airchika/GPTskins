@@ -94,9 +94,9 @@ The message queue is an independent module and is disabled by default. Enable it
 Both tools are enabled by default and can be switched independently from the **Tools** tab.
 
 - **Keep reading position** activates only when a real composer form submission happens while the thread is more than 150px from the bottom. It keeps the currently visible turn anchored for at most two seconds, but cancels immediately when you use the wheel, touch scrolling, paging keys, the scrollbar, or ChatGPT's scroll-to-bottom control. Sending at the bottom remains fully native.
-- **LaTeX quick copy** shows one small reusable toolbar when you click a formula in an assistant response without an active text selection. Choose raw `TeX`, inline `$…$`, or display `$$…$$` without changing ChatGPT's formula DOM.
+- **LaTeX quick copy** shows one small reusable toolbar that follows the active light or dark theme when you click a formula in an assistant response without an active text selection. Choose raw `tex`, inline `$…$`, or display `$$…$$` without changing ChatGPT's formula DOM. The raw `tex` choice can be hidden independently; `$…$` and `$$…$$` always remain available.
 - Copying a mixed selection containing assistant formulas writes both plain text and HTML, replacing inline and display formulas with the corresponding delimiters while preserving the rest of the selection. Ordinary text selections and ChatGPT's own whole-response copy button remain native.
-- Formula source metadata is read locally from `data-math` or the KaTeX `application/x-tex` annotation. GPTskins does not read the clipboard, call a network service, import fonts, or patch global scrolling methods.
+- Formula source metadata is read locally from `data-math-source`, legacy `data-math`, or the KaTeX `application/x-tex` annotation. GPTskins does not read the clipboard, call a network service, import fonts, or patch global scrolling methods.
 
 If GPT Voyager is installed, disable its **Formula Copy** and **Prevent Auto Scroll** features to avoid duplicate event handling.
 

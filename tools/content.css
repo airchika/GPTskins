@@ -1,13 +1,25 @@
 #gptskins-latex-toolbar,
 #gptskins-tools-toast {
+  --gptskins-tools-text: var(--gptskins-text, #0d0d0d);
+  --gptskins-tools-surface: var(--gptskins-surface-strong, #fff);
+  --gptskins-tools-border: var(--gptskins-border, rgba(0, 0, 0, 0.14));
+  --gptskins-tools-hover: var(--gptskins-hover, rgba(0, 0, 0, 0.08));
   position: fixed;
   z-index: 2147483000;
   box-sizing: border-box;
-  color: var(--gptskins-text, #f7f7f8);
-  background: var(--gptskins-surface-strong, #2f2f2f);
-  border: 1px solid var(--gptskins-border, rgba(255, 255, 255, 0.16));
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
+  color: var(--gptskins-tools-text);
+  background: var(--gptskins-tools-surface);
+  border: 1px solid var(--gptskins-tools-border);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.16);
   font: 12px/1.2 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+html:is(.dark, [data-theme="dark"]) :is(#gptskins-latex-toolbar, #gptskins-tools-toast) {
+  --gptskins-tools-text: var(--gptskins-text, #f7f7f8);
+  --gptskins-tools-surface: var(--gptskins-surface-strong, #2f2f2f);
+  --gptskins-tools-border: var(--gptskins-border, rgba(255, 255, 255, 0.16));
+  --gptskins-tools-hover: var(--gptskins-hover, rgba(255, 255, 255, 0.12));
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
 }
 
 #gptskins-latex-toolbar[hidden],
@@ -34,10 +46,14 @@
   font: inherit !important;
 }
 
+#gptskins-latex-toolbar button[hidden] {
+  display: none !important;
+}
+
 #gptskins-latex-toolbar button:hover,
 #gptskins-latex-toolbar button:focus-visible {
-  color: var(--gptskins-text, #fff) !important;
-  background: var(--gptskins-hover, rgba(255, 255, 255, 0.12)) !important;
+  color: var(--gptskins-tools-text) !important;
+  background: var(--gptskins-tools-hover) !important;
   outline: none;
 }
 

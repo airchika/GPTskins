@@ -3,8 +3,10 @@
 
   const scrollGuardEnabledStorageKey = "gptskins.scrollGuard.enabled";
   const latexCopyEnabledStorageKey = "gptskins.latexCopy.enabled";
+  const latexTexEnabledStorageKey = "gptskins.latexCopy.tex.enabled";
   const defaultScrollGuardEnabled = true;
   const defaultLatexCopyEnabled = true;
+  const defaultLatexTexEnabled = true;
   const scrollBottomGapThreshold = 150;
   const scrollGuardDuration = 2000;
   const latexFormats = Object.freeze({
@@ -83,8 +85,10 @@
   globalThis.GPTskinsTools = {
     scrollGuardEnabledStorageKey,
     latexCopyEnabledStorageKey,
+    latexTexEnabledStorageKey,
     defaultScrollGuardEnabled,
     defaultLatexCopyEnabled,
+    defaultLatexTexEnabled,
     scrollBottomGapThreshold,
     scrollGuardDuration,
     latexFormats,

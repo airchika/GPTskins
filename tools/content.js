@@ -53,6 +53,7 @@
   const cancelKeys = new Set(["PageUp", "PageDown", "Home", "End", "ArrowUp", "ArrowDown"]);
   let scrollGuardEnabled = toolsApi.defaultScrollGuardEnabled;
   let latexCopyEnabled = toolsApi.defaultLatexCopyEnabled;
+  let latexTexEnabled = toolsApi.defaultLatexTexEnabled;
   let activeGuard = null;
   let formulaMenu = null;
   let formulaContext = null;
@@ -117,6 +118,13 @@
     return Boolean(selection && !selection.isCollapsed && selection.toString());
   }
 
+  function syncFormulaMenuOptions() {
+    const texButton = formulaMenu?.querySelector('button[data-gptskins-latex-format="tex"]');
+    if (texButton) {
+      texButton.hidden = !latexTexEnabled;
+    }
+  }
+
   function ensureFormulaMenu() {
     if (formulaMenu?.isConnected) {
       return formulaMenu;
@@ -127,10 +135,11 @@
     formulaMenu.setAttribute("role", "toolbar");
     formulaMenu.setAttribute("aria-label", "Copy LaTeX formula");
     formulaMenu.innerHTML = `
-      <button type="button" data-gptskins-latex-format="tex">TeX</button>
+      <button type="button" data-gptskins-latex-format="tex">tex</button>
       <button type="button" data-gptskins-latex-format="inline">$</button>
       <button type="button" data-gptskins-latex-format="display">$$</button>
     `;
+    syncFormulaMenuOptions();
     formulaMenu.addEventListener("click", onFormulaMenuClick);
     document.body.appendChild(formulaMenu);
     return formulaMenu;
@@ -669,16 +678,26 @@
         destroyFormulaUi();
       }
     }
+    if (changes[toolsApi.latexTexEnabledStorageKey]) {
+      latexTexEnabled = changes[toolsApi.latexTexEnabledStorageKey].newValue !== false;
+      syncFormulaMenuOptions();
+      if (formulaMenu && !formulaMenu.hidden) {
+        requestAnimationFrame(positionFormulaMenu);
+      }
+    }
   });
 
   chrome.storage.sync.get(
     {
       [toolsApi.scrollGuardEnabledStorageKey]: toolsApi.defaultScrollGuardEnabled,
-      [toolsApi.latexCopyEnabledStorageKey]: toolsApi.defaultLatexCopyEnabled
+      [toolsApi.latexCopyEnabledStorageKey]: toolsApi.defaultLatexCopyEnabled,
+      [toolsApi.latexTexEnabledStorageKey]: toolsApi.defaultLatexTexEnabled
     },
     (result) => {
       scrollGuardEnabled = result[toolsApi.scrollGuardEnabledStorageKey] !== false;
       latexCopyEnabled = result[toolsApi.latexCopyEnabledStorageKey] !== false;
+      latexTexEnabled = result[toolsApi.latexTexEnabledStorageKey] !== false;
+      syncFormulaMenuOptions();
     }
   );
 

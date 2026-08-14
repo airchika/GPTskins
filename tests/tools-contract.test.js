@@ -10,8 +10,10 @@ const toolsApi = globalThis.GPTskinsTools;
 assert.ok(toolsApi, "tools API must be exposed");
 assert.equal(toolsApi.scrollGuardEnabledStorageKey, "gptskins.scrollGuard.enabled");
 assert.equal(toolsApi.latexCopyEnabledStorageKey, "gptskins.latexCopy.enabled");
+assert.equal(toolsApi.latexTexEnabledStorageKey, "gptskins.latexCopy.tex.enabled");
 assert.equal(toolsApi.defaultScrollGuardEnabled, true);
 assert.equal(toolsApi.defaultLatexCopyEnabled, true);
+assert.equal(toolsApi.defaultLatexTexEnabled, true);
 
 assert.equal(toolsApi.formatLatex("  x^2 + y^2  ", toolsApi.latexFormats.tex), "x^2 + y^2");
 assert.equal(toolsApi.formatLatex("$x$", toolsApi.latexFormats.inline), "$x$");
@@ -65,6 +67,8 @@ assert.match(contentSource, /data-message-author-role=\\?"assistant\\?"/);
 assert.match(contentSource, /data-math-source/, "current ChatGPT formula source metadata must be supported");
 assert.match(contentSource, /\[role=\\?"math\\?"\]/, "current ChatGPT formula roots must be recognized");
 assert.match(contentSource, /annotation\[encoding=\\?"application\/x-tex\\?"\]/);
+assert.match(contentSource, /data-gptskins-latex-format="tex">tex<\/button>/, "the raw formula choice must use lowercase tex");
+assert.match(contentSource, /latexTexEnabledStorageKey/, "the raw tex choice must react to its independent setting");
 assert.doesNotMatch(contentSource, /(?:Window|Element|HTMLElement)\.prototype/, "tools must not patch browser prototypes");
 assert.doesNotMatch(contentSource, /scrollIntoView\s*=|scrollTo\s*=|scrollBy\s*=/, "scroll protection must not replace global scrolling APIs");
 assert.doesNotMatch(contentSource, /clipboard\.read|readText\s*\(/, "tools must never read the clipboard");
@@ -75,6 +79,11 @@ assert.match(popupSource, /data-style-mode="tools"/);
 assert.match(popupSource, /data-gptskins-queue-enabled/);
 assert.match(popupSource, /data-gptskins-scroll-guard-enabled/);
 assert.match(popupSource, /data-gptskins-latex-copy-enabled/);
+assert.match(popupSource, /data-gptskins-latex-tex-enabled/);
 assert.match(popupSource, /Formula Copy and Prevent Auto Scroll/);
+
+const toolsCss = fs.readFileSync(path.join(__dirname, "..", "tools", "content.css"), "utf8");
+assert.match(toolsCss, /html:is\(\.dark, \[data-theme="dark"\]\)/, "tool surfaces must follow ChatGPT's dark theme state");
+assert.match(toolsCss, /#gptskins-latex-toolbar button\[hidden\]/, "the raw tex choice must be removable from the toolbar");
 
 console.log("Checked GPTskins tools contracts.");

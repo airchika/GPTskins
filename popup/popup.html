@@ -59,12 +59,23 @@
         <div class="tool-settings-card">
           <div>
             <strong>LaTeX quick copy</strong>
-            <span>Click an assistant formula to copy TeX, $…$, or $$…$$.</span>
+            <span>Click an assistant formula to copy tex, $…$, or $$…$$.</span>
           </div>
           <label class="tool-switch">
             <input type="checkbox" data-gptskins-latex-copy-enabled>
             <span aria-hidden="true"></span>
             <span class="sr-only">Enable LaTeX quick copy</span>
+          </label>
+        </div>
+        <div class="tool-settings-card">
+          <div>
+            <strong>Show tex choice</strong>
+            <span>Show raw tex in the formula toolbar. $ and $$ always remain available.</span>
+          </div>
+          <label class="tool-switch">
+            <input type="checkbox" data-gptskins-latex-tex-enabled>
+            <span aria-hidden="true"></span>
+            <span class="sr-only">Show the raw tex formula choice</span>
           </label>
         </div>
         <p>Queued messages stay on this device. If Voyager is installed, disable its Formula Copy and Prevent Auto Scroll features to avoid duplicate handlers.</p>
