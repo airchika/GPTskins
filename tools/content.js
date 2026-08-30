@@ -61,7 +61,10 @@
   let toast = null;
   let toastTimer = 0;
   let suppressSelectionCopyUntil = 0;
-  let lastRoute = location.href;
+  let scrollGuardListenersAttached = false;
+  let latexCopyListenersAttached = false;
+  let documentClickListenerAttached = false;
+  const routeChangeEventName = "gptskins:routechange";
 
   function readFormulaSource(element) {
     if (!element) {
@@ -638,13 +641,15 @@
   }
 
   function onDocumentClick(event) {
-    if (isNativeResponseCopyControl(event.target)) {
+    if (latexCopyEnabled && isNativeResponseCopyControl(event.target)) {
       suppressSelectionCopyUntil = performance.now() + 750;
     }
-    if (activeGuard && isScrollToBottomControl(event.target)) {
+    if (scrollGuardEnabled && activeGuard && isScrollToBottomControl(event.target)) {
       disarmScrollGuard();
     }
-    onFormulaClick(event);
+    if (latexCopyEnabled) {
+      onFormulaClick(event);
+    }
   }
 
   function cleanupTransientState() {
@@ -652,35 +657,67 @@
     destroyFormulaUi();
   }
 
-  function checkRoute() {
-    if (location.href !== lastRoute) {
-      lastRoute = location.href;
-      cleanupTransientState();
+  function onScrollGuardUserIntent() {
+    disarmScrollGuard();
+  }
+
+  function syncDocumentClickListener() {
+    const shouldAttach = scrollGuardEnabled || latexCopyEnabled;
+    if (shouldAttach === documentClickListenerAttached) {
+      return;
     }
+
+    documentClickListenerAttached = shouldAttach;
+    document[shouldAttach ? "addEventListener" : "removeEventListener"]("click", onDocumentClick, true);
   }
 
-  function onHistoryRouteChange() {
-    lastRoute = location.href;
-    cleanupTransientState();
+  function syncScrollGuardListeners() {
+    if (scrollGuardEnabled === scrollGuardListenersAttached) {
+      return;
+    }
+
+    scrollGuardListenersAttached = scrollGuardEnabled;
+    const method = scrollGuardEnabled ? "addEventListener" : "removeEventListener";
+    document[method]("submit", onComposerSubmit, true);
+    document[method]("wheel", onScrollGuardUserIntent, { passive: true, capture: true });
+    document[method]("touchstart", onScrollGuardUserIntent, { passive: true, capture: true });
+    document[method]("keydown", onUserKeydown, true);
+    document[method]("pointerdown", onPointerDown, true);
   }
 
-  function onNavigationRouteChange(event) {
-    lastRoute = event.destination?.url || location.href;
-    cleanupTransientState();
+  function syncLatexCopyListeners() {
+    if (latexCopyEnabled === latexCopyListenersAttached) {
+      return;
+    }
+
+    latexCopyListenersAttached = latexCopyEnabled;
+    const method = latexCopyEnabled ? "addEventListener" : "removeEventListener";
+    document[method]("copy", onSelectionCopy, true);
+    document[method]("scroll", closeFormulaMenu, { passive: true, capture: true });
+    window[method]("resize", closeFormulaMenu, { passive: true });
+  }
+
+  function syncFeatureEventListeners() {
+    syncScrollGuardListeners();
+    syncLatexCopyListeners();
+    syncDocumentClickListener();
   }
 
   chrome.storage.onChanged.addListener((changes, areaName) => {
     if (areaName !== "sync") {
       return;
     }
+    let featureListenersChanged = false;
     if (changes[toolsApi.scrollGuardEnabledStorageKey]) {
       scrollGuardEnabled = changes[toolsApi.scrollGuardEnabledStorageKey].newValue !== false;
+      featureListenersChanged = true;
       if (!scrollGuardEnabled) {
         disarmScrollGuard();
       }
     }
     if (changes[toolsApi.latexCopyEnabledStorageKey]) {
       latexCopyEnabled = changes[toolsApi.latexCopyEnabledStorageKey].newValue !== false;
+      featureListenersChanged = true;
       if (!latexCopyEnabled) {
         destroyFormulaUi();
       }
@@ -691,6 +728,9 @@
       if (formulaMenu && !formulaMenu.hidden) {
         requestAnimationFrame(positionFormulaMenu);
       }
+    }
+    if (featureListenersChanged) {
+      syncFeatureEventListeners();
     }
   });
 
@@ -705,20 +745,10 @@
       latexCopyEnabled = result[toolsApi.latexCopyEnabledStorageKey] !== false;
       latexTexEnabled = result[toolsApi.latexTexEnabledStorageKey] !== false;
       syncFormulaMenuOptions();
+      syncFeatureEventListeners();
     }
   );
 
-  document.addEventListener("submit", onComposerSubmit, true);
-  document.addEventListener("copy", onSelectionCopy, true);
-  document.addEventListener("click", onDocumentClick, true);
-  document.addEventListener("wheel", () => disarmScrollGuard(), { passive: true, capture: true });
-  document.addEventListener("touchstart", () => disarmScrollGuard(), { passive: true, capture: true });
-  document.addEventListener("keydown", onUserKeydown, true);
-  document.addEventListener("pointerdown", onPointerDown, true);
-  document.addEventListener("scroll", closeFormulaMenu, { passive: true, capture: true });
-  window.addEventListener("resize", closeFormulaMenu, { passive: true });
-  window.addEventListener("popstate", onHistoryRouteChange);
-  window.addEventListener("hashchange", onHistoryRouteChange);
-  window.navigation?.addEventListener("navigate", onNavigationRouteChange);
-  window.setInterval(checkRoute, 500);
+  syncFeatureEventListeners();
+  window.addEventListener(routeChangeEventName, cleanupTransientState);
 })();

@@ -74,7 +74,12 @@ assert.doesNotMatch(JSON.stringify(manifest.permissions), /clipboard|scripting/i
 assert.equal(toolsContentScript.world, undefined, "tools must stay in the normal isolated content-script world");
 
 const contentSource = fs.readFileSync(path.join(__dirname, "..", "tools", "content.js"), "utf8");
-assert.match(contentSource, /document\.addEventListener\("submit", onComposerSubmit, true\)/);
+assert.match(contentSource, /function syncFeatureEventListeners\(\)/, "tool listeners must follow their feature switches");
+assert.match(contentSource, /document\[method\]\("submit", onComposerSubmit, true\)/);
+assert.match(contentSource, /document\[method\]\("copy", onSelectionCopy, true\)/);
+assert.match(contentSource, /removeEventListener/, "disabled tools must detach their event listeners");
+assert.match(contentSource, /window\.addEventListener\(routeChangeEventName, cleanupTransientState\)/);
+assert.doesNotMatch(contentSource, /setInterval\(/, "tools must consume the shared route signal instead of polling again");
 assert.match(contentSource, /range\.cloneContents\(\)/, "mixed copy must inspect only the selected range clone");
 assert.match(contentSource, /setData\("text\/plain"/);
 assert.match(contentSource, /setData\("text\/html"/);

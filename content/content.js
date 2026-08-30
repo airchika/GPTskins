@@ -42,6 +42,7 @@
   let routeThemeObserverStarted = false;
   let lastThemeRoute = location.href;
   let themeSwitchTimer = 0;
+  const routeChangeEventName = "gptskins:routechange";
 
   function normalizePath(pathname) {
     return pathname.replace(/\/+$/, "") || "/";
@@ -292,10 +293,15 @@
     }
     routeThemeObserverStarted = true;
 
-    const notifyRouteChange = () => {
-      lastThemeRoute = location.href;
+    const notifyRouteChange = (nextRoute = location.href) => {
+      const previousRoute = lastThemeRoute;
+      lastThemeRoute = nextRoute;
       scheduleRouteThemeSync();
+      if (lastThemeRoute !== previousRoute) {
+        window.dispatchEvent(new Event(routeChangeEventName));
+      }
     };
+    const notifyCurrentRouteChange = () => notifyRouteChange();
     ["pushState", "replaceState"].forEach((method) => {
       const original = history[method];
       if (typeof original !== "function") {
@@ -304,19 +310,22 @@
 
       history[method] = function (...args) {
         const result = original.apply(this, args);
-        notifyRouteChange();
+        notifyCurrentRouteChange();
         return result;
       };
     });
 
-    window.addEventListener("popstate", notifyRouteChange);
-    window.addEventListener("hashchange", notifyRouteChange);
-    window.addEventListener("pageshow", notifyRouteChange);
+    window.addEventListener("popstate", notifyCurrentRouteChange);
+    window.addEventListener("hashchange", notifyCurrentRouteChange);
+    window.addEventListener("pageshow", notifyCurrentRouteChange);
+    window.navigation?.addEventListener("navigate", (event) => {
+      notifyRouteChange(event.destination?.url || location.href);
+    });
     window.setInterval(() => {
       if (location.href === lastThemeRoute) {
         return;
       }
-      notifyRouteChange();
+      notifyCurrentRouteChange();
     }, 500);
   }
 

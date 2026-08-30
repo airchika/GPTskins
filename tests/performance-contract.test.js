@@ -6,8 +6,10 @@ const path = require("node:path");
 
 const contentPath = path.join(__dirname, "..", "content", "content.js");
 const cssPath = path.join(__dirname, "..", "content", "content.css");
+const toolsPath = path.join(__dirname, "..", "tools", "content.js");
 const contentSource = fs.readFileSync(contentPath, "utf8");
 const cssSource = fs.readFileSync(cssPath, "utf8");
+const toolsSource = fs.readFileSync(toolsPath, "utf8");
 const manifest = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "manifest.json"), "utf8"));
 
 function functionSource(name, nextName) {
@@ -19,6 +21,14 @@ function functionSource(name, nextName) {
 }
 
 assert.doesNotMatch(contentSource, /querySelectorAll\(["']body \*["']\)/, "normal theming must not scan every body descendant");
+assert.equal(
+  ((contentSource + toolsSource).match(/setInterval\(/g) || []).length,
+  1,
+  "theme and tools must share one route fallback interval"
+);
+assert.match(contentSource, /window\.dispatchEvent\(new Event\(routeChangeEventName\)\)/, "the route owner must notify tools");
+assert.match(contentSource, /window\.navigation\?\.addEventListener\("navigate"/, "the shared route owner must retain early navigation cleanup");
+assert.doesNotMatch(toolsSource, /setInterval\(/, "the tools runtime must not duplicate route polling");
 assert.doesNotMatch(contentSource, /document\.body\.innerText/, "plan detection must not read the complete page text");
 assert.doesNotMatch(contentSource, /createElement\(["']style["']\)|style\.textContent/, "theme scripts must not rebuild the static stylesheet");
 assert.match(contentSource, /root\.style\.getPropertyValue\(name\)\.trim\(\) !== value/, "theme variables must update idempotently");
