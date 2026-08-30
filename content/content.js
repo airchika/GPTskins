@@ -114,6 +114,12 @@
     root.removeAttribute("data-gptskins-color-scheme");
   }
 
+  function normalizeFontSelections(selections = {}) {
+    return Object.fromEntries(
+      themeApi.fontRoles.map((role) => [role.id, themeApi.getFontOption(role.id, selections[role.id]).id])
+    );
+  }
+
   function applyFontVariables(selections) {
     const interfaceFont = themeApi.getFontOption("interface", selections.interface);
     const textFont = themeApi.getFontOption("text", selections.text);

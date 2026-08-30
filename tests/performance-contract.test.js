@@ -22,6 +22,7 @@ assert.doesNotMatch(contentSource, /querySelectorAll\(["']body \*["']\)/, "norma
 assert.doesNotMatch(contentSource, /document\.body\.innerText/, "plan detection must not read the complete page text");
 assert.doesNotMatch(contentSource, /createElement\(["']style["']\)|style\.textContent/, "theme scripts must not rebuild the static stylesheet");
 assert.match(contentSource, /root\.style\.getPropertyValue\(name\)\.trim\(\) !== value/, "theme variables must update idempotently");
+assert.match(contentSource, /function normalizeFontSelections\(selections = \{\}\)/, "font selection normalization must remain available after the CSS split");
 assert.match(contentSource, /data-gptskins-font-signature/, "font variables must remain idempotent across all four roles");
 assert.match(contentSource, /if \(codeFamilies\.length\)/, "GPT Default code slots must not inject a replacement code stack");
 assert.match(contentSource, /new MutationObserver\(handlePageMutations\)/, "page changes must use the incremental mutation handler");
