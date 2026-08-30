@@ -39,7 +39,7 @@
       return "";
     }
     if (format === latexFormats.inline) {
-      return `$${source}$`;
+      return `$${source.replace(/\s+/g, " ").trim()}$`;
     }
     if (format === latexFormats.display) {
       return `$$${source}$$`;

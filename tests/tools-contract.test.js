@@ -18,6 +18,22 @@ assert.equal(toolsApi.defaultLatexTexEnabled, true);
 assert.equal(toolsApi.formatLatex("  x^2 + y^2  ", toolsApi.latexFormats.tex), "x^2 + y^2");
 assert.equal(toolsApi.formatLatex("$x$", toolsApi.latexFormats.inline), "$x$");
 assert.equal(toolsApi.formatLatex("\\[x + y\\]", toolsApi.latexFormats.display), "$$x + y$$");
+const multilineLatex = "\\begin{aligned}\r\n  x &= 1 \\\\\r\n  y &= 2\n\\end{aligned}";
+assert.equal(
+  toolsApi.formatLatex(multilineLatex, toolsApi.latexFormats.inline),
+  "$\\begin{aligned} x &= 1 \\\\ y &= 2 \\end{aligned}$",
+  "single-dollar formulas must flatten source whitespace without removing TeX line-break commands"
+);
+assert.equal(
+  toolsApi.formatLatex(multilineLatex, toolsApi.latexFormats.tex),
+  multilineLatex,
+  "raw tex copies must preserve source line breaks"
+);
+assert.equal(
+  toolsApi.formatLatex(multilineLatex, toolsApi.latexFormats.display),
+  `$$${multilineLatex}$$`,
+  "display copies must preserve source line breaks"
+);
 assert.equal(
   toolsApi.resolveLatexSource("x_current", "x_legacy", "x_annotation"),
   "x_current",
@@ -73,10 +89,16 @@ assert.doesNotMatch(contentSource, /(?:Window|Element|HTMLElement)\.prototype/, 
 assert.doesNotMatch(contentSource, /scrollIntoView\s*=|scrollTo\s*=|scrollBy\s*=/, "scroll protection must not replace global scrolling APIs");
 assert.doesNotMatch(contentSource, /clipboard\.read|readText\s*\(/, "tools must never read the clipboard");
 assert.doesNotMatch(contentSource, /\bfetch\s*\(|XMLHttpRequest|WebSocket/, "tools must not call network APIs");
+const guardMutationStart = contentSource.indexOf("function mutationsAddUserTurn(");
+const guardMutationEnd = contentSource.indexOf("function armScrollGuard(", guardMutationStart);
+assert.notEqual(guardMutationStart, -1, "scroll protection must inspect mutation batches");
+const guardMutationSource = contentSource.slice(guardMutationStart, guardMutationEnd);
+assert.match(guardMutationSource, /record\.addedNodes/);
+assert.doesNotMatch(guardMutationSource, /querySelectorAll/, "scroll protection must not recount a long conversation on every mutation");
 
 const popupSource = fs.readFileSync(path.join(__dirname, "..", "popup", "popup.html"), "utf8");
 assert.match(popupSource, /data-style-mode="tools"/);
-assert.match(popupSource, /data-gptskins-queue-enabled/);
+assert.doesNotMatch(popupSource, /queue/i, "the removed message queue must not remain in the popup");
 assert.match(popupSource, /data-gptskins-scroll-guard-enabled/);
 assert.match(popupSource, /data-gptskins-latex-copy-enabled/);
 assert.match(popupSource, /data-gptskins-latex-tex-enabled/);

@@ -36,17 +36,6 @@
       <section class="tools-settings" id="tools-panel" aria-label="Tools" hidden>
         <div class="tool-settings-card">
           <div>
-            <strong>Message queue</strong>
-            <span>Press Enter while ChatGPT responds to queue your next message.</span>
-          </div>
-          <label class="tool-switch">
-            <input type="checkbox" data-gptskins-queue-enabled>
-            <span aria-hidden="true"></span>
-            <span class="sr-only">Enable message queue</span>
-          </label>
-        </div>
-        <div class="tool-settings-card">
-          <div>
             <strong>Keep reading position</strong>
             <span>When sending from older messages, resist the temporary jump to the bottom.</span>
           </div>
@@ -78,17 +67,15 @@
             <span class="sr-only">Show the raw tex formula choice</span>
           </label>
         </div>
-        <p>Queued messages stay on this device. If Voyager is installed, disable its Formula Copy and Prevent Auto Scroll features to avoid duplicate handlers.</p>
+        <p>If Voyager is installed, disable its Formula Copy and Prevent Auto Scroll features to avoid duplicate handlers.</p>
       </section>
 
       <p class="status" id="status" role="status" aria-live="polite"></p>
     </main>
 
     <script src="../shared/themes.js"></script>
-    <script src="../queue/shared.js"></script>
     <script src="../tools/shared.js"></script>
     <script src="popup.js"></script>
-    <script src="../queue/popup.js"></script>
     <script src="../tools/popup.js"></script>
   </body>
 </html>

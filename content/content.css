@@ -1,0 +1,1334 @@
+html[data-gptskins-theme][data-gptskins-color-scheme="dark"] {
+  color-scheme: dark;
+}
+
+html[data-gptskins-theme][data-gptskins-color-scheme="light"] {
+  color-scheme: light;
+}
+
+html[data-gptskins-theme] {
+  --main-surface-primary: var(--gptskins-background) !important;
+  --main-surface-secondary: var(--gptskins-surface) !important;
+  --main-surface-tertiary: var(--gptskins-surfaceStrong) !important;
+  --surface-primary: var(--gptskins-surface) !important;
+  --surface-secondary: var(--gptskins-surfaceStrong) !important;
+  --surface-tertiary: var(--gptskins-surfaceStrong) !important;
+  --bg-primary: var(--gptskins-surface) !important;
+  --bg-secondary: var(--gptskins-surfaceStrong) !important;
+  --bg-tertiary: var(--gptskins-surfaceStrong) !important;
+  --sidebar-surface-primary: var(--gptskins-sidebar) !important;
+  --sidebar-surface-secondary: var(--gptskins-sidebarHover) !important;
+  --sidebar-surface-tertiary: var(--gptskins-sidebarHover) !important;
+  --message-surface: var(--gptskins-assistantBubble) !important;
+  --surface-hover: var(--gptskins-surfaceStrong) !important;
+  --composer-surface: var(--gptskins-composer) !important;
+  --composer-surface-primary: var(--gptskins-composer) !important;
+  --composer-surface-secondary: var(--gptskins-surfaceStrong) !important;
+  --gptskins-menuHover: color-mix(in srgb, var(--gptskins-text) 12%, var(--gptskins-composer)) !important;
+  --code-block-bg: var(--gptskins-surfaceStrong) !important;
+  --code-block-header: var(--code-block-bg) !important;
+  --code-block-border: var(--gptskins-border) !important;
+  --code-block-radius: 24px;
+  --text-primary: var(--gptskins-text) !important;
+  --text-secondary: var(--gptskins-mutedText) !important;
+  --text-tertiary: var(--gptskins-mutedText) !important;
+  --border-light: var(--gptskins-border) !important;
+  --border-medium: var(--gptskins-border) !important;
+  --border-heavy: var(--gptskins-border) !important;
+  --sharp-edge-bottom-shadow: none !important;
+}
+
+html[data-gptskins-theme]::selection,
+html[data-gptskins-theme] *::selection {
+  background-color: var(--theme-user-selection-bg, var(--gptskins-accent)) !important;
+}
+
+html[data-gptskins-theme][data-gptskins-switching],
+html[data-gptskins-theme][data-gptskins-switching] *,
+html[data-gptskins-theme][data-gptskins-switching] *::before,
+html[data-gptskins-theme][data-gptskins-switching] *::after {
+  transition: none !important;
+  transition-delay: 0s !important;
+  transition-duration: 0s !important;
+  animation: none !important;
+}
+
+html[data-gptskins-theme],
+html[data-gptskins-theme] body,
+html[data-gptskins-theme] #root,
+html[data-gptskins-theme] main,
+html[data-gptskins-theme] [role="main"] {
+  background: var(--gptskins-background) !important;
+  color: var(--gptskins-text) !important;
+}
+
+html[data-gptskins-theme] [class*="bg-token-main-surface-primary"],
+html[data-gptskins-theme] [class*="bg-token-main-surface-secondary"],
+html[data-gptskins-theme] [class*="bg-token-main-surface-tertiary"],
+html[data-gptskins-theme] [class*="bg-token-message-surface"] {
+  background-color: var(--gptskins-surface) !important;
+  color: var(--gptskins-text) !important;
+}
+
+html[data-gptskins-theme] [class*="shadow-[0_0_8px_8px_var(--main-surface-primary)]"] {
+  --main-surface-primary: var(--gptskins-background) !important;
+}
+
+html[data-gptskins-theme] [data-testid="stage-thread-flyout"] {
+  --main-surface-primary: var(--gptskins-surface) !important;
+  --main-surface-secondary: var(--gptskins-surface) !important;
+  --main-surface-tertiary: var(--gptskins-surfaceStrong) !important;
+  --surface-primary: var(--gptskins-surface) !important;
+  --surface-secondary: var(--gptskins-surfaceStrong) !important;
+  --surface-tertiary: var(--gptskins-surfaceStrong) !important;
+  --bg-primary: var(--gptskins-surface) !important;
+  --bg-secondary: var(--gptskins-surfaceStrong) !important;
+  --bg-tertiary: var(--gptskins-surfaceStrong) !important;
+  background: var(--gptskins-surface) !important;
+  background-color: var(--gptskins-surface) !important;
+  color: var(--gptskins-text) !important;
+}
+
+html[data-gptskins-theme] [data-testid="stage-thread-flyout"] :is([class*="bg-surface-primary"], [class*="bg-token-main-surface-primary"], [class*="bg-token-bg-primary"], [class*="bg-[var(--main-surface-primary)]"]) {
+  background: var(--gptskins-surface) !important;
+  background-color: var(--gptskins-surface) !important;
+  background-image: none !important;
+  color: var(--gptskins-text) !important;
+}
+
+html[data-gptskins-theme] header[class*="bg-token-main-surface-primary"],
+html[data-gptskins-theme] header[class*="dark:bg-token-bg-secondary-surface"] {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+html[data-gptskins-theme] #page-header [class*="pointer-events-none"] > .translucent-surface {
+  --main-surface-primary: var(--gptskins-background) !important;
+}
+
+html[data-gptskins-theme] #conversation-header-actions {
+  background: var(--gptskins-background) !important;
+  background-color: var(--gptskins-background) !important;
+  background-image: none !important;
+  color: var(--gptskins-text) !important;
+}
+
+html[data-gptskins-theme] [class*="thread-bottom-container"] {
+  background: linear-gradient(
+    to bottom,
+    transparent 0,
+    var(--gptskins-background) 34%,
+    var(--gptskins-background) 100%
+  ) !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+html[data-gptskins-theme] [class*="thread-bottom-container"]::before,
+html[data-gptskins-theme] [class*="thread-bottom-container"]::after {
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+html[data-gptskins-theme][data-gptskins-plan-page="true"] [class*="thread-bottom-container"] {
+  background: var(--gptskins-surface) !important;
+  background-image: none !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+html[data-gptskins-theme][data-gptskins-plan-page="true"] [class*="thread-bottom-container"]::before,
+html[data-gptskins-theme][data-gptskins-plan-page="true"] [class*="thread-bottom-container"]::after {
+  background: transparent !important;
+  background-image: none !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+html[data-gptskins-theme][data-gptskins-plan-page="true"] {
+  --bg-primary: var(--gptskins-surface) !important;
+  --bg-elevated-secondary: var(--gptskins-surface) !important;
+}
+
+html[data-gptskins-theme][data-gptskins-plan-page="true"] :is([class*="bg-token-bg-primary"], [class*="bg-token-bg-elevated-secondary!"]) {
+  background: var(--gptskins-surface) !important;
+  background-color: var(--gptskins-surface) !important;
+  background-image: none !important;
+}
+
+html[data-gptskins-theme] [class*="thread-bottom-container"] [class*="bg-black"],
+html[data-gptskins-theme] [class*="thread-bottom-container"] [class*="from-black"],
+html[data-gptskins-theme] [class*="thread-bottom-container"] [class*="to-black"],
+html[data-gptskins-theme] [class*="thread-bottom-container"] [class*="dark:bg-black"],
+html[data-gptskins-theme] [class*="thread-bottom-container"] [class*="dark:from-black"],
+html[data-gptskins-theme] [class*="thread-bottom-container"] [class*="dark:to-black"] {
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+html[data-gptskins-theme] nav,
+html[data-gptskins-theme] aside,
+html[data-gptskins-theme] [class*="bg-token-sidebar"],
+html[data-gptskins-theme] [id*="sidebar"],
+html[data-gptskins-theme] [data-testid="history-panel"],
+html[data-gptskins-theme] [data-testid="left-sidebar"] {
+  --text-primary: var(--gptskins-sidebarText) !important;
+  --text-secondary: var(--gptskins-sidebarMuted) !important;
+  --text-tertiary: var(--gptskins-sidebarMuted) !important;
+  --surface-hover: var(--gptskins-sidebarHover) !important;
+  background-color: var(--gptskins-sidebar) !important;
+  color: var(--gptskins-sidebarText) !important;
+}
+
+html[data-gptskins-theme] nav :is(a, button, [role="button"], span, p, div, h1, h2, h3, h4, h5, h6),
+html[data-gptskins-theme] aside :is(a, button, [role="button"], span, p, div, h1, h2, h3, h4, h5, h6),
+html[data-gptskins-theme] [data-testid="history-panel"] :is(a, button, [role="button"], span, p, div, h1, h2, h3, h4, h5, h6),
+html[data-gptskins-theme] [data-testid="left-sidebar"] :is(a, button, [role="button"], span, p, div, h1, h2, h3, h4, h5, h6) {
+  color: inherit !important;
+  opacity: 1 !important;
+}
+
+html[data-gptskins-theme] nav .text-token-text-secondary,
+html[data-gptskins-theme] nav [class*="text-token-text-secondary"],
+html[data-gptskins-theme] nav [class*="text-token-text-tertiary"],
+html[data-gptskins-theme] aside .text-token-text-secondary,
+html[data-gptskins-theme] aside [class*="text-token-text-secondary"],
+html[data-gptskins-theme] aside [class*="text-token-text-tertiary"],
+html[data-gptskins-theme] [data-testid="history-panel"] [class*="text-token-text-secondary"],
+html[data-gptskins-theme] [data-testid="history-panel"] [class*="text-token-text-tertiary"],
+html[data-gptskins-theme] [data-testid="left-sidebar"] [class*="text-token-text-secondary"],
+html[data-gptskins-theme] [data-testid="left-sidebar"] [class*="text-token-text-tertiary"] {
+  color: var(--gptskins-sidebarMuted) !important;
+  opacity: 1 !important;
+}
+
+html[data-gptskins-theme] nav :is(a, button, [role="button"]):hover,
+html[data-gptskins-theme] aside :is(a, button, [role="button"]):hover,
+html[data-gptskins-theme] [data-testid="history-panel"] :is(a, button, [role="button"]):hover,
+html[data-gptskins-theme] [data-testid="left-sidebar"] :is(a, button, [role="button"]):hover {
+  background-color: var(--gptskins-sidebarHover) !important;
+  color: var(--gptskins-sidebarText) !important;
+}
+
+html[data-gptskins-theme] [data-message-author-role="user"] {
+  background: transparent !important;
+  color: var(--gptskins-text) !important;
+}
+
+html[data-gptskins-theme] [data-message-author-role="assistant"] {
+  background: transparent !important;
+  color: var(--gptskins-text) !important;
+}
+
+html[data-gptskins-theme] [data-message-author-role] :is(p, li, h1, h2, h3, h4, h5, h6, blockquote, strong, em),
+html[data-gptskins-theme] [data-message-author-role] .markdown,
+html[data-gptskins-theme] [data-message-author-role] [class*="text-token-text-primary"],
+html[data-gptskins-theme] main [class*="text-token-text-primary"] {
+  color: var(--gptskins-text) !important;
+}
+
+html[data-gptskins-theme] [data-message-author-role] :is(h1, h2, h3, h4, h5, h6) {
+  scroll-margin-top: calc(var(--header-height, 52px) + 12px) !important;
+}
+
+html[data-gptskins-theme] [data-message-author-role] [class*="text-token-text-secondary"],
+html[data-gptskins-theme] main [class*="text-token-text-secondary"],
+html[data-gptskins-theme] main [class*="text-token-text-tertiary"] {
+  color: var(--gptskins-mutedText) !important;
+}
+
+html[data-gptskins-theme] [data-message-author-role] table,
+html[data-gptskins-theme] [data-message-author-role] :is(thead, tbody, tr, th, td) {
+  border-color: color-mix(in srgb, var(--gptskins-border) 65%, var(--gptskins-text) 35%) !important;
+  color: var(--gptskins-text) !important;
+  opacity: 1 !important;
+}
+
+html[data-gptskins-theme] [data-message-author-role] table :is(th, td, span, div, p, strong) {
+  color: var(--gptskins-text) !important;
+  opacity: 1 !important;
+}
+
+html[data-gptskins-theme] [data-message-author-role] table :is(button, svg) {
+  color: var(--gptskins-mutedText) !important;
+  opacity: 1 !important;
+  stroke: currentColor !important;
+}
+
+html[data-gptskins-theme] [data-message-author-role] .recharts-wrapper :is(.recharts-text, .recharts-label, .recharts-cartesian-axis-tick-value, text) {
+  color: var(--gptskins-mutedText) !important;
+  fill: var(--gptskins-mutedText) !important;
+  opacity: 1 !important;
+}
+
+html[data-gptskins-theme] [data-message-author-role] .recharts-wrapper :is(.recharts-cartesian-grid line, .recharts-cartesian-axis-line, .recharts-cartesian-axis-tick-line) {
+  opacity: 1 !important;
+  stroke: color-mix(in srgb, var(--gptskins-border) 60%, var(--gptskins-text) 40%) !important;
+}
+
+html[data-gptskins-theme] textarea,
+html[data-gptskins-theme] input,
+html[data-gptskins-theme] [contenteditable="true"],
+html[data-gptskins-theme] [data-testid="composer"] {
+  background-color: var(--gptskins-composer) !important;
+  color: var(--gptskins-text) !important;
+  border-color: var(--gptskins-border) !important;
+}
+
+html[data-gptskins-theme] form[class*="composer"],
+html[data-gptskins-theme] [class*="group/composer"] {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+html[data-gptskins-theme] form[class*="composer"] > [class*="bg-(--composer-surface-primary)"],
+html[data-gptskins-theme] [class*="bg-(--composer-surface-primary)"],
+html[data-gptskins-theme] [data-testid="composer"] {
+  background-color: var(--gptskins-composer) !important;
+  border: 1px solid var(--gptskins-border) !important;
+  box-shadow: 0 10px 28px var(--gptskins-shadow) !important;
+  color: var(--gptskins-text) !important;
+}
+
+html[data-gptskins-theme] :is(form[class*="composer"], [class*="group/composer"], [data-testid="composer"]) :is(textarea, input, [contenteditable="true"], [class*="ProseMirror"]) {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+html[data-gptskins-theme] button[class*="composer"]:not([class*="composer-submit"]):not([data-testid*="send" i]):not([aria-label*="send" i]):not([aria-label*="submit" i]):not([aria-label*="voice" i]),
+html[data-gptskins-theme] [class*="composer-btn"]:not([class*="composer-submit"]):not([data-testid*="send" i]):not([aria-label*="send" i]):not([aria-label*="submit" i]):not([aria-label*="voice" i]) {
+  background-color: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+html[data-gptskins-theme] textarea::placeholder,
+html[data-gptskins-theme] input::placeholder {
+  color: var(--gptskins-mutedText) !important;
+}
+
+html[data-gptskins-theme] main :is(button, a, [role="button"]):not(.btn-primary):not([class*="composer-submit"]):not([data-testid*="send" i]):not([aria-label*="send" i]):not([aria-label*="submit" i]):not([aria-label*="voice" i]) {
+  color: inherit !important;
+}
+
+html[data-gptskins-theme] main button[class*="btn-secondary"][class*="bg-token-bg-primary"][class*="backdrop-blur"][class*="rounded-full"],
+html[data-gptskins-theme] main button[class*="shadow-short"][class*="backdrop-blur"][class*="rounded-full"],
+html[data-gptskins-theme] :is(button, [role="button"]):is([aria-label*="scroll" i], [aria-label*="bottom" i], [data-testid*="scroll" i])[class*="rounded-full"] {
+  background: color-mix(in srgb, var(--gptskins-surfaceStrong) 65%, transparent) !important;
+  background-color: color-mix(in srgb, var(--gptskins-surfaceStrong) 65%, transparent) !important;
+  background-image: none !important;
+  border: 1px solid color-mix(in srgb, var(--gptskins-border) 72%, transparent) !important;
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--gptskins-shadow) 72%, transparent) !important;
+  color: var(--gptskins-text) !important;
+}
+
+html[data-gptskins-theme] :is(button, [role="button"]):is([aria-label*="scroll" i], [aria-label*="bottom" i], [data-testid*="scroll" i])[class*="rounded-full"]::before,
+html[data-gptskins-theme] :is(button, [role="button"]):is([aria-label*="scroll" i], [aria-label*="bottom" i], [data-testid*="scroll" i])[class*="rounded-full"]::after,
+html[data-gptskins-theme] :is(button, [role="button"]):is([aria-label*="scroll" i], [aria-label*="bottom" i], [data-testid*="scroll" i])[class*="rounded-full"] > :is(div, span) {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+html[data-gptskins-theme] [data-testid="artifacts-surface-top-controls"] {
+  background: var(--gptskins-surface) !important;
+  background-color: var(--gptskins-surface) !important;
+  background-image: none !important;
+  color: var(--gptskins-text) !important;
+}
+
+html[data-gptskins-theme] main:has(input[placeholder*="Search apps" i]) > :is(div, header)[class*="h-header-height"][class*="bg-surface-primary"] {
+  background: var(--gptskins-background) !important;
+  background-color: var(--gptskins-background) !important;
+  background-image: none !important;
+  color: var(--gptskins-text) !important;
+}
+
+html[data-gptskins-theme] main:has(input[aria-label="Search GPTs"], input[placeholder*="Search GPTs" i]) :is(div, section)[class*="bg-token-bg-primary"][class*="dark:bg-token-bg-secondary-surface"][class*="sticky"] {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+html[data-gptskins-theme] main:has(input[aria-label="Search GPTs"], input[placeholder*="Search GPTs" i]) input:is(#search, [aria-label="Search GPTs"], [placeholder*="Search GPTs" i]) {
+  --main-surface-primary: var(--gptskins-surfaceStrong) !important;
+  background: var(--gptskins-surfaceStrong) !important;
+  background-color: var(--gptskins-surfaceStrong) !important;
+  background-image: none !important;
+  color: var(--gptskins-text) !important;
+}
+
+html[data-gptskins-theme] [data-testid="mattress-onboarding-widget-cell"] button {
+  color: var(--gptskins-text) !important;
+}
+
+html[data-gptskins-theme] [data-testid="mattress-onboarding-widget-cell"] button::before {
+  background: var(--gptskins-surfaceStrong) !important;
+  background-color: var(--gptskins-surfaceStrong) !important;
+  background-image: none !important;
+  border-color: var(--gptskins-border) !important;
+}
+
+html[data-gptskins-theme] [data-testid="mattress-onboarding-widget-cell"] button::after {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+html[data-gptskins-theme] :is(
+  [data-testid="artifacts-surface-library-search-controls"] button[aria-haspopup="menu"],
+  main :is(div, section):has(> :is(h1, h2)):has(input[placeholder*="Search projects" i], [aria-label*="Search projects" i]) > :is(div, form) button:not([aria-label]),
+  [data-testid="create-gpt-discovery-button"],
+  main:has(.pulse-card-body) button.btn
+) {
+  background: var(--gptskins-surfaceStrong) !important;
+  background-color: var(--gptskins-surfaceStrong) !important;
+  background-image: none !important;
+  border-color: var(--gptskins-border) !important;
+  color: var(--gptskins-text) !important;
+}
+
+html[data-gptskins-theme] :is(
+  [data-testid="artifacts-surface-library-search-controls"] button[aria-haspopup="menu"],
+  main :is(div, section):has(> :is(h1, h2)):has(input[placeholder*="Search projects" i], [aria-label*="Search projects" i]) > :is(div, form) button:not([aria-label]),
+  [data-testid="create-gpt-discovery-button"],
+  main:has(.pulse-card-body) button.btn
+):is(:hover, :focus-visible, [data-state="open"]) {
+  background: var(--gptskins-surfaceStrong) !important;
+  background-color: var(--gptskins-surfaceStrong) !important;
+  color: var(--gptskins-text) !important;
+}
+
+html[data-gptskins-theme] :is(
+  [data-testid="artifacts-surface-library-search-controls"] button[aria-haspopup="menu"],
+  main :is(div, section):has(> :is(h1, h2)):has(input[placeholder*="Search projects" i], [aria-label*="Search projects" i]) > :is(div, form) button:not([aria-label]),
+  [data-testid="create-gpt-discovery-button"],
+  main:has(.pulse-card-body) button.btn
+) :is(span, div, svg) {
+  color: inherit !important;
+}
+
+html[data-gptskins-theme] main .artifacts-surface-library-selectable-row:is(:hover, :focus-within, [data-state="open"]) {
+  background: color-mix(in srgb, var(--gptskins-text) 7%, var(--gptskins-surface)) !important;
+  background-color: color-mix(in srgb, var(--gptskins-text) 7%, var(--gptskins-surface)) !important;
+  background-image: none !important;
+  color: var(--gptskins-text) !important;
+}
+
+html[data-gptskins-theme] main .artifacts-surface-library-selectable-row::before {
+  background: color-mix(in srgb, var(--gptskins-text) 7%, var(--gptskins-surface)) !important;
+  background-color: color-mix(in srgb, var(--gptskins-text) 7%, var(--gptskins-surface)) !important;
+  background-image: none !important;
+}
+
+html[data-gptskins-theme][data-gptskins-finance-page="true"] main {
+  --main-surface-primary: var(--gptskins-background) !important;
+  --main-surface-secondary: var(--gptskins-surface) !important;
+  --main-surface-tertiary: var(--gptskins-surfaceStrong) !important;
+  --text-primary: var(--gptskins-text) !important;
+  --text-secondary: var(--gptskins-mutedText) !important;
+  --text-tertiary: var(--gptskins-mutedText) !important;
+  color: var(--gptskins-text) !important;
+}
+
+html[data-gptskins-theme][data-gptskins-finance-page="true"] main :is(h2, p, a):is([class*="text-[#000000]"], [class*="text-[#5d5d5d]"]) {
+  color: var(--gptskins-text) !important;
+  opacity: 1 !important;
+}
+
+html[data-gptskins-theme][data-gptskins-finance-page="true"] main :is(p, a):is([class*="text-[#5d5d5d]"]) {
+  color: var(--gptskins-mutedText) !important;
+}
+
+html[data-gptskins-theme][data-gptskins-finance-page="true"] main button.btn {
+  background: var(--gptskins-surfaceStrong) !important;
+  background-color: var(--gptskins-surfaceStrong) !important;
+  background-image: none !important;
+  border: 1px solid var(--gptskins-border) !important;
+  color: var(--gptskins-text) !important;
+}
+
+html[data-gptskins-theme][data-gptskins-finance-page="true"] main button.btn :is(div, span, svg) {
+  color: inherit !important;
+}
+
+html[data-gptskins-theme] :is(nav, aside, [class*="sidebar"], [data-testid="history-panel"], [data-testid="left-sidebar"]) :is([class*="sidebar-section-header"], button[aria-expanded], button[aria-controls], [role="button"][aria-expanded]):not([data-testid="accounts-profile-button"]):not([data-gptskins-sidebar-action]),
+html[data-gptskins-theme] :is(nav, aside, [class*="sidebar"], [data-testid="history-panel"], [data-testid="left-sidebar"]) :is(div, section):has(:is([class*="sidebar-section-header"], button[aria-expanded], button[aria-controls])) :is(button, [role="button"]):not([data-testid="accounts-profile-button"]):not([data-gptskins-sidebar-action]),
+html[data-gptskins-theme] [class*="group-hover/sidebar-section-header"],
+html[data-gptskins-theme] [class*="group-hover/sidebar-expand-section-header"],
+html[data-gptskins-theme] [class*="group-hover/sidebar-expando-section-header"],
+html[data-gptskins-theme] [class*="group/sidebar-expando-section-header"],
+html[data-gptskins-theme] [data-trailing-button],
+html[data-gptskins-theme] [class*="menu-item-trailing-btn"],
+html[data-gptskins-theme] :is(nav, aside, [class*="sidebar"], [data-testid="history-panel"], [data-testid="left-sidebar"]) :is(div, span):has(> [data-trailing-button]),
+html[data-gptskins-theme] :is(nav, aside, [class*="sidebar"], [data-testid="history-panel"], [data-testid="left-sidebar"]) [class*="group-hover/sidebar-section-header"],
+html[data-gptskins-theme] :is(nav, aside, [class*="sidebar"], [data-testid="history-panel"], [data-testid="left-sidebar"]) [class*="group-hover/sidebar-expando-section-header"],
+html[data-gptskins-theme] :is(nav, aside, [class*="sidebar"], [data-testid="history-panel"], [data-testid="left-sidebar"]) :is(a, button, [role="button"], div, span):has(> svg:only-child) {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+html[data-gptskins-theme] [data-trailing-button]::before,
+html[data-gptskins-theme] [data-trailing-button]::after,
+html[data-gptskins-theme] [class*="menu-item-trailing-btn"]::before,
+html[data-gptskins-theme] [class*="menu-item-trailing-btn"]::after {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+html[data-gptskins-theme] :is(nav, aside, [class*="sidebar"], [data-testid="history-panel"], [data-testid="left-sidebar"]) :is([class*="sidebar-section-header"], [class*="sidebar-expando-section-header"], [class*="group/sidebar-expando-section-header"]) {
+  font-weight: 700 !important;
+}
+
+html[data-gptskins-theme] :is(nav, aside, [class*="sidebar"], [data-testid="history-panel"], [data-testid="left-sidebar"]) :is([class*="group-hover/sidebar-section-header"], [class*="group-hover/sidebar-expand-section-header"], [class*="group-hover/sidebar-expando-section-header"]) {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+html[data-gptskins-theme] :is(nav, aside, [class*="sidebar"], [data-testid="history-panel"], [data-testid="left-sidebar"]) :is([class*="group/sidebar-section-header"], [class*="group/sidebar-expand-section-header"], [class*="group/sidebar-expando-section-header"]):is(:hover, :focus-within) :is([class*="group-hover/sidebar-section-header"], [class*="group-hover/sidebar-expand-section-header"], [class*="group-hover/sidebar-expando-section-header"]),
+html[data-gptskins-theme] :is(nav, aside, [class*="sidebar"], [data-testid="history-panel"], [data-testid="left-sidebar"]) :is([class*="group-hover/sidebar-section-header"], [class*="group-hover/sidebar-expand-section-header"], [class*="group-hover/sidebar-expando-section-header"]):is(:hover, :focus-visible, [data-state="open"]) {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+html[data-gptskins-theme] :is(nav, aside, [class*="sidebar"], [data-testid="history-panel"], [data-testid="left-sidebar"]) :is([class*="sidebar-section-header"], button[aria-expanded], button[aria-controls], [role="button"][aria-expanded]):not([data-testid="accounts-profile-button"]):not([data-gptskins-sidebar-action]):hover,
+html[data-gptskins-theme] :is(nav, aside, [class*="sidebar"], [data-testid="history-panel"], [data-testid="left-sidebar"]) :is(div, section):has(:is([class*="sidebar-section-header"], button[aria-expanded], button[aria-controls])) :is(button, [role="button"]):not([data-testid="accounts-profile-button"]):not([data-gptskins-sidebar-action]):hover,
+html[data-gptskins-theme] [class*="group-hover/sidebar-section-header"]:hover,
+html[data-gptskins-theme] [class*="group-hover/sidebar-expand-section-header"]:hover,
+html[data-gptskins-theme] [class*="group-hover/sidebar-expando-section-header"]:hover,
+html[data-gptskins-theme] [class*="group/sidebar-expando-section-header"]:hover,
+html[data-gptskins-theme] [data-trailing-button]:hover,
+html[data-gptskins-theme] [class*="menu-item-trailing-btn"]:hover,
+html[data-gptskins-theme] [data-trailing-button][data-state="open"],
+html[data-gptskins-theme] [class*="menu-item-trailing-btn"][data-state="open"],
+html[data-gptskins-theme] :is(nav, aside, [class*="sidebar"], [data-testid="history-panel"], [data-testid="left-sidebar"]) :is(div, span):has(> [data-trailing-button]):hover,
+html[data-gptskins-theme] :is(nav, aside, [class*="sidebar"], [data-testid="history-panel"], [data-testid="left-sidebar"]) [class*="group-hover/sidebar-section-header"]:hover,
+html[data-gptskins-theme] :is(nav, aside, [class*="sidebar"], [data-testid="history-panel"], [data-testid="left-sidebar"]) [class*="group-hover/sidebar-expando-section-header"]:hover,
+html[data-gptskins-theme] :is(nav, aside, [class*="sidebar"], [data-testid="history-panel"], [data-testid="left-sidebar"]) :is(a, button, [role="button"], div, span):has(> svg:only-child):hover {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+html[data-gptskins-theme] :is(nav, aside, [class*="sidebar"], [data-testid="history-panel"], [data-testid="left-sidebar"]) [data-gptskins-sidebar-action] {
+  border-radius: 10px !important;
+}
+
+html[data-gptskins-theme] :is(nav, aside, [class*="sidebar"], [data-testid="history-panel"], [data-testid="left-sidebar"]) [data-gptskins-sidebar-action="library"]:is(:hover, :focus-visible, [data-active]) {
+  z-index: 21 !important;
+}
+
+html[data-gptskins-theme] :is(nav, aside, [class*="sidebar"], [data-testid="history-panel"], [data-testid="left-sidebar"]) [data-gptskins-sidebar-action]:focus-visible {
+  background-color: var(--gptskins-sidebarHover) !important;
+  color: var(--gptskins-sidebarText) !important;
+}
+
+html[data-gptskins-theme] [data-gptskins-sidebar-action]:is(:hover, :focus-visible) :is(div, span) {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  color: inherit !important;
+}
+
+html[data-gptskins-theme] [data-testid="accounts-profile-button"]:is(:hover, :focus-visible) {
+  background: var(--gptskins-sidebarHover) !important;
+  background-color: var(--gptskins-sidebarHover) !important;
+  color: var(--gptskins-sidebarText) !important;
+}
+
+html[data-gptskins-theme] [data-testid="accounts-profile-button"] [data-trailing-button]:is(:hover, :focus-visible) > div {
+  background: var(--gptskins-sidebarHover) !important;
+  background-color: var(--gptskins-sidebarHover) !important;
+}
+
+html[data-gptskins-theme] [data-testid="accounts-profile-button"]:not(:hover):not(:focus-visible) {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+html[data-gptskins-theme] [class*="border-token"],
+html[data-gptskins-theme] [class*="divide-token"] > :not([hidden]) ~ :not([hidden]),
+html[data-gptskins-theme] textarea,
+html[data-gptskins-theme] input,
+html[data-gptskins-theme] [contenteditable="true"],
+html[data-gptskins-theme] [data-testid="composer"] {
+  border-color: var(--gptskins-border) !important;
+}
+
+html[data-gptskins-theme] svg {
+  color: inherit !important;
+}
+
+html[data-gptskins-theme] :is(nav, aside, [class*="sidebar"], [data-testid="history-panel"], [data-testid="left-sidebar"]) svg[stroke]:not([stroke="none"]),
+html[data-gptskins-theme] :is(nav, aside, [class*="sidebar"], [data-testid="history-panel"], [data-testid="left-sidebar"]) svg [stroke]:not([stroke="none"]) {
+  stroke: currentColor !important;
+  stroke-width: 1.75 !important;
+}
+
+html[data-gptskins-theme] :is(nav, aside, [class*="sidebar"], [data-testid="history-panel"], [data-testid="left-sidebar"]) svg[fill]:not([fill="none"]),
+html[data-gptskins-theme] :is(nav, aside, [class*="sidebar"], [data-testid="history-panel"], [data-testid="left-sidebar"]) svg [fill]:not([fill="none"]) {
+  fill: currentColor !important;
+  stroke: none !important;
+}
+
+html[data-gptskins-theme] :is(form[class*="composer"], [class*="group/composer"], [data-testid="composer"]) :is(button, [role="button"]) svg[stroke]:not([stroke="none"]),
+html[data-gptskins-theme] :is(form[class*="composer"], [class*="group/composer"], [data-testid="composer"]) :is(button, [role="button"]) svg [stroke]:not([stroke="none"]) {
+  stroke: currentColor !important;
+  stroke-width: 1.75 !important;
+}
+
+html[data-gptskins-theme] :is(form[class*="composer"], [class*="group/composer"], [data-testid="composer"]) :is(button, [role="button"]) svg[fill]:not([fill="none"]),
+html[data-gptskins-theme] :is(form[class*="composer"], [class*="group/composer"], [data-testid="composer"]) :is(button, [role="button"]) svg [fill]:not([fill="none"]) {
+  fill: currentColor !important;
+  stroke: none !important;
+}
+
+html[data-gptskins-theme] [role="dialog"],
+html[data-gptskins-theme] [aria-modal="true"],
+html[data-gptskins-theme] [class*="modal"],
+html[data-gptskins-theme] [class*="popover"],
+html[data-gptskins-theme] [data-radix-popper-content-wrapper] {
+  --main-surface-primary: var(--gptskins-surface) !important;
+  --main-surface-secondary: var(--gptskins-surfaceStrong) !important;
+  --main-surface-tertiary: var(--gptskins-composer) !important;
+  --text-primary: var(--gptskins-text) !important;
+  --text-secondary: var(--gptskins-mutedText) !important;
+  --text-tertiary: var(--gptskins-mutedText) !important;
+  --surface-hover: var(--gptskins-surfaceStrong) !important;
+  --border-light: var(--gptskins-border) !important;
+  --border-medium: var(--gptskins-border) !important;
+  --border-heavy: var(--gptskins-border) !important;
+  background-color: var(--gptskins-surface) !important;
+  border-color: var(--gptskins-border) !important;
+  color: var(--gptskins-text) !important;
+}
+
+html[data-gptskins-theme] [data-radix-popper-content-wrapper] {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+html[data-gptskins-theme] :is([data-radix-menu-content], [data-radix-popper-content-wrapper] [role="menu"]) {
+  background: var(--gptskins-composer) !important;
+  background-color: var(--gptskins-composer) !important;
+  background-image: none !important;
+  border: 1px solid var(--gptskins-border) !important;
+  border-radius: 18px !important;
+  box-shadow: 0 18px 48px var(--gptskins-shadow) !important;
+  color: var(--gptskins-text) !important;
+  overflow: hidden !important;
+}
+
+html[data-gptskins-theme] [role="dialog"],
+html[data-gptskins-theme] [aria-modal="true"] {
+  border: 1px solid var(--gptskins-border) !important;
+  box-shadow: 0 18px 48px var(--gptskins-shadow) !important;
+}
+
+html[data-gptskins-theme] [role="dialog"] :is(h1, h2, h3, h4, h5, h6, p, span, div, label, small),
+html[data-gptskins-theme] [aria-modal="true"] :is(h1, h2, h3, h4, h5, h6, p, span, div, label, small),
+html[data-gptskins-theme] [role="dialog"] [class*="text-token-text-primary"],
+html[data-gptskins-theme] [aria-modal="true"] [class*="text-token-text-primary"] {
+  color: var(--gptskins-text) !important;
+  opacity: 1 !important;
+}
+
+html[data-gptskins-theme] [role="dialog"] [class*="text-token-text-secondary"],
+html[data-gptskins-theme] [role="dialog"] [class*="text-token-text-tertiary"],
+html[data-gptskins-theme] [aria-modal="true"] [class*="text-token-text-secondary"],
+html[data-gptskins-theme] [aria-modal="true"] [class*="text-token-text-tertiary"],
+html[data-gptskins-theme] [role="dialog"] small,
+html[data-gptskins-theme] [aria-modal="true"] small {
+  color: var(--gptskins-mutedText) !important;
+  opacity: 1 !important;
+}
+
+html[data-gptskins-theme] [role="dialog"] [class*="bg-token"],
+html[data-gptskins-theme] [aria-modal="true"] [class*="bg-token"] {
+  background-color: var(--gptskins-surface) !important;
+}
+
+html[data-gptskins-theme] [role="dialog"] :is(hr, [class*="border-token"], [class*="divide-token"] > :not([hidden]) ~ :not([hidden])),
+html[data-gptskins-theme] [aria-modal="true"] :is(hr, [class*="border-token"], [class*="divide-token"] > :not([hidden]) ~ :not([hidden])) {
+  border-color: var(--gptskins-border) !important;
+}
+
+html[data-gptskins-theme] [role="dialog"] :is(button, [role="button"], [role="tab"]),
+html[data-gptskins-theme] [aria-modal="true"] :is(button, [role="button"], [role="tab"]) {
+  background-color: transparent !important;
+  border-color: transparent !important;
+  color: var(--gptskins-text) !important;
+}
+
+html[data-gptskins-theme] [role="dialog"] select,
+html[data-gptskins-theme] [aria-modal="true"] select,
+html[data-gptskins-theme] [role="menu"],
+html[data-gptskins-theme] [role="listbox"] {
+  background-color: var(--gptskins-composer) !important;
+  border-color: var(--gptskins-border) !important;
+  color: var(--gptskins-text) !important;
+}
+
+html[data-gptskins-theme] :is([role="listbox"], [data-testid*="suggest" i], [data-testid*="autocomplete" i]) {
+  background-color: var(--gptskins-composer) !important;
+  border-color: var(--gptskins-border) !important;
+  color: var(--gptskins-text) !important;
+}
+
+html[data-gptskins-theme] :is([role="listbox"], [data-testid*="suggest" i], [data-testid*="autocomplete" i]) :is(div, span, p, button, [role="option"]) {
+  background-color: transparent !important;
+  color: var(--gptskins-text) !important;
+}
+
+html[data-gptskins-theme] :is([role="listbox"], [data-testid*="suggest" i], [data-testid*="autocomplete" i]) :is(hr, [class*="border"], [class*="divide"] > :not([hidden]) ~ :not([hidden])) {
+  border-color: var(--gptskins-border) !important;
+}
+
+html[data-gptskins-theme] .top-full .bg-surface-primary,
+html[data-gptskins-theme] .top-full .bg-surface-primary > ul {
+  background: var(--gptskins-composer) !important;
+  background-color: var(--gptskins-composer) !important;
+  background-image: none !important;
+  border-color: var(--gptskins-border) !important;
+  border-radius: 12px !important;
+  color: var(--gptskins-text) !important;
+  overflow: hidden !important;
+}
+
+html[data-gptskins-theme] .top-full .bg-surface-primary :is(li, button, span) {
+  background-color: transparent !important;
+  color: var(--gptskins-text) !important;
+}
+
+html[data-gptskins-theme] .top-full .bg-surface-primary li:hover button {
+  background-color: var(--gptskins-surfaceStrong) !important;
+}
+
+html[data-gptskins-theme] :is(form[class*="composer"], [class*="group/composer"]) ul[class*="divide-token-border"] > li {
+  background: transparent !important;
+  color: var(--gptskins-text) !important;
+}
+
+html[data-gptskins-theme] [role="tooltip"] [class*="bg-token-bg-tooltip"],
+html[data-gptskins-theme] [class*="bg-token-bg-tooltip"] {
+  background: var(--gptskins-surfaceStrong) !important;
+  background-color: var(--gptskins-surfaceStrong) !important;
+  background-image: none !important;
+  border: 1px solid var(--gptskins-border) !important;
+  box-shadow: 0 10px 28px var(--gptskins-shadow) !important;
+  color: var(--gptskins-text) !important;
+}
+
+html[data-gptskins-theme] :is([role="tooltip"] [class*="bg-token-bg-tooltip"], [class*="bg-token-bg-tooltip"]) :is(div, span, p, svg) {
+  color: var(--gptskins-text) !important;
+}
+
+html[data-gptskins-theme] [role="dialog"] :is(button, [role="button"], [role="tab"]):hover,
+html[data-gptskins-theme] [aria-modal="true"] :is(button, [role="button"], [role="tab"]):hover,
+html[data-gptskins-theme] [role="dialog"] :is([aria-selected="true"], [data-state="active"], [data-state="checked"]),
+html[data-gptskins-theme] [aria-modal="true"] :is([aria-selected="true"], [data-state="active"], [data-state="checked"]),
+html[data-gptskins-theme] [role="menu"] [role="menuitem"]:hover,
+html[data-gptskins-theme] [role="listbox"] [role="option"]:hover,
+html[data-gptskins-theme] [role="menu"] :is(button, a, [role="button"]):hover,
+html[data-gptskins-theme] [role="menu"] :is(button, a, [role="button"])[data-state="open"],
+html[data-gptskins-theme] [role="menu"] :is(button, a, [role="button"])[aria-expanded="true"],
+html[data-gptskins-theme] [role="menu"] :is(button, a, [role="button"])[aria-selected="true"],
+html[data-gptskins-theme] [aria-modal="true"] [role="menu"] :is(button, a, [role="button"]):hover,
+html[data-gptskins-theme] :is([role="menuitem"].__menu-item, [role="menuitem"][data-radix-collection-item], [data-testid$="-menu-item"]):is(:hover, :focus-visible, [data-highlighted], [data-state="open"]),
+html[data-gptskins-theme] :is([class*="suggest" i], [data-testid*="suggest" i], [class*="autocomplete" i], [data-testid*="autocomplete" i]) :is(div, button, [role="option"]):hover {
+  background-color: var(--gptskins-surfaceStrong) !important;
+  color: var(--gptskins-text) !important;
+}
+
+html[data-gptskins-theme] :is([role="dialog"], [aria-modal="true"]) :is(button, [role="button"]):is(.btn-danger, [data-testid*="delete" i], [aria-label*="delete" i]) {
+  background: #ff002a !important;
+  background-color: #ff002a !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  color: #ffffff !important;
+  outline: 0 !important;
+}
+
+html[data-gptskins-theme] :is([role="dialog"], [aria-modal="true"]) :is(button, [role="button"]):is(.btn-danger, [data-testid*="delete" i], [aria-label*="delete" i]) :is(div, span, svg) {
+  color: inherit !important;
+}
+
+html[data-gptskins-theme] [data-radix-menu-content] .__menu-item:is(:hover, :focus, :focus-visible, [data-highlighted]),
+html[data-gptskins-theme] [data-radix-menu-content] [data-radix-collection-item]:is(:hover, :focus, :focus-visible, [data-highlighted]),
+html[data-gptskins-theme] [data-radix-popper-content-wrapper] [role="menu"] .__menu-item:is(:hover, :focus, :focus-visible, [data-highlighted]),
+html[data-gptskins-theme] [data-radix-popper-content-wrapper] [role="menu"] [data-radix-collection-item]:is(:hover, :focus, :focus-visible, [data-highlighted]) {
+  background: var(--gptskins-menuHover) !important;
+  background-color: var(--gptskins-menuHover) !important;
+  background-image: none !important;
+  color: var(--gptskins-text) !important;
+}
+
+html[data-gptskins-theme] [role="dialog"] :is([aria-pressed="true"], [data-selected="true"]),
+html[data-gptskins-theme] [aria-modal="true"] :is([aria-pressed="true"], [data-selected="true"]) {
+  background-color: var(--gptskins-surfaceStrong) !important;
+  border: 1px solid var(--gptskins-border) !important;
+  color: var(--gptskins-text) !important;
+}
+
+html[data-gptskins-theme][data-gptskins-plan-page="true"] [role="group"]:has([data-gptskins-plan-toggle]) {
+  background: color-mix(in srgb, var(--gptskins-mutedText) 16%, var(--gptskins-surface)) !important;
+  background-color: color-mix(in srgb, var(--gptskins-mutedText) 16%, var(--gptskins-surface)) !important;
+  background-image: none !important;
+  border: 1px solid color-mix(in srgb, var(--gptskins-border) 36%, transparent) !important;
+  border-radius: 999px !important;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--gptskins-text) 4%, transparent) !important;
+  color: var(--gptskins-mutedText) !important;
+}
+
+html[data-gptskins-theme][data-gptskins-plan-page="true"] [data-gptskins-plan-toggle] {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  color: var(--gptskins-mutedText) !important;
+}
+
+html[data-gptskins-theme][data-gptskins-plan-page="true"] :is([role="group"], div):has(> :is(div, section) > [data-gptskins-plan-toggle]) > :is(div, section):first-child [class*="bg-token-bg-primary"][class*="absolute"][class*="inset-0"] {
+  background: color-mix(in srgb, var(--gptskins-text) 5%, var(--gptskins-surface)) !important;
+  background-color: color-mix(in srgb, var(--gptskins-text) 5%, var(--gptskins-surface)) !important;
+  background-image: none !important;
+  box-shadow: 0 2px 8px var(--gptskins-shadow) !important;
+}
+
+html[data-gptskins-theme][data-gptskins-plan-page="true"] [data-gptskins-plan-toggle-option] {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  color: var(--gptskins-mutedText) !important;
+  opacity: 1 !important;
+}
+
+html[data-gptskins-theme][data-gptskins-plan-page="true"] [data-gptskins-plan-toggle-option]:hover {
+  background: transparent !important;
+  background-color: transparent !important;
+  color: var(--gptskins-mutedText) !important;
+}
+
+html[data-gptskins-theme][data-gptskins-plan-page="true"] [data-gptskins-plan-toggle-option]:is([aria-pressed="true"], [aria-selected="true"], [aria-checked="true"], [data-state="active"], [data-state="checked"], [data-selected="true"], [data-active="true"]),
+html[data-gptskins-theme][data-gptskins-plan-page="true"] [data-gptskins-plan-toggle-option][data-gptskins-plan-active="true"] {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  color: var(--gptskins-text) !important;
+}
+
+html[data-gptskins-theme][data-gptskins-plan-page="true"] [data-gptskins-plan-toggle-option] :is(span, div) {
+  color: inherit !important;
+  opacity: 1 !important;
+}
+
+html[data-gptskins-theme][data-gptskins-plan-page="true"] [data-gptskins-plan-cta] {
+  background: var(--gptskins-accent) !important;
+  background-color: var(--gptskins-accent) !important;
+  background-image: none !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  color: var(--gptskins-accentText) !important;
+  opacity: 1 !important;
+}
+
+html[data-gptskins-theme][data-gptskins-plan-page="true"] [data-gptskins-plan-cta]:is(:disabled, [disabled], [aria-disabled="true"], [data-disabled="true"]),
+html[data-gptskins-theme][data-gptskins-plan-page="true"] [data-gptskins-plan-cta][data-gptskins-plan-disabled="true"] {
+  background: color-mix(in srgb, var(--gptskins-mutedText) 46%, var(--gptskins-surface)) !important;
+  background-color: color-mix(in srgb, var(--gptskins-mutedText) 46%, var(--gptskins-surface)) !important;
+  background-image: none !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  color: color-mix(in srgb, var(--gptskins-text) 42%, var(--gptskins-surface)) !important;
+  cursor: not-allowed !important;
+  opacity: 1 !important;
+}
+
+html[data-gptskins-theme][data-gptskins-plan-page="true"] [data-gptskins-plan-cta] :is(span, div) {
+  color: inherit !important;
+  opacity: 1 !important;
+}
+
+html[data-gptskins-theme] [role="dialog"] [role="switch"],
+html[data-gptskins-theme] [aria-modal="true"] [role="switch"] {
+  background-color: var(--gptskins-composer) !important;
+  border: 1px solid var(--gptskins-border) !important;
+  box-shadow: none !important;
+}
+
+html[data-gptskins-theme] [role="switch"][aria-checked="true"],
+html[data-gptskins-theme] button[role="switch"][aria-checked="true"] {
+  background-color: color-mix(in srgb, var(--gptskins-accent) 28%, var(--gptskins-composer)) !important;
+  border-color: var(--gptskins-accent) !important;
+}
+
+html[data-gptskins-theme] [role="dialog"] [role="switch"] :is(span, div),
+html[data-gptskins-theme] [aria-modal="true"] [role="switch"] :is(span, div),
+html[data-gptskins-theme] [role="dialog"] [role="switch"]::before,
+html[data-gptskins-theme] [role="dialog"] [role="switch"]::after,
+html[data-gptskins-theme] [aria-modal="true"] [role="switch"]::before,
+html[data-gptskins-theme] [aria-modal="true"] [role="switch"]::after {
+  background-color: var(--gptskins-surface) !important;
+  border-color: var(--gptskins-border) !important;
+}
+
+html[data-gptskins-theme] [role="dialog"] :is(button, span)[class*="dot"],
+html[data-gptskins-theme] [role="dialog"] :is(button, span)[aria-label*="slide" i],
+html[data-gptskins-theme] [role="dialog"] :is(button, span)[aria-label*="page" i],
+html[data-gptskins-theme] [aria-modal="true"] :is(button, span)[class*="dot"],
+html[data-gptskins-theme] [aria-modal="true"] :is(button, span)[aria-label*="slide" i],
+html[data-gptskins-theme] [aria-modal="true"] :is(button, span)[aria-label*="page" i] {
+  background-color: var(--gptskins-mutedText) !important;
+  border-color: transparent !important;
+  color: transparent !important;
+  opacity: 0.45 !important;
+}
+
+html[data-gptskins-theme] [role="dialog"] :is(button, span)[class*="dot"][aria-current="true"],
+html[data-gptskins-theme] [role="dialog"] :is(button, span)[aria-label*="slide" i][aria-current="true"],
+html[data-gptskins-theme] [role="dialog"] :is(button, span)[aria-label*="page" i][aria-current="true"],
+html[data-gptskins-theme] [aria-modal="true"] :is(button, span)[class*="dot"][aria-current="true"],
+html[data-gptskins-theme] [aria-modal="true"] :is(button, span)[aria-label*="slide" i][aria-current="true"],
+html[data-gptskins-theme] [aria-modal="true"] :is(button, span)[aria-label*="page" i][aria-current="true"] {
+  background-color: var(--gptskins-accent) !important;
+  opacity: 1 !important;
+}
+
+html[data-gptskins-theme] :is([role="dialog"], [aria-modal="true"]) :is(span, div, button)[class~="rounded-full"]:is([class~="h-1"][class~="w-1"], [class~="h-1.5"][class~="w-1.5"], [class~="h-2"][class~="w-2"], [class~="size-1"], [class~="size-1.5"], [class~="size-2"]) {
+  background-color: var(--gptskins-mutedText) !important;
+  border-color: transparent !important;
+  opacity: 0.45 !important;
+}
+
+html[data-gptskins-theme] :is([role="dialog"], [aria-modal="true"]) :is(span, div, button)[class~="rounded-full"]:is([class~="h-1"][class~="w-1"], [class~="h-1.5"][class~="w-1.5"], [class~="h-2"][class~="w-2"], [class~="size-1"], [class~="size-1.5"], [class~="size-2"]):is([class~="bg-token-text-primary"], [class~="bg-white"], [data-active="true"], [data-state="active"]) {
+  background-color: var(--gptskins-accent) !important;
+  opacity: 1 !important;
+}
+
+html[data-gptskins-theme] .text-token-text-secondary,
+html[data-gptskins-theme] [class*="text-token-text-secondary"],
+html[data-gptskins-theme] [class*="text-token-text-tertiary"],
+html[data-gptskins-theme] small {
+  color: var(--gptskins-mutedText) !important;
+}
+
+html[data-gptskins-theme] pre:not(.cm-content) {
+  background-color: var(--code-block-bg) !important;
+  color: var(--gptskins-text) !important;
+}
+
+html[data-gptskins-theme] code {
+  color: var(--gptskins-text) !important;
+}
+
+html[data-gptskins-theme] :not(pre) > code {
+  background-color: var(--gptskins-surfaceStrong) !important;
+  border: 1px solid var(--gptskins-border) !important;
+  border-radius: 6px !important;
+  padding: 0.1em calc(0.3rem - 1px) !important;
+}
+
+html[data-gptskins-theme] [data-message-author-role] pre:not(.cm-content),
+html[data-gptskins-theme] [data-message-author-role] .markdown pre:not(.cm-content) {
+  background-color: var(--code-block-bg) !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  overflow: auto !important;
+}
+
+html[data-gptskins-theme] [data-message-author-role] pre,
+html[data-gptskins-theme] [data-message-author-role] code {
+  color: var(--gptskins-text) !important;
+}
+
+html[data-gptskins-theme] [data-message-author-role] pre code,
+html[data-gptskins-theme] [data-message-author-role] pre span,
+html[data-gptskins-theme] [data-message-author-role] code span {
+  background: transparent !important;
+}
+
+html[data-gptskins-theme] [data-message-author-role] :is([data-testid*="artifact"], [data-testid*="canvas"], [class*="artifact"], [class*="canvas"]) {
+  background-color: var(--gptskins-surface) !important;
+  border: 1px solid var(--gptskins-border) !important;
+  border-radius: 18px !important;
+  box-shadow: 0 10px 28px var(--gptskins-shadow) !important;
+  color: var(--gptskins-text) !important;
+}
+
+html[data-gptskins-theme] [data-message-author-role] :is([data-testid*="artifact"], [data-testid*="canvas"], [class*="artifact"], [class*="canvas"]) * {
+  color: var(--gptskins-text) !important;
+  border-color: var(--gptskins-border) !important;
+}
+
+html[data-gptskins-theme] [data-message-author-role] :is([data-testid*="artifact"], [data-testid*="canvas"], [class*="artifact"], [class*="canvas"]) :is(article, section, [class*="document"], [class*="preview"]) {
+  background-color: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+html[data-gptskins-theme] [data-message-author-role] :is([data-testid*="artifact"], [data-testid*="canvas"], [class*="artifact"], [class*="canvas"]) :is(article, section, [class*="document"], [class*="preview"], [class*="editor"], [class*="ProseMirror"], [contenteditable="true"]) :is(div, article, section, main):is([class*="bg-"], [style*="background"]),
+html[data-gptskins-theme] [data-message-author-role] :is([data-testid*="artifact"], [data-testid*="canvas"], [class*="artifact"], [class*="canvas"]) :is(article, section, [class*="document"], [class*="preview"], [class*="editor"], [class*="ProseMirror"], [contenteditable="true"]):is([class*="bg-"], [style*="background"]) {
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+html[data-gptskins-theme][data-gptskins-plan-page="true"] main :is([class*="bg-black"], [class*="from-black"], [class*="to-black"], [class*="dark:bg-black"], [class*="dark:from-black"], [class*="dark:to-black"], [style*="background: black"], [style*="background-color: black"], [style*="background-color: rgb(0, 0, 0)"]):not([data-gptskins-plan-toggle]):not([data-gptskins-plan-toggle-option]):not([data-gptskins-plan-cta]) {
+  background: transparent !important;
+  background-image: none !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+html[data-gptskins-theme] [data-testid="writing-block-container"] {
+  background-color: var(--gptskins-surface) !important;
+  background-image: none !important;
+  border: 1px solid color-mix(in srgb, var(--gptskins-border) 72%, var(--gptskins-text) 28%) !important;
+  color: var(--gptskins-text) !important;
+}
+
+html[data-gptskins-theme] [data-testid="writing-block-container"] :is([data-testid="writing-block-header-surface"], [class*="writing-block-editor"], [class*="ProseMirror"], [contenteditable="true"]) {
+  background-color: var(--gptskins-surface) !important;
+  background-image: none !important;
+}
+
+html[data-gptskins-theme] [role="dialog"][aria-label="Writing block editor"] [class*="writing-block-editor"],
+html[data-gptskins-theme] [role="dialog"][aria-label="Writing block editor"] [class*="writing-block-editor"] :is([class*="ProseMirror"], [contenteditable="true"]) {
+  background: var(--gptskins-surface) !important;
+  background-color: var(--gptskins-surface) !important;
+  background-image: none !important;
+}
+
+html[data-gptskins-theme] [data-testid="writing-block-container"] [data-testid="writing-block-header-magic-edit-button"],
+html[data-gptskins-theme] [data-testid="writing-block-container"] button[aria-label="Edit"] {
+  background: var(--gptskins-surfaceStrong) !important;
+  border: 1px solid color-mix(in srgb, var(--gptskins-border) 70%, var(--gptskins-text) 30%) !important;
+  box-shadow: none !important;
+  color: var(--gptskins-text) !important;
+}
+
+html[data-gptskins-theme] [data-testid="writing-block-container"] [data-testid="writing-block-header-magic-edit-button"] :is(svg, span),
+html[data-gptskins-theme] [data-testid="writing-block-container"] button[aria-label="Edit"] :is(svg, span) {
+  color: inherit !important;
+  opacity: 1 !important;
+  stroke: currentColor !important;
+}
+
+html[data-gptskins-theme] [data-testid="writing-block-container"] [data-testid="writing-block-header-magic-edit-button"]:hover,
+html[data-gptskins-theme] [data-testid="writing-block-container"] button[aria-label="Edit"]:hover {
+  background: color-mix(in srgb, var(--gptskins-surfaceStrong) 82%, var(--gptskins-accent) 18%) !important;
+}
+
+html[data-gptskins-theme] [data-gptskins-code-block] {
+  background: var(--code-block-bg) !important;
+  border: 1px solid var(--code-block-border) !important;
+  border-radius: var(--code-block-radius) !important;
+  box-shadow: none !important;
+  clip-path: none !important;
+  outline: 0 !important;
+  overflow: clip !important;
+}
+
+html[data-gptskins-theme] [data-gptskins-code-frame] {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: var(--code-block-radius) !important;
+  box-shadow: none !important;
+  clip-path: none !important;
+  outline: 0 !important;
+  overflow: visible !important;
+  padding: 0 !important;
+}
+
+html[data-gptskins-theme] [data-message-author-role] pre[data-gptskins-code-frame] {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: var(--code-block-radius) !important;
+  box-shadow: none !important;
+  outline: 0 !important;
+  overflow: visible !important;
+  padding: 0 !important;
+}
+
+html[data-gptskins-theme] [data-message-author-role] :is([data-gptskins-code-frame], [data-gptskins-code-block], [data-gptskins-code-body], [data-gptskins-code-body-shell]):has([role="dialog"][aria-label*="code" i]) {
+  clip-path: none !important;
+  overflow: visible !important;
+}
+
+html[data-gptskins-theme] [data-gptskins-code-frame]::before,
+html[data-gptskins-theme] [data-gptskins-code-frame]::after {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+html[data-gptskins-theme] [data-gptskins-code-block] :is([class*="border"], [class*="ring"], [class*="shadow"]) {
+  border-color: transparent !important;
+  box-shadow: none !important;
+  outline: 0 !important;
+}
+
+html[data-gptskins-theme] [data-gptskins-code-header] {
+  background: var(--code-block-bg) !important;
+  background-image: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  color: var(--gptskins-text) !important;
+  z-index: 1 !important;
+}
+
+html[data-gptskins-theme] [data-gptskins-code-header] > [class*="bg-token-bg-elevated-secondary"],
+html[data-gptskins-theme] [data-gptskins-code-header] > [class*="code-block-surface"],
+html[data-gptskins-theme] [data-message-author-role] pre [class*="select-none"][class*="sticky"] > [class*="bg-token-bg-elevated-secondary"] {
+  background: transparent !important;
+  background-image: none !important;
+  border-radius: 0 !important;
+  overflow: hidden !important;
+}
+
+html[data-gptskins-theme] [data-gptskins-code-header] :is(button, [role="button"]) svg,
+html[data-gptskins-theme] [data-gptskins-code-header] :is(button, [role="button"]) svg * {
+  color: var(--gptskins-mutedText) !important;
+}
+
+html[data-gptskins-theme] [data-gptskins-code-header] :is(button, [role="button"]) svg[stroke]:not([stroke="none"]),
+html[data-gptskins-theme] [data-gptskins-code-header] :is(button, [role="button"]) svg [stroke]:not([stroke="none"]) {
+  stroke: currentColor !important;
+  stroke-width: 1.75 !important;
+}
+
+html[data-gptskins-theme] [data-gptskins-code-header] :is(button, [role="button"]) svg[fill]:not([fill="none"]),
+html[data-gptskins-theme] [data-gptskins-code-header] :is(button, [role="button"]) svg [fill]:not([fill="none"]) {
+  fill: currentColor !important;
+  stroke: none !important;
+}
+
+html[data-gptskins-theme] [data-gptskins-code-header] :is(button, [role="button"])[aria-label*="run" i] {
+  background: transparent !important;
+  border: 1px solid var(--code-block-border) !important;
+  border-radius: 999px !important;
+  box-shadow: none !important;
+}
+
+html[data-gptskins-theme] [data-gptskins-code-body] {
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  border-top: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  clip-path: none !important;
+  margin: 0 !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+}
+
+html[data-gptskins-theme] [data-gptskins-code-body-shell] {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 0 var(--code-block-radius) var(--code-block-radius) !important;
+  box-shadow: none !important;
+  clip-path: inset(0 round 0 0 var(--code-block-radius) var(--code-block-radius)) !important;
+  outline: 0 !important;
+  overflow: hidden !important;
+}
+
+html[data-gptskins-theme] [data-gptskins-code-body] :is(pre, code),
+html[data-gptskins-theme] [data-gptskins-code-body] code {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  white-space: pre !important;
+}
+
+html[data-gptskins-theme] [data-message-author-role] .cm-scroller {
+  overflow-x: auto !important;
+  scrollbar-color: var(--gptskins-mutedText) color-mix(in srgb, var(--code-block-bg) 78%, var(--gptskins-border)) !important;
+  scrollbar-width: auto !important;
+}
+
+html[data-gptskins-theme] [data-message-author-role] [data-gptskins-code-body]:not([data-gptskins-code-scrollable]),
+html[data-gptskins-theme] [data-message-author-role] [data-gptskins-code-body]:not([data-gptskins-code-scrollable]) :is(.cm-scroller, .cm-content) {
+  scrollbar-width: none !important;
+}
+
+html[data-gptskins-theme] [data-message-author-role] [data-gptskins-code-body]:not([data-gptskins-code-scrollable]) :is(.cm-editor, .cm-scroller, .cm-content) {
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  outline: 0 !important;
+}
+
+html[data-gptskins-theme] [data-message-author-role] [data-gptskins-code-body]:not([data-gptskins-code-scrollable]) {
+  overflow-x: hidden !important;
+}
+
+html[data-gptskins-theme] [data-message-author-role] .cm-editor,
+html[data-gptskins-theme] [data-message-author-role] .cm-scroller,
+html[data-gptskins-theme] [data-message-author-role] .cm-content {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  color: var(--gptskins-text) !important;
+  outline: 0 !important;
+}
+
+html[data-gptskins-theme] [data-message-author-role] [data-gptskins-code-block] [class*="sticky"][class*="bg-token-border-light"],
+html[data-gptskins-theme] [data-message-author-role] pre[class*="overflow-visible"][class*="px-0"] [class*="sticky"][class*="bg-token-border-light"] {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+html[data-gptskins-theme] [data-message-author-role] .pe-11.pt-3 .cm-editor[class*="cm-"] {
+  border-color: transparent !important;
+  outline-color: transparent !important;
+}
+
+html[data-gptskins-theme] [data-message-author-role] [data-gptskins-code-scrollable] .cm-scroller::-webkit-scrollbar:horizontal {
+  display: block !important;
+  height: 12px !important;
+}
+
+html[data-gptskins-theme] [data-message-author-role] [data-gptskins-code-scrollable] .cm-scroller::-webkit-scrollbar-track:horizontal {
+  background: color-mix(in srgb, var(--code-block-bg) 78%, var(--gptskins-border)) !important;
+  border-radius: 999px !important;
+}
+
+html[data-gptskins-theme] [data-message-author-role] [data-gptskins-code-scrollable] .cm-scroller::-webkit-scrollbar-thumb:horizontal {
+  background: var(--gptskins-mutedText) !important;
+  border-radius: 999px !important;
+}
+
+html[data-gptskins-theme] [data-message-author-role] [data-gptskins-code-body]:not([data-gptskins-code-scrollable])::-webkit-scrollbar:horizontal,
+html[data-gptskins-theme] [data-message-author-role] [data-gptskins-code-body]:not([data-gptskins-code-scrollable]) :is(.cm-scroller, .cm-content)::-webkit-scrollbar:horizontal {
+  display: none !important;
+  height: 0 !important;
+}
+
+html[data-gptskins-theme] [data-message-author-role] pre [class*="border-token-border-light"]:not([data-gptskins-code-block]) {
+  border: 0 !important;
+  box-shadow: none !important;
+  outline: 0 !important;
+}
+
+html[data-gptskins-theme] [data-message-author-role] pre [class*="bg-token-bg-elevated-secondary"] {
+  background: var(--code-block-bg) !important;
+  background-image: none !important;
+}
+
+html[data-gptskins-theme] [data-message-author-role] pre [class*="sticky"] > [class*="bg-token-bg-elevated-secondary"],
+html[data-gptskins-theme] [data-message-author-role] pre [class*="select-none"] [class*="bg-token-bg-elevated-secondary"] {
+  background: var(--code-block-header) !important;
+  background-image: none !important;
+  border-radius: var(--code-block-radius) var(--code-block-radius) 0 0 !important;
+  overflow: hidden !important;
+}
+
+html[data-gptskins-theme] [data-message-author-role] pre[class*="overflow-visible"][class*="px-0"] [class*="select-none"][class*="sticky"] {
+  background: var(--code-block-header) !important;
+  background-image: none !important;
+  border-radius: var(--code-block-radius) var(--code-block-radius) 0 0 !important;
+  overflow: hidden !important;
+}
+
+html[data-gptskins-theme] [data-message-author-role] pre[class*="overflow-visible"][class*="px-0"] [class*="border-token-border-light"][class*="rounded"],
+html[data-gptskins-theme] [data-message-author-role] pre[class*="overflow-visible"][class*="px-0"] [class*="overflow-clip"][class*="rounded"] {
+  background: var(--code-block-bg) !important;
+  background-image: none !important;
+  border-color: var(--code-block-border) !important;
+  border-radius: var(--code-block-radius) !important;
+  box-shadow: none !important;
+  overflow: clip !important;
+}
+
+html[data-gptskins-theme] [data-message-author-role] [data-gptskins-code-block] [data-gptskins-code-body] :is(.cm-editor, .cm-scroller, .cm-content) {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  outline: 0 !important;
+}
+
+html[data-gptskins-theme] [data-message-author-role] [data-testid="writing-block-container"][data-testid="writing-block-container"] :is([data-testid="writing-block-header-sticky-container"], [data-testid="writing-block-header-surface"]),
+html[data-gptskins-theme] [data-message-author-role] [data-testid="writing-block-container"][data-testid="writing-block-container"] [class*="writing-block-editor"][class*="markdown"],
+html[data-gptskins-theme] [data-message-author-role] [data-testid="writing-block-container"][data-testid="writing-block-container"] [class*="ProseMirror"][class*="markdown"],
+html[data-gptskins-theme] [data-message-author-role] [data-testid="writing-block-container"][data-testid="writing-block-container"] [contenteditable="true"][class*="ProseMirror"] {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  color: var(--gptskins-text) !important;
+}
+
+html[data-gptskins-theme] [data-testid="writing-block-container"] {
+  --gptskins-writing-block-surface: color-mix(in srgb, var(--gptskins-surfaceStrong) 55%, var(--gptskins-surface)) !important;
+  --oai-wb-surface-primary: var(--gptskins-writing-block-surface) !important;
+  --oai-wb-surface-secondary: var(--gptskins-writing-block-surface) !important;
+  --oai-wb-text-primary: var(--gptskins-text) !important;
+  --oai-wb-divider: color-mix(in srgb, var(--gptskins-border) 55%, transparent) !important;
+  background: var(--gptskins-writing-block-surface) !important;
+  background-color: var(--gptskins-writing-block-surface) !important;
+  background-image: none !important;
+  border-color: color-mix(in srgb, var(--gptskins-border) 55%, transparent) !important;
+  color: var(--gptskins-text) !important;
+}
+
+html[data-gptskins-theme] [data-testid="writing-block-container"][data-testid="writing-block-container"] :is([data-testid="writing-block-header-sticky-container"], [data-testid="writing-block-header-surface"], [class*="writing-block-editor"], [class*="ProseMirror"], [contenteditable="true"], textarea, [class*="bg-token-bg-primary"], [class*="dark:bg-"]) {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border-color: color-mix(in srgb, var(--gptskins-border) 55%, transparent) !important;
+  color: var(--gptskins-text) !important;
+}
+
+html.dark[data-gptskins-theme] main button.btn-primary {
+  --text-primary: var(--interactive-label-primary-default, #0d0d0d) !important;
+  color: var(--interactive-label-primary-default, #0d0d0d) !important;
+}
+
+html.dark[data-gptskins-theme] main button.btn-primary :is(div, span, svg) {
+  color: inherit !important;
+}
+
+html[data-gptskins-font-interface] body :is(button, input, textarea, select, label),
+html[data-gptskins-font-interface] body :is(nav, aside, header, [role="menu"], [role="listbox"], [data-testid="history-panel"], [data-testid="left-sidebar"], [data-testid="composer"]),
+html[data-gptskins-font-interface] body [role="dialog"] :is(button, input, textarea, select, label, h1, h2, h3, [role="tab"]),
+html[data-gptskins-font-interface] body #prompt-textarea,
+html[data-gptskins-font-interface] body .ProseMirror {
+  font-family: var(--gptskins-interface-font-family) !important;
+}
+
+html[data-gptskins-font-text] body [data-message-author-role] {
+  font-family: var(--gptskins-text-font-family) !important;
+}
+
+html[data-gptskins-font-code] body :is(pre, code, kbd, samp, [data-gptskins-code-body], .cm-editor, .cm-scroller, .cm-content) {
+  font-family: var(--gptskins-code-font-family) !important;
+}

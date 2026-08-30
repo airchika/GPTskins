@@ -515,14 +515,22 @@
     guard.scrollEventTarget.removeEventListener("scroll", guard.onScroll);
   }
 
-  function onGuardMutations(guard) {
+  function mutationsAddUserTurn(records) {
+    return records.some((record) =>
+      Array.from(record.addedNodes).some(
+        (node) =>
+          node instanceof Element &&
+          (node.matches('[data-message-author-role="user"]') || node.querySelector('[data-message-author-role="user"]'))
+      )
+    );
+  }
+
+  function onGuardMutations(guard, records) {
     if (activeGuard !== guard) {
       return;
     }
     scheduleGuardRestore(guard);
-    const userTurnCount = guard.container.querySelectorAll('[data-message-author-role="user"]').length;
-    if (userTurnCount > guard.userTurnCount) {
-      guard.sawNewUserTurn = true;
+    if (mutationsAddUserTurn(records)) {
       scheduleGuardSettle(guard);
     }
   }
@@ -538,7 +546,6 @@
       anchor,
       anchorOffset: anchor.getBoundingClientRect().top - getScrollViewportRect(container).top,
       scrollTop: container.scrollTop,
-      userTurnCount: container.querySelectorAll('[data-message-author-role="user"]').length,
       expiresAt: Date.now() + toolsApi.scrollGuardDuration,
       restoring: false,
       restoreFrame: 0,
@@ -556,7 +563,7 @@
         scheduleGuardRestore(guard);
       }
     };
-    guard.observer = new MutationObserver(() => onGuardMutations(guard));
+    guard.observer = new MutationObserver((records) => onGuardMutations(guard, records));
     guard.observer.observe(container, { childList: true, subtree: true });
     guard.scrollEventTarget.addEventListener("scroll", guard.onScroll, { passive: true });
     guard.expiryTimer = window.setTimeout(() => disarmScrollGuard(guard), toolsApi.scrollGuardDuration);
