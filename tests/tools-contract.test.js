@@ -18,6 +18,18 @@ assert.equal(toolsApi.defaultLatexTexEnabled, true);
 assert.equal(toolsApi.formatLatex("  x^2 + y^2  ", toolsApi.latexFormats.tex), "x^2 + y^2");
 assert.equal(toolsApi.formatLatex("$x$", toolsApi.latexFormats.inline), "$x$");
 assert.equal(toolsApi.formatLatex("\\[x + y\\]", toolsApi.latexFormats.display), "$$x + y$$");
+for (const format of Object.values(toolsApi.latexFormats)) {
+  const wrap = (source) => format === "inline" ? `$${source}$` : format === "display" ? `$$${source}$$` : source;
+  for (const punctuation of [",", ".", "，", "。", "， 。"]) {
+    assert.equal(toolsApi.formatLatex(` x + y${punctuation} \n`, format), wrap("x + y"));
+    assert.equal(toolsApi.formatLatex(`$$x + y${punctuation}$$`, format), wrap("x + y"));
+  }
+  for (const source of ["f(x,y) = 1.5", "x\\,", "x\\.", "\\left|x\\right.", "\\left. x \\right|", "x\\middle."]) {
+    assert.equal(toolsApi.formatLatex(source, format), wrap(source), "mathematical punctuation must survive copying");
+  }
+  assert.equal(toolsApi.formatLatex("\\left|x\\right..", format), wrap("\\left|x\\right."));
+  assert.equal(toolsApi.formatLatex("，。", format), "");
+}
 const multilineLatex = "\\begin{aligned}\r\n  x &= 1 \\\\\r\n  y &= 2\n\\end{aligned}";
 assert.equal(
   toolsApi.formatLatex(multilineLatex, toolsApi.latexFormats.inline),

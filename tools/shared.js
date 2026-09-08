@@ -34,7 +34,15 @@
   }
 
   function formatLatex(value, format = latexFormats.tex) {
-    const source = stripMathDelimiters(value);
+    let source = stripMathDelimiters(value);
+    while (/[,，.。]$/.test(source)) {
+      // Preserve escaped punctuation and TeX's invisible delimiters.
+      const backslashes = source.slice(0, -1).match(/\\+$/);
+      if ((backslashes && backslashes[0].length % 2 === 1) || /\\(?:left|right|middle)\s*\.$/.test(source)) {
+        break;
+      }
+      source = source.slice(0, -1).trimEnd();
+    }
     if (!source) {
       return "";
     }
