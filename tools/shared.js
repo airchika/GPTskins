@@ -12,6 +12,7 @@
   const latexFormats = Object.freeze({
     tex: "tex",
     inline: "inline",
+    inlineUnboxed: "inline-unboxed",
     display: "display"
   });
 
@@ -33,7 +34,32 @@
     return source;
   }
 
+  function unwrapBoxedLatex(value) {
+    let source = formatLatex(value, latexFormats.tex);
+    for (let opening; (opening = /^\\boxed\s*\{/.exec(source));) {
+      // Match the outer group without counting escaped braces such as \{.
+      const tokens = /\\[a-zA-Z]+|\\[\s\S]|[{}]/g;
+      tokens.lastIndex = opening[0].length;
+      let depth = 1;
+      let closing = -1;
+      for (let token; (token = tokens.exec(source));) {
+        if (token[0] === "{") depth += 1;
+        if (token[0] === "}") depth -= 1;
+        if (depth === 0) {
+          closing = token.index;
+          break;
+        }
+      }
+      if (closing !== source.length - 1) break;
+      source = formatLatex(source.slice(opening[0].length, closing), latexFormats.tex);
+    }
+    return source;
+  }
+
   function formatLatex(value, format = latexFormats.tex) {
+    if (format === latexFormats.inlineUnboxed) {
+      return formatLatex(unwrapBoxedLatex(value), latexFormats.inline);
+    }
     let source = stripMathDelimiters(value);
     while (/[,，.。]$/.test(source)) {
       // Preserve escaped punctuation and TeX's invisible delimiters.

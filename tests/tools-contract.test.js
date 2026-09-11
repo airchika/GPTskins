@@ -15,11 +15,31 @@ assert.equal(toolsApi.defaultScrollGuardEnabled, true);
 assert.equal(toolsApi.defaultLatexCopyEnabled, true);
 assert.equal(toolsApi.defaultLatexTexEnabled, true);
 
+const boxedSource = String.raw`\boxed{ \bar\alpha_t = \prod_{s=1}^{t}\alpha_s }`;
+assert.equal(toolsApi.formatLatex(boxedSource, toolsApi.latexFormats.inlineUnboxed), String.raw`$\bar\alpha_t = \prod_{s=1}^{t}\alpha_s$`);
+for (const [source, expected] of [
+  ["$\\boxed{ \n x + y \t }$", "$x + y$"],
+  ["\\boxed{ \\boxed{ x, } }。", "$x$"],
+  ["\\boxed{ \\frac{a_{1}}{b^{2}} }", "$\\frac{a_{1}}{b^{2}}$"],
+  ["\\boxed{ \\{x\\} }", "$\\{x\\}$"],
+  ["\\boxed { x }", "$x$"],
+  ["\\boxed{ }", ""],
+  [" x + y ", "$x + y$"],
+  ["\\boxed{x} + {y}", "$\\boxed{x} + {y}$"],
+  ["\\boxed{x", "$\\boxed{x$"],
+  ["\\boxedextra{x}", "$\\boxedextra{x}$"]
+]) {
+  assert.equal(toolsApi.formatLatex(source, toolsApi.latexFormats.inlineUnboxed), expected);
+}
+assert.equal(toolsApi.formatLatex(boxedSource, toolsApi.latexFormats.inline), `$${boxedSource}$`);
+assert.equal(toolsApi.formatLatex(boxedSource, toolsApi.latexFormats.display), `$$${boxedSource}$$`);
+assert.equal(toolsApi.formatLatex(boxedSource, toolsApi.latexFormats.tex), boxedSource);
+
 assert.equal(toolsApi.formatLatex("  x^2 + y^2  ", toolsApi.latexFormats.tex), "x^2 + y^2");
 assert.equal(toolsApi.formatLatex("$x$", toolsApi.latexFormats.inline), "$x$");
 assert.equal(toolsApi.formatLatex("\\[x + y\\]", toolsApi.latexFormats.display), "$$x + y$$");
 for (const format of Object.values(toolsApi.latexFormats)) {
-  const wrap = (source) => format === "inline" ? `$${source}$` : format === "display" ? `$$${source}$$` : source;
+  const wrap = (source) => format === "inline" || format === "inline-unboxed" ? `$${source}$` : format === "display" ? `$$${source}$$` : source;
   for (const punctuation of [",", ".", "，", "。", "， 。"]) {
     assert.equal(toolsApi.formatLatex(` x + y${punctuation} \n`, format), wrap("x + y"));
     assert.equal(toolsApi.formatLatex(`$$x + y${punctuation}$$`, format), wrap("x + y"));
@@ -86,6 +106,7 @@ assert.doesNotMatch(JSON.stringify(manifest.permissions), /clipboard|scripting/i
 assert.equal(toolsContentScript.world, undefined, "tools must stay in the normal isolated content-script world");
 
 const contentSource = fs.readFileSync(path.join(__dirname, "..", "tools", "content.js"), "utf8");
+assert.ok(contentSource.includes(`data-gptskins-latex-format="${toolsApi.latexFormats.inlineUnboxed}"`), "the unboxed inline format must be available in the formula toolbar");
 assert.match(contentSource, /function syncFeatureEventListeners\(\)/, "tool listeners must follow their feature switches");
 assert.match(contentSource, /document\[method\]\("submit", onComposerSubmit, true\)/);
 assert.match(contentSource, /document\[method\]\("copy", onSelectionCopy, true\)/);
