@@ -13,7 +13,8 @@
     tex: "tex",
     inline: "inline",
     inlineUnboxed: "inline-unboxed",
-    display: "display"
+    display: "display",
+    displayUnboxed: "display-unboxed"
   });
 
   function stripMathDelimiters(value) {
@@ -59,6 +60,9 @@
   function formatLatex(value, format = latexFormats.tex) {
     if (format === latexFormats.inlineUnboxed) {
       return formatLatex(unwrapBoxedLatex(value), latexFormats.inline);
+    }
+    if (format === latexFormats.displayUnboxed) {
+      return formatLatex(unwrapBoxedLatex(value), latexFormats.display);
     }
     let source = stripMathDelimiters(value);
     while (/[,，.。]$/.test(source)) {

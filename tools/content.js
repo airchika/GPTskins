@@ -142,6 +142,7 @@
       <button type="button" data-gptskins-latex-format="inline">$</button>
       <button type="button" data-gptskins-latex-format="display">$$</button>
       <button type="button" data-gptskins-latex-format="inline-unboxed" title="Copy inline LaTeX without the outer box">去框 $</button>
+      <button type="button" data-gptskins-latex-format="display-unboxed" title="Copy display LaTeX without the outer box">去框 $$</button>
     `;
     syncFormulaMenuOptions();
     formulaMenu.addEventListener("click", onFormulaMenuClick);
