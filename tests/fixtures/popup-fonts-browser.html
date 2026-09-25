@@ -3,27 +3,26 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>GPTskins font popup browser fixture</title>
+    <title>GPT Toolkit</title>
     <link rel="stylesheet" href="../../popup/popup.css">
+    <link rel="stylesheet" href="../../tools/popup.css">
     <script>
+      const fixtureSettings = {};
+      const fixtureListeners = [];
       globalThis.chrome = {
+        runtime: { onMessage: { addListener() {} } },
+        tabs: { query(_query, callback) { callback([]); } },
         storage: {
           sync: {
-            get(_keys, callback) {
-              callback({});
-            },
-            set(_values, callback) {
+            get(_keys, callback) { callback({ ...fixtureSettings }); },
+            set(values, callback) {
+              const changes = Object.fromEntries(Object.entries(values).map(([key, newValue]) => [key, { oldValue: fixtureSettings[key], newValue }]));
+              Object.assign(fixtureSettings, values);
+              fixtureListeners.forEach((listener) => listener(changes, "sync"));
               callback?.();
             }
-          }
-        },
-        tabs: {
-          query(_query, callback) {
-            callback([]);
-          }
-        },
-        runtime: {
-          lastError: null
+          },
+          onChanged: { addListener(listener) { fixtureListeners.push(listener); } }
         }
       };
     </script>
@@ -32,32 +31,62 @@
     <main class="popup-shell">
       <header class="popup-header">
         <div>
-          <p class="eyebrow">GPTskins</p>
-          <h1>Choose a style</h1>
+          <p class="eyebrow">GPT Toolkit</p>
+          <h1>Fonts & tools</h1>
         </div>
         <img src="../../icons/icon-48.png" alt="" width="40" height="40">
       </header>
 
-      <div class="style-filter" role="group" aria-label="Style type">
-        <button type="button" class="filter-button" data-style-mode="theme" aria-pressed="true" aria-controls="theme-panel">Theme</button>
-        <button type="button" class="filter-button" data-style-mode="font" aria-pressed="false" aria-controls="font-panel">Font</button>
+      <div class="style-filter" role="group" aria-label="Settings category">
+        <button type="button" class="filter-button" data-style-mode="font" aria-pressed="true" aria-controls="font-panel">Font</button>
         <button type="button" class="filter-button" data-style-mode="tools" aria-pressed="false" aria-controls="tools-panel">Tools</button>
       </div>
 
-      <section class="theme-panel" id="theme-panel" aria-label="Themes">
-        <div class="theme-filter" role="group" aria-label="Theme type">
-          <button type="button" class="filter-button" data-theme-mode="dark" aria-pressed="true">Dark</button>
-          <button type="button" class="filter-button" data-theme-mode="light" aria-pressed="false">Light</button>
+      <section class="font-list" id="font-panel" aria-label="Fonts"></section>
+
+      <section class="tools-settings" id="tools-panel" aria-label="Tools" hidden>
+        <div class="tool-settings-card">
+          <div>
+            <strong>Keep reading position</strong>
+            <span>When sending from older messages, resist the temporary jump to the bottom.</span>
+          </div>
+          <label class="tool-switch">
+            <input type="checkbox" data-gpttoolkit-scroll-guard-enabled>
+            <span aria-hidden="true"></span>
+            <span class="sr-only">Keep the current reading position when sending</span>
+          </label>
         </div>
-        <div class="theme-list" id="theme-list"></div>
+        <div class="tool-settings-card">
+          <div>
+            <strong>LaTeX quick copy</strong>
+            <span>Click an assistant formula to copy tex, $…$, or $$…$$.</span>
+          </div>
+          <label class="tool-switch">
+            <input type="checkbox" data-gpttoolkit-latex-copy-enabled>
+            <span aria-hidden="true"></span>
+            <span class="sr-only">Enable LaTeX quick copy</span>
+          </label>
+        </div>
+        <div class="tool-settings-card">
+          <div>
+            <strong>Show tex choice</strong>
+            <span>Show raw tex in the formula toolbar. $ and $$ always remain available.</span>
+          </div>
+          <label class="tool-switch">
+            <input type="checkbox" data-gpttoolkit-latex-tex-enabled>
+            <span aria-hidden="true"></span>
+            <span class="sr-only">Show the raw tex formula choice</span>
+          </label>
+        </div>
+        <p>If Voyager is installed, disable its Formula Copy and Prevent Auto Scroll features to avoid duplicate handlers.</p>
       </section>
 
-      <section class="font-list" id="font-panel" aria-label="Fonts" hidden></section>
-      <section id="tools-panel" hidden></section>
       <p class="status" id="status" role="status" aria-live="polite"></p>
     </main>
 
-    <script src="../../shared/themes.js"></script>
+    <script src="../../shared/fonts.js"></script>
+    <script src="../../tools/shared.js"></script>
     <script src="../../popup/popup.js"></script>
+    <script src="../../tools/popup.js"></script>
   </body>
 </html>

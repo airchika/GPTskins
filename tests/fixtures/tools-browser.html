@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>GPTskins tools browser fixture</title>
+    <title>GPTToolkit tools browser fixture</title>
     <link rel="stylesheet" href="../../tools/content.css">
     <style>
       body {
@@ -48,31 +48,33 @@
       }
     </style>
     <script>
-      globalThis.__gptskinsFixtureClipboard = "";
+      globalThis.__gpttoolkitFixtureClipboard = "";
       globalThis.chrome = globalThis.chrome || {};
+      globalThis.chrome.runtime = {};
+      globalThis.fixtureStorageListeners = [];
       globalThis.chrome.storage = {
         sync: {
           get(defaults, callback) {
-            callback(defaults);
+            callback({});
           },
           set(_values, callback) {
             callback?.();
           }
         },
         onChanged: {
-          addListener() {}
+          addListener(listener) { fixtureStorageListeners.push(listener); }
         }
       };
       Object.defineProperty(navigator, "clipboard", {
         configurable: true,
         value: {
           async writeText(value) {
-            globalThis.__gptskinsFixtureClipboard = value;
+            globalThis.__gpttoolkitFixtureClipboard = value;
             document.documentElement.dataset.fixtureClipboard = value;
           }
         }
       });
-      globalThis.__gptskinsOriginalScrollApis = {
+      globalThis.__gpttoolkitOriginalScrollApis = {
         scrollTo: window.scrollTo,
         scrollBy: window.scrollBy,
         scrollIntoView: Element.prototype.scrollIntoView
@@ -201,9 +203,9 @@
           wheelCanceledTop,
           maxScrollTop,
           globalApisUnchanged:
-            window.scrollTo === globalThis.__gptskinsOriginalScrollApis.scrollTo &&
-            window.scrollBy === globalThis.__gptskinsOriginalScrollApis.scrollBy &&
-            Element.prototype.scrollIntoView === globalThis.__gptskinsOriginalScrollApis.scrollIntoView
+            window.scrollTo === globalThis.__gpttoolkitOriginalScrollApis.scrollTo &&
+            window.scrollBy === globalThis.__gpttoolkitOriginalScrollApis.scrollBy &&
+            Element.prototype.scrollIntoView === globalThis.__gpttoolkitOriginalScrollApis.scrollIntoView
         });
       });
     </script>

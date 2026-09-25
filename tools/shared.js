@@ -1,9 +1,9 @@
 (function () {
   "use strict";
 
-  const scrollGuardEnabledStorageKey = "gptskins.scrollGuard.enabled";
-  const latexCopyEnabledStorageKey = "gptskins.latexCopy.enabled";
-  const latexTexEnabledStorageKey = "gptskins.latexCopy.tex.enabled";
+  const scrollGuardEnabledStorageKey = "gpttoolkit.scrollGuard.enabled";
+  const latexCopyEnabledStorageKey = "gpttoolkit.latexCopy.enabled";
+  const latexTexEnabledStorageKey = "gpttoolkit.latexCopy.tex.enabled";
   const defaultScrollGuardEnabled = true;
   const defaultLatexCopyEnabled = true;
   const defaultLatexTexEnabled = true;
@@ -116,7 +116,36 @@
     return Boolean(enabled && getBottomGap(metrics) > scrollBottomGapThreshold);
   }
 
-  globalThis.GPTskinsTools = {
+  const toolStorageKeys = [scrollGuardEnabledStorageKey, latexCopyEnabledStorageKey, latexTexEnabledStorageKey];
+  function resolveToolSettings(settings = {}) {
+    return Object.fromEntries(toolStorageKeys.map((key) => {
+      const oldKey = key.replace("gpttoolkit.", "gptskins.");
+      const value = Object.prototype.hasOwnProperty.call(settings, key) ? settings[key] : settings[oldKey];
+      return [key, value !== false];
+    }));
+  }
+  function getToolMigration(settings = {}) {
+    const resolved = resolveToolSettings(settings);
+    return Object.fromEntries(toolStorageKeys.filter((key) =>
+      !Object.prototype.hasOwnProperty.call(settings, key)).map((key) => [key, resolved[key]]));
+  }
+  function loadToolSettings(callback) {
+    chrome.storage.sync.get([...toolStorageKeys, ...toolStorageKeys.map((key) => key.replace("gpttoolkit.", "gptskins."))], (settings) => {
+      const error = chrome.runtime.lastError;
+      if (error) { callback(resolveToolSettings(), error.message); return; }
+      const resolved = resolveToolSettings(settings);
+      const migration = getToolMigration(settings);
+      if (Object.keys(migration).length) {
+        chrome.storage.sync.set(migration, () => {
+          const saveError = chrome.runtime.lastError;
+          callback(resolved, saveError?.message);
+        });
+      } else { callback(resolved); }
+    });
+  }
+
+  globalThis.GPTToolkitTools = {
+    resolveToolSettings, getToolMigration, loadToolSettings,
     scrollGuardEnabledStorageKey,
     latexCopyEnabledStorageKey,
     latexTexEnabledStorageKey,

@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "GPTskins",
-  "description": "Apply polished themes and lightweight local tools to ChatGPT.",
-  "version": "1.3.0",
+  "name": "GPT Toolkit",
+  "description": "Independent local font controls, reading-position protection, and LaTeX copy for ChatGPT.",
+  "version": "2.0.0",
   "icons": {
     "16": "icons/icon-16.png",
     "32": "icons/icon-32.png",
@@ -10,7 +10,7 @@
     "128": "icons/icon-128.png"
   },
   "action": {
-    "default_title": "GPTskins",
+    "default_title": "GPT Toolkit",
     "default_popup": "popup/popup.html",
     "default_icon": {
       "16": "icons/icon-16.png",
@@ -37,7 +37,7 @@
         "content/content.css"
       ],
       "js": [
-        "shared/themes.js",
+        "shared/fonts.js",
         "content/content.js"
       ],
       "run_at": "document_start"

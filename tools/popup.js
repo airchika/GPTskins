@@ -1,10 +1,10 @@
 (function () {
   "use strict";
 
-  const toolsApi = globalThis.GPTskinsTools;
-  const scrollGuardToggle = document.querySelector("[data-gptskins-scroll-guard-enabled]");
-  const latexCopyToggle = document.querySelector("[data-gptskins-latex-copy-enabled]");
-  const latexTexToggle = document.querySelector("[data-gptskins-latex-tex-enabled]");
+  const toolsApi = globalThis.GPTToolkitTools;
+  const scrollGuardToggle = document.querySelector("[data-gpttoolkit-scroll-guard-enabled]");
+  const latexCopyToggle = document.querySelector("[data-gpttoolkit-latex-copy-enabled]");
+  const latexTexToggle = document.querySelector("[data-gpttoolkit-latex-tex-enabled]");
   const toolsTab = document.querySelector('[data-style-mode="tools"]');
   const status = document.getElementById("status");
   if (!toolsApi || !scrollGuardToggle || !latexCopyToggle || !latexTexToggle) {
@@ -32,15 +32,13 @@
     }
   ];
 
-  chrome.storage.sync.get(
-    {
-      [toolsApi.scrollGuardEnabledStorageKey]: toolsApi.defaultScrollGuardEnabled,
-      [toolsApi.latexCopyEnabledStorageKey]: toolsApi.defaultLatexCopyEnabled,
-      [toolsApi.latexTexEnabledStorageKey]: toolsApi.defaultLatexTexEnabled
-    },
-    (result) => {
+  toolSettings.forEach(({ toggle }) => { toggle.disabled = true; });
+  toolsApi.loadToolSettings(
+    (result, error) => {
+      if (error) status.textContent = "Couldn't load or migrate tool settings. Refresh and try again.";
       toolSettings.forEach(({ toggle, storageKey }) => {
         toggle.checked = result[storageKey] !== false;
+        toggle.disabled = false;
       });
     }
   );

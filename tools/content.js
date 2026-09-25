@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  const toolsApi = globalThis.GPTskinsTools;
+  const toolsApi = globalThis.GPTToolkitTools;
   if (!toolsApi) {
     return;
   }
@@ -64,7 +64,7 @@
   let scrollGuardListenersAttached = false;
   let latexCopyListenersAttached = false;
   let documentClickListenerAttached = false;
-  const routeChangeEventName = "gptskins:routechange";
+  const routeChangeEventName = "gpttoolkit:routechange";
 
   function readFormulaSource(element) {
     if (!element) {
@@ -122,7 +122,7 @@
   }
 
   function syncFormulaMenuOptions() {
-    const texButton = formulaMenu?.querySelector('button[data-gptskins-latex-format="tex"]');
+    const texButton = formulaMenu?.querySelector('button[data-gpttoolkit-latex-format="tex"]');
     if (texButton) {
       texButton.hidden = !latexTexEnabled;
     }
@@ -133,15 +133,15 @@
       return formulaMenu;
     }
     formulaMenu = document.createElement("div");
-    formulaMenu.id = "gptskins-latex-toolbar";
+    formulaMenu.id = "gpttoolkit-latex-toolbar";
     formulaMenu.hidden = true;
     formulaMenu.setAttribute("role", "toolbar");
     formulaMenu.setAttribute("aria-label", "Copy LaTeX formula");
     formulaMenu.innerHTML = `
-      <button type="button" data-gptskins-latex-format="tex">tex</button>
-      <button type="button" data-gptskins-latex-format="inline">$</button>
-      <button type="button" data-gptskins-latex-format="display">$$</button>
-      <button type="button" data-gptskins-latex-format="inline-unboxed" title="Copy inline LaTeX without the outer box">去框 $</button>
+      <button type="button" data-gpttoolkit-latex-format="tex">tex</button>
+      <button type="button" data-gpttoolkit-latex-format="inline">$</button>
+      <button type="button" data-gpttoolkit-latex-format="display">$$</button>
+      <button type="button" data-gpttoolkit-latex-format="inline-unboxed" title="Copy inline LaTeX without the outer box">去框 $</button>
     `;
     syncFormulaMenuOptions();
     formulaMenu.addEventListener("click", onFormulaMenuClick);
@@ -193,7 +193,7 @@
       return toast;
     }
     toast = document.createElement("div");
-    toast.id = "gptskins-tools-toast";
+    toast.id = "gpttoolkit-tools-toast";
     toast.hidden = true;
     toast.setAttribute("role", "status");
     toast.setAttribute("aria-live", "polite");
@@ -229,7 +229,7 @@
       const textarea = document.createElement("textarea");
       textarea.value = text;
       textarea.setAttribute("readonly", "");
-      textarea.setAttribute("data-gptskins-tools-transient", "true");
+      textarea.setAttribute("data-gpttoolkit-tools-transient", "true");
       textarea.style.position = "fixed";
       textarea.style.opacity = "0";
       document.body.appendChild(textarea);
@@ -245,14 +245,14 @@
   }
 
   async function onFormulaMenuClick(event) {
-    const button = event.target.closest("button[data-gptskins-latex-format]");
+    const button = event.target.closest("button[data-gpttoolkit-latex-format]");
     if (!button || !formulaContext?.element.isConnected) {
       closeFormulaMenu();
       return;
     }
     event.preventDefault();
     event.stopPropagation();
-    const format = button.dataset.gptskinsLatexFormat;
+    const format = button.dataset.gpttoolkitLatexFormat;
     const text = toolsApi.formatLatex(formulaContext.source, format);
     const copied = Boolean(text) && (await copyText(text));
     closeFormulaMenu();
@@ -614,7 +614,7 @@
     return Boolean(
       target instanceof Element &&
         target.closest(
-          "[data-gptskins-scroll-button], button[aria-label*='scroll' i], button[aria-label*='bottom' i], button[data-testid*='scroll' i], [role='button'][aria-label*='bottom' i]"
+          "[data-gpttoolkit-scroll-button], button[aria-label*='scroll' i], button[aria-label*='bottom' i], button[data-testid*='scroll' i], [role='button'][aria-label*='bottom' i]"
         )
     );
   }
@@ -735,12 +735,7 @@
     }
   });
 
-  chrome.storage.sync.get(
-    {
-      [toolsApi.scrollGuardEnabledStorageKey]: toolsApi.defaultScrollGuardEnabled,
-      [toolsApi.latexCopyEnabledStorageKey]: toolsApi.defaultLatexCopyEnabled,
-      [toolsApi.latexTexEnabledStorageKey]: toolsApi.defaultLatexTexEnabled
-    },
+  toolsApi.loadToolSettings(
     (result) => {
       scrollGuardEnabled = result[toolsApi.scrollGuardEnabledStorageKey] !== false;
       latexCopyEnabled = result[toolsApi.latexCopyEnabledStorageKey] !== false;

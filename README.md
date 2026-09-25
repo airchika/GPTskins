@@ -1,79 +1,16 @@
-# GPTskins
+# GPT Toolkit
 
-GPTskins is a completely free, open source, and dependency-free Manifest V3 browser extension that adds 35 custom themes, independent font controls, and lightweight local tools to ChatGPT.
+A dependency-free Manifest V3 extension with local font controls and two practical tools for ChatGPT. ChatGPT owns its appearance: this extension does not change page colors, themes, borders, or layout.
 
-Switch ChatGPT into popular editor-inspired themes like Catppuccin Latte, GitHub Dark, Tokyo Day, and Xcode Dark, or choose a different local font style.
+## Fonts
 
-## Preview
-
-<table>
-  <tr>
-    <td><strong>OG</strong><br><img src="docs/screenshots/og-theme.png" width="1000" alt="GPTskins OG ChatGPT theme preview"></td>
-    <td><strong>Midnight</strong><br><img src="docs/screenshots/midnight-theme.png" width="1000" alt="GPTskins Midnight theme preview"></td>
-  </tr>
-  <tr>
-    <td><strong>One Dark</strong><br><img src="docs/screenshots/one-dark-theme.png" width="1000" alt="GPTskins One Dark theme preview"></td>
-    <td><strong>Dracula</strong><br><img src="docs/screenshots/dracula-theme.png" width="1000" alt="GPTskins Dracula theme preview"></td>
-  </tr>
-</table>
-
-## Features
-
-- Popup settings for themes, fonts, and two independent tools.
-- Adds 35 custom themes while preserving ChatGPT's Default look.
-- Built-in themes: Default, Xcode Dark, Codex Absolutely, OG, Absolutely, Ayu, Ayu Light, Catppuccin, Catppuccin Latte, Codex, Dracula, Everforest, Forest, Everforest Light, Gruvbox, Gruvbox Light, GitHub Dark, Linear, Lobster, Material, Matrix, Monokai, Night Owl, Nord, One, Oscurange, Raycast, Rose Pine, Rose, Rose Pine Dawn, Sentry, Solarized, Solar, Temple, Tokyo Night, and Tokyo Day.
-- Four independent font controls for the interface, body text, and two ordered code-font slots. Every control can preserve ChatGPT's Default font.
-- Separate dark and light theme selections saved with `chrome.storage.sync`.
-- Automatic system color-scheme switching plus theme and font loading on `chatgpt.com` and `chat.openai.com`.
-- Reading-position protection that preserves an older visible turn only when a submission would otherwise jump more than 150px to the bottom.
-- LaTeX quick copy with TeX, `$…$`, and `$$…$$` choices plus formula-aware mixed-selection copying.
-- No backend, login, external API, or build step.
-
-## Available Themes
-
-- Xcode Dark
-- Codex Absolutely
-- OG
-- Absolutely
-- Ayu
-- Ayu Light
-- Catppuccin
-- Catppuccin Latte
-- Codex
-- Dracula
-- Everforest
-- Forest
-- Everforest Light
-- Gruvbox
-- Gruvbox Light
-- GitHub Dark
-- Linear
-- Lobster
-- Material
-- Matrix
-- Monokai
-- Night Owl
-- Nord
-- One
-- Oscurange
-- Raycast
-- Rose Pine
-- Rose
-- Rose Pine Dawn
-- Sentry
-- Solarized
-- Solar
-- Temple
-- Tokyo Night
-- Tokyo Day
-
-## Available Fonts
+The **Font** tab opens by default. Four independent controls use fonts installed on your computer:
 
 - **Interface:** GPT Default or Sarasa UI SC.
 - **Body:** GPT Default, Noto Sans SC, Noto Serif SC, or Sarasa Gothic SC.
 - **Code font 1 and 2:** GPT Default, JetBrains Mono, Sarasa Mono SC, Fira Code, or Google Sans Code.
 
-GPTskins uses installed local fonts and does not download or bundle font files. The two code choices form one ordered font stack, followed by the native system monospace fallbacks.
+The two code slots form an ordered, deduplicated font stack followed by system monospace fallbacks. Missing local fonts fall back; fonts are never downloaded or bundled. Select **GPT Default** to remove a role's override. Both code slots must be Default to restore the native code stack. Mathematical typesetting keeps its own fonts.
 
 ## Reading Position and LaTeX Copy
 
@@ -83,30 +20,50 @@ Both tools are enabled by default and can be switched independently from the **T
 - **LaTeX quick copy** shows one small reusable toolbar that follows the active light or dark theme when you click a formula in an assistant response without an active text selection. Choose raw `tex`, inline `$…$`, or display `$$…$$` without changing ChatGPT's formula DOM. Inline copies collapse source line breaks and adjacent whitespace to one space so the result stays on one Markdown line. The raw `tex` choice can be hidden independently; `$…$` and `$$…$$` always remain available.
 - The **去框 $** option copies an inline formula after removing complete outer `\boxed{…}` wrappers, including nested wrappers. It trims whitespace inside the dollar delimiters, flattens line breaks, and removes trailing commas and periods. The original copy options retain boxes; incomplete or partial-formula boxes are preserved.
 - Copying a mixed selection containing assistant formulas writes both plain text and HTML, replacing inline and display formulas with the corresponding delimiters while preserving the rest of the selection. Ordinary text selections and ChatGPT's own whole-response copy button remain native.
-- Formula source metadata is read locally from `data-math-source`, legacy `data-math`, or the KaTeX `application/x-tex` annotation. GPTskins does not read the clipboard, call a network service, import fonts, or patch global scrolling methods.
+- Formula source metadata is read locally from `data-math-source`, legacy `data-math`, or the KaTeX `application/x-tex` annotation. GPT Toolkit does not read the clipboard, call a network service, import fonts, or patch global scrolling methods.
 
 If GPT Voyager is installed, disable its **Formula Copy** and **Prevent Auto Scroll** features to avoid duplicate event handling.
 
-## Load in Chrome or Edge
+## Install or update
 
-1. Clone or download the extension to a folder on your computer.
+1. Clone or download [this repository](https://github.com/airchika/GPTskins).
+2. Open `chrome://extensions` or `edge://extensions` and enable **Developer mode**.
+3. Choose **Load unpacked** and select this folder.
+4. Open ChatGPT, click **GPT Toolkit**, and choose Font or Tools.
 
-   ```
-   git clone https://github.com/dboyza/GPTskins.git
-   ```
+For an existing unpacked installation, keep the same folder, click **Reload** on the extension card, then refresh every open ChatGPT tab. Existing tabs can retain the previous content scripts and theme stylesheet until refreshed.
 
-   You can also use GitHub's **Code** > **Download ZIP** option and unzip it anywhere you like.
-2. Open `chrome://extensions` or `edge://extensions`.
-3. Enable **Developer mode**.
-4. Choose **Load unpacked**.
-5. Select the folder you cloned or unzipped.
-6. Open ChatGPT, click the GPTskins toolbar icon, and choose a theme, font, or tool setting.
+On the same extension installation, GPTskins font and tool settings migrate automatically. Existing GPT Toolkit values take precedence, including disabled switches and Default fonts. Old theme settings are ignored; old storage values are retained. A different extension ID has separate storage and does not automatically inherit settings.
 
-## Project Layout
+## Development
 
-- `manifest.json` defines the Manifest V3 extension.
-- `shared/themes.js` contains the built-in theme and font definitions.
-- `content/content.css` contains the static theme and font rules, while `content/content.js` applies variables and incremental surface tags.
-- `tools/` contains reading-position protection, LaTeX copy, and the shared Tools popup controls.
-- `popup/` contains the extension popup UI.
-- `icons/` contains generated extension icons.
+No build step or runtime packages are required. Permissions remain `activeTab` and `storage`, with content scripts limited to `chatgpt.com` and `chat.openai.com`.
+
+- `shared/fonts.js`: local font options and settings migration.
+- `content/`: font-only CSS/runtime and the shared route notification.
+- `tools/`: reading-position protection, LaTeX copying, and tool settings migration.
+- `popup/`: Font and Tools settings.
+- `icons/toolkit.svg`: editable source for the toolbar PNG icons.
+- `tests/`: Node contracts/runtime tests and synthetic browser fixtures.
+
+Run the automated checks:
+
+```sh
+node --check content/content.js
+node --test tests/*.test.js
+git diff --check
+```
+
+Optional browser regression tests use an externally installed Playwright and Chromium (no production dependency):
+
+```sh
+node tests/browser-regression.cjs
+```
+
+Set `BROWSER_CHANNEL=chrome` (PowerShell: `$env:BROWSER_CHANNEL="chrome"`) to use installed Chrome in an isolated headless test profile instead of Playwright's bundled Chromium.
+
+These fixtures test computed styles and tool behavior against synthetic markup; they do not prove compatibility with the current ChatGPT DOM. For live acceptance, reload the extension and ChatGPT, then inspect computed fonts on interface text, responses, code, CodeMirror and formulas. Also check native light/dark appearance, navigation, new messages, reading-position protection, and each LaTeX copy format.
+
+## Origin
+
+GPT Toolkit evolved from [dboyza/GPTskins](https://github.com/dboyza/GPTskins), with subsequent font and tool work in this repository. Version 2 removes the theme engine and adopts its own product name. Git history and the existing GitHub fork relationship are preserved.

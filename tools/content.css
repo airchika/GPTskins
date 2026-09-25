@@ -1,40 +1,40 @@
-#gptskins-latex-toolbar,
-#gptskins-tools-toast {
-  --gptskins-tools-text: var(--gptskins-text, #0d0d0d);
-  --gptskins-tools-surface: var(--gptskins-surface-strong, #fff);
-  --gptskins-tools-border: var(--gptskins-border, rgba(0, 0, 0, 0.14));
-  --gptskins-tools-hover: var(--gptskins-hover, rgba(0, 0, 0, 0.08));
+#gpttoolkit-latex-toolbar,
+#gpttoolkit-tools-toast {
+  --gpttoolkit-tools-text: #0d0d0d;
+  --gpttoolkit-tools-surface: #fff;
+  --gpttoolkit-tools-border: rgba(0, 0, 0, 0.14);
+  --gpttoolkit-tools-hover: rgba(0, 0, 0, 0.08);
   position: fixed;
   z-index: 2147483000;
   box-sizing: border-box;
-  color: var(--gptskins-tools-text);
-  background: var(--gptskins-tools-surface);
-  border: 1px solid var(--gptskins-tools-border);
+  color: var(--gpttoolkit-tools-text);
+  background: var(--gpttoolkit-tools-surface);
+  border: 1px solid var(--gpttoolkit-tools-border);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.16);
   font: 12px/1.2 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
-html:is(.dark, [data-theme="dark"]) :is(#gptskins-latex-toolbar, #gptskins-tools-toast) {
-  --gptskins-tools-text: var(--gptskins-text, #f7f7f8);
-  --gptskins-tools-surface: var(--gptskins-surface-strong, #2f2f2f);
-  --gptskins-tools-border: var(--gptskins-border, rgba(255, 255, 255, 0.16));
-  --gptskins-tools-hover: var(--gptskins-hover, rgba(255, 255, 255, 0.12));
+html:is(.dark, [data-theme="dark"]) :is(#gpttoolkit-latex-toolbar, #gpttoolkit-tools-toast) {
+  --gpttoolkit-tools-text: #f7f7f8;
+  --gpttoolkit-tools-surface: #2f2f2f;
+  --gpttoolkit-tools-border: rgba(255, 255, 255, 0.16);
+  --gpttoolkit-tools-hover: rgba(255, 255, 255, 0.12);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
 }
 
-#gptskins-latex-toolbar[hidden],
-#gptskins-tools-toast[hidden] {
+#gpttoolkit-latex-toolbar[hidden],
+#gpttoolkit-tools-toast[hidden] {
   display: none !important;
 }
 
-#gptskins-latex-toolbar {
+#gpttoolkit-latex-toolbar {
   display: flex;
   gap: 3px;
   padding: 4px;
   border-radius: 9px;
 }
 
-#gptskins-latex-toolbar button {
+#gpttoolkit-latex-toolbar button {
   min-width: 34px;
   height: 28px;
   padding: 0 8px;
@@ -46,18 +46,18 @@ html:is(.dark, [data-theme="dark"]) :is(#gptskins-latex-toolbar, #gptskins-tools
   font: inherit !important;
 }
 
-#gptskins-latex-toolbar button[hidden] {
+#gpttoolkit-latex-toolbar button[hidden] {
   display: none !important;
 }
 
-#gptskins-latex-toolbar button:hover,
-#gptskins-latex-toolbar button:focus-visible {
-  color: var(--gptskins-tools-text) !important;
-  background: var(--gptskins-tools-hover) !important;
+#gpttoolkit-latex-toolbar button:hover,
+#gpttoolkit-latex-toolbar button:focus-visible {
+  color: var(--gpttoolkit-tools-text) !important;
+  background: var(--gpttoolkit-tools-hover) !important;
   outline: none;
 }
 
-#gptskins-tools-toast {
+#gpttoolkit-tools-toast {
   left: 50%;
   bottom: 28px;
   max-width: min(360px, calc(100vw - 32px));
@@ -66,6 +66,6 @@ html:is(.dark, [data-theme="dark"]) :is(#gptskins-latex-toolbar, #gptskins-tools
   transform: translateX(-50%);
 }
 
-#gptskins-tools-toast[data-tone="error"] {
+#gpttoolkit-tools-toast[data-tone="error"] {
   border-color: #ef6262;
 }
