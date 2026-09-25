@@ -6,7 +6,8 @@
     return;
   }
 
-  const assistantSelector = '[data-message-author-role="assistant"]';
+  // Support both legacy turns and the current transcript/search-unit markup.
+  const assistantSelector = '[data-message-author-role="assistant"], [data-chatgpt-search-unit-key$=":assistant"], [data-markdown-text-style="assistant-message"]';
   const composerSelector = '#prompt-textarea, [data-testid="composer"] [contenteditable="true"], form[data-type="unified-composer"] [contenteditable="true"]';
   const formulaSelector = [
     "[data-math-source]",
@@ -624,7 +625,7 @@
       return false;
     }
     const control = target.closest("button, [role='button']");
-    const turn = control?.closest("section[data-testid^='conversation-turn-']");
+    const turn = control?.closest("section[data-testid^='conversation-turn-'], [data-content-search-turn-key]");
     if (!control || (!control.closest(assistantSelector) && !turn?.querySelector(assistantSelector))) {
       return false;
     }

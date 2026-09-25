@@ -138,6 +138,43 @@ const server = http.createServer((req, res) => {
       scroller.dispatchEvent(new Event("scroll"));
       return scroller.scrollTop;
     }),300);
+
+    // Replay the semantic structure supplied by the user, without private IDs.
+    await page.goto(base + "/tests/fixtures/tools-browser.html");
+    await page.locator("#thread-scroll").evaluate((el, html) => { el.innerHTML = html; },
+      fs.readFileSync(path.join(__dirname, "fixtures/current-message-dom.html"), "utf8"));
+    await page.addStyleTag({content: '.Paragraph-kKnbIo {font-family: Arial;} .katex-html {font-family: "Times New Roman";} pre, code {font-family: Consolas;}'});
+    await page.addStyleTag({url:base + "/content/content.css"});
+    const bodyFont = () => page.locator("#ordinary-text").evaluate(el=>getComputedStyle(el).fontFamily);
+    const nativeBodyFont = await bodyFont();
+    const nativeMathFont = await page.locator("#current-math-glyph").evaluate(el=>getComputedStyle(el).fontFamily);
+    await page.evaluate(()=>{
+      document.documentElement.setAttribute("data-gpttoolkit-font-text", "");
+      document.documentElement.style.setProperty("--gpttoolkit-text-font-family", '"Noto Serif SC", serif');
+    });
+    assert.match(await bodyFont(), /Noto Serif SC/);
+    assert.match(await page.locator("#current-user").evaluate(el=>getComputedStyle(el).fontFamily), /Noto Serif SC/);
+    assert.equal(await page.locator("#current-math-glyph").evaluate(el=>getComputedStyle(el).fontFamily), nativeMathFont);
+    assert.equal(await page.locator("#current-code").evaluate(el=>getComputedStyle(el).fontFamily), "Consolas");
+    await page.evaluate(()=>document.documentElement.removeAttribute("data-gpttoolkit-font-text"));
+    assert.equal(await bodyFont(),nativeBodyFont);
+    for (const [formula, format, expected] of [
+      ["#inline-formula", "inline", "$\\theta$"],
+      ["#display-formula", "display", "$$\\boxed{x^2}$$"],
+      ["#display-formula", "inline-unboxed", "$x^2$"]
+    ]) {
+      await page.click(formula);
+      await page.click(`[data-gpttoolkit-latex-format="${format}"]`);
+      assert.equal(await page.evaluate(()=>__gpttoolkitFixtureClipboard), expected);
+    }
+    await page.click("#run-mixed-copy");
+    assert.match(await page.evaluate(()=>JSON.parse(document.documentElement.dataset.mixedCopy).data["text/plain"]), /Before[\s\S]*\$\\theta\$[\s\S]*after/);
+    // Check unrelated math before the native-copy suppression window starts.
+    await page.click("#outside-formula");
+    assert.equal(await page.locator("#gpttoolkit-latex-toolbar").isVisible(),false);
+    await page.click("#run-native-copy");
+    assert.equal(await page.evaluate(()=>JSON.parse(document.documentElement.dataset.nativeCopy).defaultPrevented),false);
+    console.log("PASS supplied current DOM: body/default/math/code, inline/display/unboxed copy, mixed selection and native Copy");
     assert.deepEqual(errors,[]);
     console.log("PASS synthetic mixed/native copy, all formula formats, disable/route cleanup, reading protection and wheel cancellation");
   } finally {

@@ -7,8 +7,8 @@ html[data-gpttoolkit-font-interface] body .ProseMirror:not(:where(.katex, .katex
   font-family: var(--gpttoolkit-interface-font-family) !important;
 }
 
-html[data-gpttoolkit-font-text] body [data-message-author-role]:not(:where(.katex, .katex *, math, math *, [role="math"], [role="math"] *)):not(:where(pre, pre *, code, code *, kbd, kbd *, samp, samp *, .cm-editor, .cm-editor *)),
-html[data-gpttoolkit-font-text] body [data-message-author-role] :is(.markdown, p, li, blockquote, h1, h2, h3, h4, h5, h6, table, th, td, a, strong, em, span):not(:where(.katex, .katex *, math, math *, [role="math"], [role="math"] *)):not(:where(pre, pre *, code, code *, kbd, kbd *, samp, samp *, .cm-editor, .cm-editor *)) {
+html[data-gpttoolkit-font-text] body :is([data-message-author-role], [data-markdown-text-style="assistant-message"], [data-user-message-bubble]):not(:where(.katex, .katex *, math, math *, [role="math"], [role="math"] *)):not(:where(pre, pre *, code, code *, kbd, kbd *, samp, samp *, .cm-editor, .cm-editor *)),
+html[data-gpttoolkit-font-text] body :is([data-message-author-role], [data-markdown-text-style="assistant-message"], [data-user-message-bubble]) :is(.markdown, p, li, blockquote, h1, h2, h3, h4, h5, h6, table, th, td, a, strong, em, span):not(:where(.katex, .katex *, math, math *, [role="math"], [role="math"] *)):not(:where(pre, pre *, code, code *, kbd, kbd *, samp, samp *, .cm-editor, .cm-editor *)) {
   font-family: var(--gpttoolkit-text-font-family) !important;
 }
 
