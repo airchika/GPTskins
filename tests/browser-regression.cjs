@@ -104,7 +104,7 @@ const server = http.createServer((req, res) => {
       assert.equal(await page.evaluate(key=>JSON.parse(document.documentElement.dataset[key]).defaultPrevented,key), false);
     }
     await page.click("#inline-formula");
-    for (const [format, expected] of [["tex","x^2 + y^2"],["inline","$x^2 + y^2$"],["display","$$x^2 + y^2$$"],["inline-unboxed","$x^2 + y^2$"]]) {
+    for (const [format, expected] of [["tex","x^2 + y^2"],["inline","$x^2 + y^2$"],["display","$$x^2 + y^2$$"],["inline-unboxed","$x^2 + y^2$"],["display-unboxed","$$x^2 + y^2$$"]]) {
       await page.click("#inline-formula");
       await page.click(`[data-gpttoolkit-latex-format="${format}"]`);
       assert.equal(await page.evaluate(()=>__gpttoolkitFixtureClipboard),expected);
@@ -161,7 +161,8 @@ const server = http.createServer((req, res) => {
     for (const [formula, format, expected] of [
       ["#inline-formula", "inline", "$\\theta$"],
       ["#display-formula", "display", "$$\\boxed{x^2}$$"],
-      ["#display-formula", "inline-unboxed", "$x^2$"]
+      ["#display-formula", "inline-unboxed", "$x^2$"],
+      ["#display-formula", "display-unboxed", "$$x^2$$"]
     ]) {
       await page.click(formula);
       await page.click(`[data-gpttoolkit-latex-format="${format}"]`);

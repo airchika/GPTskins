@@ -30,6 +30,7 @@ for (const [source, expected] of [
   ["\\boxedextra{x}", "$\\boxedextra{x}$"]
 ]) {
   assert.equal(toolsApi.formatLatex(source, toolsApi.latexFormats.inlineUnboxed), expected);
+  assert.equal(toolsApi.formatLatex(source, toolsApi.latexFormats.displayUnboxed), expected ? `$${expected}$` : "");
 }
 assert.equal(toolsApi.formatLatex(boxedSource, toolsApi.latexFormats.inline), `$${boxedSource}$`);
 assert.equal(toolsApi.formatLatex(boxedSource, toolsApi.latexFormats.display), `$$${boxedSource}$$`);
@@ -39,7 +40,7 @@ assert.equal(toolsApi.formatLatex("  x^2 + y^2  ", toolsApi.latexFormats.tex), "
 assert.equal(toolsApi.formatLatex("$x$", toolsApi.latexFormats.inline), "$x$");
 assert.equal(toolsApi.formatLatex("\\[x + y\\]", toolsApi.latexFormats.display), "$$x + y$$");
 for (const format of Object.values(toolsApi.latexFormats)) {
-  const wrap = (source) => format === "inline" || format === "inline-unboxed" ? `$${source}$` : format === "display" ? `$$${source}$$` : source;
+  const wrap = (source) => format === "inline" || format === "inline-unboxed" ? `$${source}$` : format === "display" || format === "display-unboxed" ? `$$${source}$$` : source;
   for (const punctuation of [",", ".", "，", "。", "， 。"]) {
     assert.equal(toolsApi.formatLatex(` x + y${punctuation} \n`, format), wrap("x + y"));
     assert.equal(toolsApi.formatLatex(`$$x + y${punctuation}$$`, format), wrap("x + y"));
@@ -65,6 +66,11 @@ assert.equal(
   toolsApi.formatLatex(multilineLatex, toolsApi.latexFormats.display),
   `$$${multilineLatex}$$`,
   "display copies must preserve source line breaks"
+);
+assert.equal(
+  toolsApi.formatLatex(`$$\\boxed{ \n${multilineLatex}\n }。$$`, toolsApi.latexFormats.displayUnboxed),
+  `$$${multilineLatex}$$`,
+  "unboxed display copies must trim the edges and punctuation while preserving internal line breaks"
 );
 assert.equal(
   toolsApi.resolveLatexSource("x_current", "x_legacy", "x_annotation"),
@@ -107,6 +113,7 @@ assert.equal(toolsContentScript.world, undefined, "tools must stay in the normal
 
 const contentSource = fs.readFileSync(path.join(__dirname, "..", "tools", "content.js"), "utf8");
 assert.ok(contentSource.includes(`data-gpttoolkit-latex-format="${toolsApi.latexFormats.inlineUnboxed}"`), "the unboxed inline format must be available in the formula toolbar");
+assert.ok(contentSource.includes(`data-gpttoolkit-latex-format="${toolsApi.latexFormats.displayUnboxed}"`), "the unboxed display format must be available in the formula toolbar");
 assert.match(contentSource, /function syncFeatureEventListeners\(\)/, "tool listeners must follow their feature switches");
 assert.match(contentSource, /document\[method\]\("submit", onComposerSubmit, true\)/);
 assert.match(contentSource, /document\[method\]\("copy", onSelectionCopy, true\)/);
